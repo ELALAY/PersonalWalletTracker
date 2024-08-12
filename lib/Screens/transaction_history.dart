@@ -23,6 +23,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   final TextEditingController endtDateController = TextEditingController();
   //card choice
   String selectedCard = 'All';
+  //fetched cards
   List<CardModel> myCards = [];
   // Sample summary data
   double totalIncome = 0.0;
@@ -30,10 +31,25 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   //Dates for the filters
   DateTime? _startDate;
   DateTime? _endDate;
+  //loading indicator
   bool isLoading = true;
+  //sorting choice: true => date, false => category
+  bool _isSortedByDate = true; // Default sorting by date
 
   String formatDate(DateTime date) {
     return DateFormat('dd/MM/yy').format(date);
+  }
+
+  List<TransactionModel> _sortTransactions(
+      List<TransactionModel> transactions) {
+    if (_isSortedByDate) {
+      // Sort by date
+      transactions.sort((a, b) => b.date.compareTo(a.date)); // Newest first
+    } else {
+      // Sort by category name
+      transactions.sort((a, b) => a.category.compareTo(b.category));
+    }
+    return transactions;
   }
 
   void fetchCards() async {
@@ -70,8 +86,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       }
     }
     // Sort transactions from newest to oldest
-    transactionstemp.sort((a, b) => b.date.compareTo(a.date));
-
+    transactionstemp = _sortTransactions(transactionstemp);
     setState(() {
       transactions = transactionstemp;
       totalIncome = totalIncometemp;
@@ -81,9 +96,9 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
 
   @override
   void initState() {
-    fetchAllTransactions();
-    fetchCards();
     selectedCard = widget.card.id;
+    fetchCards();
+    fetchAllTransactions();
     isLoading = false;
     super.initState();
   }
@@ -97,16 +112,25 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         elevation: 0.0,
         title: const Text('Transaction History'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Implement search functionality
+          PopupMenuButton<String>(
+            onSelected: (String value) {
+              setState(() {
+                _isSortedByDate = value == 'Date';
+              });
+              _sortTransactions(transactions);
             },
-          ),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              // Implement filter functionality
+            icon: const Icon(Icons.sort),
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'Date',
+                  child: Text('Sort by Date'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Category',
+                  child: Text('Sort by Category'),
+                ),
+              ];
             },
           ),
         ],
@@ -117,12 +141,13 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             )
           : Column(
               children: [
+                // Card Selector
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: DropdownButtonFormField<String>(
                     value: myCards.any((card) => card.id == selectedCard)
                         ? selectedCard
-                        : null,
+                        : 'All',
                     icon: const Icon(
                       Icons.arrow_downward,
                       color: Colors.deepPurple,
@@ -145,7 +170,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Colors.deepPurple, // Deep Purple focused border
+                          color:
+                              Colors.deepPurple, // Deep Purple focused border
                         ),
                       ),
                     ),
@@ -161,7 +187,6 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     ],
                   ),
                 ),
-
                 // Date Range Selector (Placeholder)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -229,7 +254,6 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     ],
                   ),
                 ),
-
                 // Transaction List
                 Expanded(
                   child: ListView.builder(

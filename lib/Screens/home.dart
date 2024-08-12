@@ -148,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         //send
                         GestureDetector(
-                          onTap: (){},
+                          onTap: () {},
                           child: const MyButton(
                             icon: Icon(
                               Icons.monetization_on,
@@ -184,11 +184,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     //tiles of stats & transactions
                     Column(
                       children: [
+                        // stats tile
                         ListTile(
                           tileColor: Colors.deepOrange,
-                          leading: const Icon(
-                            Icons.graphic_eq_outlined,
-                            color: Colors.white,
+                          leading: SizedBox(
+                            height: 35.0,
+                            child: Image.asset(
+                              'lib/Images/stats.png',
+                              color: Colors.white,
+                            ),
                           ),
                           trailing: const Icon(
                             Icons.arrow_forward_ios,
@@ -214,11 +218,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(
                           height: 15.0,
                         ),
+                        //history tile
                         ListTile(
                           tileColor: Colors.deepOrange,
-                          leading: const Icon(
-                            Icons.graphic_eq_outlined,
-                            color: Colors.white,
+                          leading: SizedBox(
+                            height: 35.0,
+                            child: Image.asset(
+                              'lib/Images/history.png',
+                              color: Colors.white,
+                            ),
                           ),
                           trailing: const Icon(
                             Icons.arrow_forward_ios,
@@ -303,7 +311,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void transactionSreenScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return TransactionHistoryScreen(card: myCards[pageIndex]); // replace with your settings screen
+      return TransactionHistoryScreen(
+          card: myCards[pageIndex]); // replace with your settings screen
     })).then((value) => reload());
   }
 
