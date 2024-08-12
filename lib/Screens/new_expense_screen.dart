@@ -159,7 +159,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                         const SizedBox(
                           height: 10.0,
                         ),
-                        widget.card != null
+                        widget.card.cardName.isNotEmpty
                             ? Text(widget.card.cardName)
                             : const Text('Loading card information...'),
                       ],
@@ -270,7 +270,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                                       )),
                               const DropdownMenuItem<String>(
                                 value: 'Create New...',
-                                child: Text('Create New...'),
+                                child: Text('Create New... +'),
                               ),
                             ],
                           ),
@@ -279,7 +279,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                           TextFormField(
                             controller: _dateController,
                             decoration: InputDecoration(
-                              labelText: 'Date',
+                              labelText: selectedDate.toString(),
                               labelStyle:
                                   const TextStyle(color: Colors.deepPurple),
                               border: const OutlineInputBorder(
@@ -326,10 +326,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                           const SizedBox(height: 16.0),
                           Center(
                             child: ElevatedButton(
-                              onPressed: widget.card != null &&
-                                      _selectedCategory != 'Create New...'
-                                  ? _addTransaction
-                                  : null, // Disable button if card or category is not selected
+                              onPressed: _addTransaction, // Disable button if card or category is not selected
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.deepPurple,
                                 padding: const EdgeInsets.symmetric(
