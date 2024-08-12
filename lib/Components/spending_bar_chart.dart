@@ -15,7 +15,7 @@ class SpendingBarChart extends StatelessWidget {
         data: data,
         domainFn: (CategorySpending spending, _) => spending.category,
         measureFn: (CategorySpending spending, _) => spending.amount,
-        // colorFn: (_, __) => charts.MaterialPalette.deepPurple.shadeDefault,
+        colorFn: (_, __) => charts.ColorUtil.fromDartColor(const Color(0xFF673AB7)), // Deep Purple color
       ),
     ];
 
