@@ -6,7 +6,7 @@ import 'package:personalwallettracker/Utils/firebase_db.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final CardModel card;
-  const AddTransactionScreen({Key? key, required this.card}) : super(key: key);
+  const AddTransactionScreen({super.key, required this.card});
 
   @override
   AddTransactionScreenState createState() => AddTransactionScreenState();

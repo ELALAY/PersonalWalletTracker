@@ -303,7 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void transactionSreenScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const TransactionHistoryScreen(); // replace with your settings screen
+      return TransactionHistoryScreen(card: myCards[pageIndex]); // replace with your settings screen
     })).then((value) => reload());
   }
 

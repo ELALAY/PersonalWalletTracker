@@ -4,8 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Utils/firebase_db.dart';
 
+import '../Models/card_model.dart';
+
 class TransactionHistoryScreen extends StatefulWidget {
-  const TransactionHistoryScreen({super.key});
+  final CardModel card;
+  const TransactionHistoryScreen({super.key, required this.card});
 
   @override
   TransactionHistoryScreenState createState() =>
@@ -18,21 +21,36 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   List<TransactionModel> transactions = [];
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endtDateController = TextEditingController();
-
+  //card choice
+  String selectedCard = 'All';
+  List<CardModel> myCards = [];
   // Sample summary data
   double totalIncome = 0.0;
   double totalExpenses = 0.0;
   //Dates for the filters
   DateTime? _startDate;
   DateTime? _endDate;
+  bool isLoading = true;
 
   String formatDate(DateTime date) {
     return DateFormat('dd/MM/yy').format(date);
   }
 
-  void fetchTransactions() async {
-    List<TransactionModel> transactionstemp =
-        await firebaseDB.fetchTransactions();
+  void fetchCards() async {
+    List<CardModel> cards = await firebaseDB.getCards();
+    setState(() {
+      myCards = cards;
+    });
+  }
+
+  void fetchAllTransactions() async {
+    List<TransactionModel> transactionstemp = [];
+    if (selectedCard == 'All') {
+      transactionstemp = await firebaseDB.fetchTransactions();
+    } else {
+      transactionstemp =
+          await firebaseDB.fetchTransactionsByCardId(selectedCard);
+    }
     double totalIncometemp = 0.0;
     double totalExpensestemp = 0.0;
 
@@ -63,7 +81,10 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
 
   @override
   void initState() {
-    fetchTransactions();
+    fetchAllTransactions();
+    fetchCards();
+    selectedCard = widget.card.id;
+    isLoading = false;
     super.initState();
   }
 
@@ -90,133 +111,187 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Date Range Selector (Placeholder)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Date Range',
-                      style: TextStyle(
-                          fontSize: 16.0, fontWeight: FontWeight.bold),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: DropdownButtonFormField<String>(
+                    value: myCards.any((card) => card.id == selectedCard)
+                        ? selectedCard
+                        : null,
+                    icon: const Icon(
+                      Icons.arrow_downward,
+                      color: Colors.deepPurple,
                     ),
-                    Row(
-                      children: [
-                        // TextField(
-                        //   controller: startDateController,
-                        //   ),
-                        Text(
-                            _startDate != null ? formatDate(_startDate!) : ''),
-                        const SizedBox(
-                          width: 8.0,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedCard = value;
+                          fetchAllTransactions();
+                        });
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Card',
+                      labelStyle: TextStyle(color: Colors.deepPurple),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.deepPurple, // Deep Purple border
                         ),
-                        Text(_endDate != null ? formatDate(_endDate!) : '')
-                      ],
-                    )
-                  ],
-                ),
-                IconButton(
-                  onPressed: () {
-                    _selectDateRange(context);
-                  },
-                  icon: const Icon(
-                    Icons.calendar_month,
-                    color: Colors.deepPurple,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.deepPurple, // Deep Purple focused border
+                        ),
+                      ),
+                    ),
+                    items: [
+                      ...myCards.map((card) => DropdownMenuItem<String>(
+                            value: card.id,
+                            child: Text(card.cardName),
+                          )),
+                      const DropdownMenuItem<String>(
+                        value: 'All',
+                        child: Text('All'),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          // Summary Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Total Income: \$${totalIncome.toStringAsFixed(2)}',
-                        style: const TextStyle(color: Colors.green)),
-                    const SizedBox(height: 4.0),
-                    Text(
-                        'Total Expenses: \$${totalExpenses.toStringAsFixed(2)}',
-                        style: const TextStyle(color: Colors.red)),
-                  ],
-                ),
-                Text(
-                    'Net Balance: \$${(totalIncome - totalExpenses).toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
 
-          // Transaction List
-          Expanded(
-            child: ListView.builder(
-              itemCount: transactions.length,
-              itemBuilder: (context, index) {
-                final transaction = transactions[index];
-                return Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-                  child: Slidable(
-                    key: const ValueKey(0),
-                
-                    // The start action pane is the one at the left or the top side.
-                    endActionPane: ActionPane(
-                      // A motion is a widget used to control how the pane animates.
-                      motion: const StretchMotion(),
-                
-                      // All actions are defined in the children parameter.
-                      children: [
-                        // A SlidableAction can have an icon and/or a label.
-                        SlidableAction(
-                          onPressed: (context) {
-                            // toggleGroupStatus(group);
-                          },
-                          backgroundColor:
-                              const Color.fromARGB(255, 192, 174, 174),
-                          foregroundColor: Colors.white,
-                          icon: Icons.edit,
-                          label: 'Edit',
+                // Date Range Selector (Placeholder)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Date Range',
+                            style: TextStyle(
+                                fontSize: 16.0, fontWeight: FontWeight.bold),
+                          ),
+                          Row(
+                            children: [
+                              // TextField(
+                              //   controller: startDateController,
+                              //   ),
+                              Text(_startDate != null
+                                  ? formatDate(_startDate!)
+                                  : ''),
+                              const SizedBox(
+                                width: 8.0,
+                              ),
+                              Text(
+                                  _endDate != null ? formatDate(_endDate!) : '')
+                            ],
+                          )
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _selectDateRange(context);
+                        },
+                        icon: const Icon(
+                          Icons.calendar_month,
+                          color: Colors.deepPurple,
                         ),
-                      ],
-                    ),
-                    child: ListTile(
-                      tileColor: Colors.blueGrey.shade100,
-                      title: Text(
-                        transaction.description,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text(formatDate(transaction.date)),
-                      trailing: Text(
-                        '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
-                        style: TextStyle(
-                            color:
-                                transaction.isExpense ? Colors.red : Colors.green,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15),
-                      ),
-                      onTap: () {
-                        // Show transaction details
-                        _showTransactionDetails(transaction);
-                      },
-                    ),
+                    ],
                   ),
-                );
-              },
+                ),
+                // Summary Section
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              'Total Income: \$${totalIncome.toStringAsFixed(2)}',
+                              style: const TextStyle(color: Colors.green)),
+                          const SizedBox(height: 4.0),
+                          Text(
+                              'Total Expenses: \$${totalExpenses.toStringAsFixed(2)}',
+                              style: const TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                      Text(
+                          'Net Balance: \$${(totalIncome - totalExpenses).toStringAsFixed(2)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+
+                // Transaction List
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: transactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = transactions[index];
+                      return Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Slidable(
+                          key: const ValueKey(0),
+
+                          // The start action pane is the one at the left or the top side.
+                          endActionPane: ActionPane(
+                            // A motion is a widget used to control how the pane animates.
+                            motion: const StretchMotion(),
+
+                            // All actions are defined in the children parameter.
+                            children: [
+                              // A SlidableAction can have an icon and/or a label.
+                              SlidableAction(
+                                onPressed: (context) {
+                                  editTransaction(transaction);
+                                },
+                                backgroundColor:
+                                    const Color.fromARGB(255, 192, 174, 174),
+                                foregroundColor: Colors.white,
+                                icon: Icons.edit,
+                                label: 'Edit',
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            tileColor: Colors.blueGrey.shade100,
+                            title: Text(
+                              transaction.description,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(formatDate(transaction.date)),
+                            trailing: Text(
+                              '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
+                              style: TextStyle(
+                                  color: transaction.isExpense
+                                      ? Colors.red
+                                      : Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15),
+                            ),
+                            onTap: () {
+                              // Show transaction details
+                              _showTransactionDetails(transaction);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -250,9 +325,11 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         _endDate = picked.end;
       });
 
-      fetchTransactions(); // Fetch transactions again with the new date range
+      fetchAllTransactions(); // Fetch transactions again with the new date range
     }
   }
+
+  void editTransaction(TransactionModel transaction) {}
 
   void _showTransactionDetails(TransactionModel transaction) {
     showDialog(
