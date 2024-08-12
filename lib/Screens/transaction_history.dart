@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Utils/firebase_db.dart';
 
@@ -14,6 +16,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   FirebaseDB firebaseDB = FirebaseDB();
   // Sample data for transactions
   List<TransactionModel> transactions = [];
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endtDateController = TextEditingController();
 
   // Sample summary data
   double totalIncome = 0.0;
@@ -21,6 +25,10 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   //Dates for the filters
   DateTime? _startDate;
   DateTime? _endDate;
+
+  String formatDate(DateTime date) {
+    return DateFormat('dd/MM/yy').format(date);
+  }
 
   void fetchTransactions() async {
     List<TransactionModel> transactionstemp =
@@ -43,12 +51,20 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         totalIncometemp += transaction.amount;
       }
     }
+    // Sort transactions from newest to oldest
+    transactionstemp.sort((a, b) => b.date.compareTo(a.date));
 
     setState(() {
       transactions = transactionstemp;
       totalIncome = totalIncometemp;
       totalExpenses = totalExpensestemp;
     });
+  }
+
+  @override
+  void initState() {
+    fetchTransactions();
+    super.initState();
   }
 
   @override
@@ -82,15 +98,37 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Date Range',
-                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Date Range',
+                      style: TextStyle(
+                          fontSize: 16.0, fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      children: [
+                        // TextField(
+                        //   controller: startDateController,
+                        //   ),
+                        Text(
+                            _startDate != null ? formatDate(_startDate!) : ''),
+                        const SizedBox(
+                          width: 8.0,
+                        ),
+                        Text(_endDate != null ? formatDate(_endDate!) : '')
+                      ],
+                    )
+                  ],
                 ),
-                TextButton(
+                IconButton(
                   onPressed: () {
                     _selectDateRange(context);
                   },
-                  child: const Text('Select Date Range'),
+                  icon: const Icon(
+                    Icons.calendar_month,
+                    color: Colors.deepPurple,
+                  ),
                 ),
               ],
             ),
@@ -125,20 +163,54 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               itemCount: transactions.length,
               itemBuilder: (context, index) {
                 final transaction = transactions[index];
-                return ListTile(
-                  title: Text(transaction.description),
-                  subtitle: Text(transaction.date.toString()),
-                  trailing: Text(
-                    '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
-                    style: TextStyle(
-                      color: transaction.isExpense ? Colors.red : Colors.green,
-                      fontWeight: FontWeight.bold,
+                return Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                  child: Slidable(
+                    key: const ValueKey(0),
+                
+                    // The start action pane is the one at the left or the top side.
+                    endActionPane: ActionPane(
+                      // A motion is a widget used to control how the pane animates.
+                      motion: const StretchMotion(),
+                
+                      // All actions are defined in the children parameter.
+                      children: [
+                        // A SlidableAction can have an icon and/or a label.
+                        SlidableAction(
+                          onPressed: (context) {
+                            // toggleGroupStatus(group);
+                          },
+                          backgroundColor:
+                              const Color.fromARGB(255, 192, 174, 174),
+                          foregroundColor: Colors.white,
+                          icon: Icons.edit,
+                          label: 'Edit',
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      tileColor: Colors.blueGrey.shade100,
+                      title: Text(
+                        transaction.description,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(formatDate(transaction.date)),
+                      trailing: Text(
+                        '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
+                        style: TextStyle(
+                            color:
+                                transaction.isExpense ? Colors.red : Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15),
+                      ),
+                      onTap: () {
+                        // Show transaction details
+                        _showTransactionDetails(transaction);
+                      },
                     ),
                   ),
-                  onTap: () {
-                    // Show transaction details
-                    _showTransactionDetails(transaction);
-                  },
                 );
               },
             ),
@@ -156,6 +228,20 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       initialDateRange: _startDate != null && _endDate != null
           ? DateTimeRange(start: _startDate!, end: _endDate!)
           : null,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.deepPurple, // Header background color
+              onPrimary: Colors.white, // Header text color
+              onSurface: Colors.deepPurple, // Body text color
+            ),
+            dialogBackgroundColor:
+                Colors.white, // Background color of the dialog
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (picked != null) {
@@ -181,10 +267,10 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 // leading: Icon(transaction['categoryIcon']),
                 title:
                     Text('Amount: \$${transaction.amount.toStringAsFixed(2)}'),
-                subtitle: Text('Date: ${transaction.date}'),
+                subtitle: Text('Date: ${formatDate(transaction.date)}'),
               ),
               const SizedBox(height: 16.0),
-              Text('Account: ${transaction.cardId}'),
+              Text('Account: ${transaction.cardName}'),
             ],
           ),
           actions: [

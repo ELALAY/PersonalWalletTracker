@@ -102,32 +102,32 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-  final DateTime? picked = await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime(2000),
-    lastDate: DateTime(2101),
-    builder: (BuildContext context, Widget? child) {
-      return Theme(
-        data: ThemeData.light().copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: Colors.deepPurple, // Header background color
-            onPrimary: Colors.white, // Header text color
-            onSurface: Colors.deepPurple, // Body text color
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.deepPurple, // Header background color
+              onPrimary: Colors.white, // Header text color
+              onSurface: Colors.deepPurple, // Body text color
+            ),
+            dialogBackgroundColor:
+                Colors.white, // Background color of the dialog
           ),
-          dialogBackgroundColor: Colors.white, // Background color of the dialog
-        ),
-        child: child!,
-      );
-    },
-  );
-  if (picked != null) {
-    setState(() {
-      _dateController.text = picked.toString();
-    });
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _dateController.text = picked.toString();
+      });
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -326,7 +326,8 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                           const SizedBox(height: 16.0),
                           Center(
                             child: ElevatedButton(
-                              onPressed: _addTransaction, // Disable button if card or category is not selected
+                              onPressed:
+                                  _addTransaction, // Disable button if card or category is not selected
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.deepPurple,
                                 padding: const EdgeInsets.symmetric(
