@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
-import 'package:personalwallettracker/Utils/firebase_db.dart';
+import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Components/spending_bar_chart.dart';
 import '../../Models/category_spending.dart';

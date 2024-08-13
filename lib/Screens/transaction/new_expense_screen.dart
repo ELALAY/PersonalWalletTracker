@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
-import 'package:personalwallettracker/Utils/firebase_db.dart';
+import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final CardModel card;

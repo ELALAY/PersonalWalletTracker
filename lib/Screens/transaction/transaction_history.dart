@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
-import 'package:personalwallettracker/Utils/firebase_db.dart';
+import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Models/card_model.dart';
 

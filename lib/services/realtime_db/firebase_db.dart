@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import '../Models/card_model.dart';
-import '../Models/category_model.dart';
-import '../Models/transaction_model.dart';
+import '../../Models/card_model.dart';
+import '../../Models/category_model.dart';
+import '../../Models/person_model.dart';
+import '../../Models/transaction_model.dart';
 
 class FirebaseDB {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -148,6 +149,81 @@ class FirebaseDB {
       await _firestore.collection('categories').add(category.toMap());
     } catch (e) {
       throw Exception('Failed to create category: $e');
+    }
+  }
+
+  //--------------------------------------------------------------------------------------
+//********  Person Functions**********/
+//--------------------------------------------------------------------------------------
+  Future<Person?> getPersonProfilePerson(String uid) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+          await _firestore.collection('persons').doc(uid).get();
+
+      if (documentSnapshot.exists) {
+        // Create a Person object from the document data
+        Map<String, dynamic> data = documentSnapshot.data()!;
+        Person person = Person.fromMap(data, uid);
+        return person;
+      } else {
+        debugPrint('No user profile found for uid: $uid');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error fetching user profile: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPersonProfile(String uid) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+          await _firestore.collection('persons').doc(uid).get();
+
+      if (documentSnapshot.exists) {
+        return documentSnapshot.data();
+      } else {
+        debugPrint('No user profile found for uid: $uid');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error fetching user profile: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPersonProfileByUsername(
+      String username) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('persons')
+          .where('username', isEqualTo: username)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Assuming you want to return the first match
+        return querySnapshot.docs.first.data();
+      } else {
+        debugPrint('No user profile found for username: $username');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error fetching user profile: $e');
+      return null;
+    }
+  }
+
+  Future<List<Person>> getAllPersons() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await _firestore.collection('persons').get();
+      List<Person> allPersons = querySnapshot.docs
+          .map((doc) => Person.fromMap(doc.data(), doc.id))
+          .toList();
+      return allPersons;
+    } catch (e) {
+      debugPrint('Error fetching all persons: $e');
+      return [];
     }
   }
 }

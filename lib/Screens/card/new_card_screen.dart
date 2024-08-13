@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_color_pallette.dart';
-import 'package:personalwallettracker/Utils/firebase_db.dart';
+import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../../Models/card_model.dart';
 import '../../Utils/globals.dart';// Import your firebase_db.dart file
 
