@@ -9,7 +9,8 @@ import '../../Models/card_model.dart';
 class TransactionHistoryScreen extends StatefulWidget {
   final CardModel card;
   final List<CardModel> myCards;
-  const TransactionHistoryScreen({super.key, required this.card, required this.myCards});
+  const TransactionHistoryScreen(
+      {super.key, required this.card, required this.myCards});
 
   @override
   TransactionHistoryScreenState createState() =>
@@ -80,11 +81,14 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     }
     // Sort transactions from newest to oldest
     transactionstemp = _sortTransactions(transactionstemp);
-    setState(() {
-      transactions = transactionstemp;
-      totalIncome = totalIncometemp;
-      totalExpenses = totalExpensestemp;
-    });
+
+    if (mounted) {
+      setState(() {
+        transactions = transactionstemp;
+        totalIncome = totalIncometemp;
+        totalExpenses = totalExpensestemp;
+      });
+    }
   }
 
   @override

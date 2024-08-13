@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
@@ -6,6 +7,7 @@ import 'package:personalwallettracker/Components/my_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
+import 'package:personalwallettracker/services/auth/auth_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Components/my_card.dart';
@@ -23,19 +25,26 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
+  AuthService authService = AuthService();
   final pageController = PageController();
   List<CardModel> myCards = [];
   bool isLoading = true;
   int navIndex = 0;
   int pageIndex = 0;
+  //user and profile info
+  User? user;
+  Map<String, dynamic>? personProfile;
 
   @override
   void initState() {
-    super.initState();
+    fetchUser();
     fetchCards();
+    super.initState();
+    isLoading = false;
   }
 
   void reload() {
+    fetchUser();
     fetchCards();
     pageController.addListener(() {
       final newIndex = pageController.page?.round() ?? 0;
@@ -45,6 +54,22 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     });
+  }
+
+  void fetchUser() async {
+    try {
+      User? userTemp = authService.getCurrentUser();
+      if (userTemp != null) {
+        Map<String, dynamic>? personProfileTemp =
+            await firebaseDatabasehelper.getPersonProfile(userTemp.uid);
+        setState(() {
+          user = userTemp;
+          personProfile = personProfileTemp;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching user profile: $e");
+    }
   }
 
   void fetchCards() async {
@@ -71,7 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.grey)),
         ],
       ),
-      drawer: const MyDrawer(),
+      drawer: user != null && personProfile != null
+          ? MyDrawer(user: user!, personProfile: personProfile!)
+          : null,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

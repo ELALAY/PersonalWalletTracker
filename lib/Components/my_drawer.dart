@@ -4,10 +4,11 @@ import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../services/auth/auth_service.dart';
 import '../services/auth/login_register_screen.dart';
 import '../Utils/globals.dart';
-import 'mylisttile.dart';
 
 class MyDrawer extends StatefulWidget {
-  const MyDrawer({super.key});
+  final User user;
+  final Map<String, dynamic> personProfile;
+  const MyDrawer({super.key, required this.user, required this.personProfile});
 
   @override
   State<MyDrawer> createState() => _MyDrawerState();
@@ -16,25 +17,6 @@ class MyDrawer extends StatefulWidget {
 class _MyDrawerState extends State<MyDrawer> {
   FirebaseDB fbdatabaseHelper = FirebaseDB();
   AuthService authService = AuthService();
-
-  User? user;
-  Map<String, dynamic>? personProfile;
-
-  void fetchUser() async {
-    try {
-      User? userTemp = authService.getCurrentUser();
-      if (userTemp != null) {
-        Map<String, dynamic>? personProfileTemp =
-            await fbdatabaseHelper.getPersonProfile(userTemp.uid);
-        setState(() {
-          user = userTemp;
-          personProfile = personProfileTemp;
-        });
-      }
-    } catch (e) {
-      debugPrint("Error fetching user profile: $e");
-    }
-  }
 
   void logout() async {
     try {
@@ -64,7 +46,6 @@ class _MyDrawerState extends State<MyDrawer> {
   @override
   void initState() {
     super.initState();
-    fetchUser();
   }
 
   @override
@@ -80,25 +61,25 @@ class _MyDrawerState extends State<MyDrawer> {
                 children: [
                   UserAccountsDrawerHeader(
                     decoration: const BoxDecoration(
-                      color: Colors.deepPurple,
+                      color: Colors.pink,
                     ),
                     accountName: Text(
-                      '${personProfile?['username'] ?? 'No username'} ',
+                      '${widget.personProfile['username'] ?? 'No username'} ',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                       ),
                     ),
                     accountEmail: Text(
-                      '${personProfile?['email'] ?? 'No email'}',
+                      '${widget.personProfile['email'] ?? 'No email'}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                       ),
                     ),
                     currentAccountPicture: CircleAvatar(
-                      backgroundImage: personProfile?['profile_picture'] != null
-                          ? NetworkImage(personProfile!['profile_picture'])
+                      backgroundImage: widget.personProfile['profile_picture'] != null
+                          ? NetworkImage(widget.personProfile['profile_picture'])
                           : const NetworkImage(
                               'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
                             ),
@@ -106,8 +87,8 @@ class _MyDrawerState extends State<MyDrawer> {
                     ),
                   ),
                   SwitchListTile(
-                    activeColor: Colors.deepPurple.shade300,
-                    inactiveTrackColor: Colors.deepPurple.shade300,
+                    activeColor: Colors.pink,
+                    inactiveTrackColor: Colors.pink,
                     inactiveThumbColor: Colors.white,
                     activeTrackColor: Colors.white,
                     title: Text(

@@ -8,6 +8,11 @@ import '../../Models/transaction_model.dart';
 class FirebaseDB {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+
+//--------------------------------------------------------------------------------------
+//********  Cards Functions**********/
+//--------------------------------------------------------------------------------------
+
   // Add a new card with auto-generated ID
   Future<bool> addCard(CardModel card) async {
     try {
@@ -61,6 +66,22 @@ class FirebaseDB {
     }
   }
 
+  // Method to update card balance
+  Future<void> updateCardBalance(String cardId, double newBalance) async {
+    debugPrint("Updating balance for card $cardId to $newBalance");
+    try {
+      await _firestore.collection('cards').doc(cardId).update({
+        'balance': newBalance,
+      });
+    } catch (e) {
+      debugPrint('Error updating card balance: $e');
+    }
+  }
+
+//--------------------------------------------------------------------------------------
+//********  Transaction Functions**********/
+//--------------------------------------------------------------------------------------
+
   Future<TransactionModel> getTransactionById(String transactionId) async {
     try {
       debugPrint('fething transaction $transactionId');
@@ -75,19 +96,7 @@ class FirebaseDB {
     } catch (e) {
       throw Exception('Error fetching transaction: $e');
     }
-  }
-
-  // Method to update card balance
-  Future<void> updateCardBalance(String cardId, double newBalance) async {
-    debugPrint("Updating balance for card $cardId to $newBalance");
-    try {
-      await _firestore.collection('cards').doc(cardId).update({
-        'balance': newBalance,
-      });
-    } catch (e) {
-      debugPrint('Error updating card balance: $e');
-    }
-  }
+  }  
 
   // Add a new transaction with auto-generated ID
   Future<bool> addTransaction(TransactionModel transaction) async {
@@ -133,6 +142,10 @@ class FirebaseDB {
     }
   }
 
+//--------------------------------------------------------------------------------------
+//********  Category Functions**********/
+//--------------------------------------------------------------------------------------
+
   // Fetch all categories
   Future<List<Category>> getCategories() async {
     try {
@@ -152,7 +165,7 @@ class FirebaseDB {
     }
   }
 
-  //--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
 //********  Person Functions**********/
 //--------------------------------------------------------------------------------------
   Future<Person?> getPersonProfilePerson(String uid) async {
