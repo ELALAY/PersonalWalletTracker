@@ -6,6 +6,7 @@ import 'package:personalwallettracker/Utils/firebase_db.dart';
 import '../../Components/spending_bar_chart.dart';
 import '../../Models/category_spending.dart';
 
+// ignore: must_be_immutable
 class StatisticsScreen extends StatefulWidget {
   List<CardModel> myCards = [];
   StatisticsScreen({super.key, required this.myCards});

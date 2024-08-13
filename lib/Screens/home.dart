@@ -77,11 +77,15 @@ class _MyHomePageState extends State<MyHomePage> {
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.settings,
-                                color: Colors.grey,),
+                                icon: const Icon(
+                                  Icons.settings,
+                                  color: Colors.grey,
+                                ),
                                 onPressed: navSettingScreen,
                               ),
-                              const SizedBox(width: 10.0,),
+                              const SizedBox(
+                                width: 10.0,
+                              ),
                               const Text(
                                 'My ',
                                 style: TextStyle(
@@ -159,22 +163,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         GestureDetector(
                           onTap: () {},
                           child: const MyButton(
-                            icon: Icon(
-                              Icons.monetization_on,
-                              color: Colors.white,
-                            ),
+                            icon: 'transfer',
                             action: 'Top Up',
                           ),
                         ),
-                        //pay
                         GestureDetector(
-                          onTap: newExpenseScreen,
+                          onTap: newTransactionScreen,
                           child: const MyButton(
-                            icon: Icon(
-                              Icons.payment_outlined,
-                              color: Colors.white,
-                            ),
-                            action: 'Expense',
+                            icon: 'add_transaction',
+                            action: 'transaction',
                           ),
                         ),
                       ],
@@ -256,7 +253,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: Colors.white,
                             ),
                           ),
-                          onTap: transactionSreenScreen,
+                          onTap: transactionhistoryScreen,
                         ),
                       ],
                     ),
@@ -285,7 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
     })).then((value) => reload());
   }
 
-  void newExpenseScreen() {
+  void newTransactionScreen() {
     if (myCards.isNotEmpty) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return AddTransactionScreen(card: myCards[pageIndex]);
@@ -297,7 +294,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void transactionSreenScreen() {
+  void transactionhistoryScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return TransactionHistoryScreen(
           card: myCards[pageIndex],
@@ -307,7 +304,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void statsScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return StatisticsScreen(myCards: myCards); // replace with your settings screen
+      return StatisticsScreen(
+          myCards: myCards); // replace with your settings screen
     })).then((value) => reload());
   }
 
