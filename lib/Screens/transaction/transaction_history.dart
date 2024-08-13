@@ -5,6 +5,7 @@ import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Models/card_model.dart';
+import 'new_expense_screen.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   final CardModel card;
@@ -290,7 +291,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text(formatDate(transaction.date)),
+                            subtitle: Text('${formatDate(transaction.date)} - ${transaction.category}'),
                             trailing: Text(
                               '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
                               style: TextStyle(
@@ -312,6 +313,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 ),
               ],
             ),
+      floatingActionButton: FloatingActionButton(onPressed: navUpdateCard,backgroundColor: Colors.deepPurple,child: const Icon(Icons.add),),
     );
   }
 
@@ -381,5 +383,19 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         );
       },
     );
+  }
+
+  void navUpdateCard() async {
+    if (selectedCard.isNotEmpty && selectedCard!= 'All') {
+      CardModel cardTemp = await firebaseDB.getCardById(selectedCard);
+      // ignore: use_build_context_synchronously
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AddTransactionScreen(card: cardTemp,); // replace with your settings screen
+      }));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No card selected')),
+      );
+    }
   }
 }
