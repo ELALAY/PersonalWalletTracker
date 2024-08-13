@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../services/auth/auth_service.dart';
 import '../services/auth/login_register_screen.dart';
@@ -78,11 +79,13 @@ class _MyDrawerState extends State<MyDrawer> {
                       ),
                     ),
                     currentAccountPicture: CircleAvatar(
-                      backgroundImage: widget.personProfile['profile_picture'] != null
-                          ? NetworkImage(widget.personProfile['profile_picture'])
-                          : const NetworkImage(
-                              'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
-                            ),
+                      backgroundImage:
+                          widget.personProfile['profile_picture'] != null
+                              ? NetworkImage(
+                                  widget.personProfile['profile_picture'])
+                              : const NetworkImage(
+                                  'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
+                                ),
                       backgroundColor: Colors.white,
                     ),
                   ),
@@ -114,7 +117,12 @@ class _MyDrawerState extends State<MyDrawer> {
                             color: Colors.black,
                           ),
                   ),
-                  
+                  ListTile(
+                    title: const Text('Reload!'),
+                    trailing: IconButton(
+                        onPressed: navHomePage,
+                        icon: const Icon(Icons.refresh)),
+                  )
                 ],
               ),
             ),
@@ -149,9 +157,9 @@ class _MyDrawerState extends State<MyDrawer> {
   //   }));
   // }
 
-  // void navFriends() {
-  //   Navigator.push(context, MaterialPageRoute(builder: (context) {
-  //     return const MyFriendsScreen();
-  //   }));
-  // }
+  void navHomePage() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const MyHomePage();
+    }));
+  }
 }

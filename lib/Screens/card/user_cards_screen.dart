@@ -23,7 +23,7 @@ class CardListScreenState extends State<CardListScreen> {
 
   Future<void> _loadCards() async {
     try {
-      final cards = await _firebaseDB.getCards();
+      final cards = await _firebaseDB.getAllCards();
       setState(() {
         _cards = cards;
         _isLoading = false;

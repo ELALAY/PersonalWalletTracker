@@ -26,8 +26,26 @@ class FirebaseDB {
     }
   }
 
+  // Fetch cards where ownerId matches the given user ID
+  Future<List<CardModel>> getCards(String uid) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('cards')
+          .where('ownerId', isEqualTo: uid)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) =>
+              CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching cards: $e');
+      rethrow;
+    }
+  }
+
   // Fetch all cards
-  Future<List<CardModel>> getCards() async {
+  Future<List<CardModel>> getAllCards() async {
     try {
       QuerySnapshot querySnapshot = await _firestore.collection('cards').get();
       return querySnapshot.docs
@@ -126,6 +144,24 @@ class FirebaseDB {
 
   // Fetch transactions by card ID
   Future<List<TransactionModel>> fetchTransactionsByCardId(
+      String cardId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('transactions')
+          .where('cardId', isEqualTo: cardId)
+          .get();
+      return querySnapshot.docs
+          .map((doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching transactions by card ID: $e');
+      rethrow;
+    }
+  }
+
+  // Fetch transactions by card ID
+  Future<List<TransactionModel>> fetchUserTransactionsByCardId(
       String cardId) async {
     try {
       QuerySnapshot querySnapshot = await _firestore

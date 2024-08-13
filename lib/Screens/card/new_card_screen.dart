@@ -1,12 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_color_pallette.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../../Models/card_model.dart';
-import '../../Utils/globals.dart';// Import your firebase_db.dart file
+import '../../Utils/globals.dart'; // Import your firebase_db.dart file
 
 class NewCardScreen extends StatefulWidget {
-  const NewCardScreen({super.key});
+  //user and profile info
+  final User? user;
+  final Map<String, dynamic>? personProfile;
+  const NewCardScreen(
+      {super.key, required this.user, required this.personProfile});
 
   @override
   State<NewCardScreen> createState() => _NewCardScreenState();
@@ -16,17 +22,25 @@ class _NewCardScreenState extends State<NewCardScreen> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _cardholderController = TextEditingController();
-  final TextEditingController _cardNameController = TextEditingController();
-  final TextEditingController _balanceController = TextEditingController();
-  String title = 'Mr. '; // Default value
+  TextEditingController _cardholderController = TextEditingController();
+  TextEditingController _cardNameController = TextEditingController();
+  TextEditingController _balanceController = TextEditingController();
   String cardType = 'visa';
   Color selectedColor = Colors.deepPurple; //Default color
-
+  bool enabledCardHolder = false;
   void _onColorSelected(Color color) {
     setState(() {
       selectedColor = color;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with existing card details
+    _cardholderController =
+        TextEditingController(text: widget.personProfile!['username']);
+    _balanceController = TextEditingController(text: '0');
   }
 
   @override
@@ -43,7 +57,8 @@ class _NewCardScreenState extends State<NewCardScreen> {
         final newCard = CardModel(
           cardName: _cardNameController.text,
           balance: double.parse(_balanceController.text),
-          cardHolderName: title + _cardholderController.text,
+          cardHolderName: widget.personProfile!['username'],
+          ownerId: widget.user!.uid,
           cardType: cardType, // Optional field, adjust as needed
           color: selectedColor.value,
         );
@@ -70,6 +85,15 @@ class _NewCardScreenState extends State<NewCardScreen> {
       appBar: AppBar(
         title: const Text('Add New Card'),
         backgroundColor: Colors.deepPurple,
+        actions: [
+          CupertinoSwitch(
+              value: enabledCardHolder,
+              onChanged: (value) {
+                setState(() {
+                  enabledCardHolder = value;
+                });
+              })
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -77,7 +101,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
           child: Column(
             children: [
               MyCard(
-                cardHolder: title + _cardholderController.text,
+                cardHolder: widget.personProfile!['username'],
                 balance: double.tryParse(_balanceController.text) ?? 0.0,
                 cardName: _cardNameController.text,
                 cardType: cardType,
@@ -91,80 +115,30 @@ class _NewCardScreenState extends State<NewCardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     //title
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 100.0,
-                          child: DropdownButtonFormField<String>(
-                            value: title,
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  title = value;
-                                });
-                              }
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Title',
-                              labelStyle: TextStyle(color: Colors.deepPurple),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color:
-                                      Colors.deepPurple, // Deep Purple border
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .deepPurple, // Deep Purple focused border
-                                ),
-                              ),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'Mr. ',
-                                child: Text('Mr. '),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Mrs. ',
-                                child: Text('Mrs. '),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Ms. ',
-                                child: Text('Ms. '),
-                              ),
-                            ],
+                    TextFormField(
+                      enabled: enabledCardHolder,
+                      controller: _cardholderController,
+                      decoration: const InputDecoration(
+                        labelText: 'Card Holder',
+                        labelStyle: TextStyle(color: Colors.deepPurple),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.deepPurple, // Deep Purple border
                           ),
                         ),
-                        const SizedBox(width: 5.0),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _cardholderController,
-                            decoration: const InputDecoration(
-                              labelText: 'Card Holder',
-                              labelStyle: TextStyle(color: Colors.deepPurple),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color:
-                                      Colors.deepPurple, // Deep Purple border
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .deepPurple, // Deep Purple focused border
-                                ),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter card holder name';
-                              }
-                              return null;
-                            },
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color:
+                                Colors.deepPurple, // Deep Purple focused border
                           ),
                         ),
-                      ],
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter card holder name';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16.0),
                     //card name

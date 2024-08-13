@@ -37,15 +37,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    fetchUser();
-    fetchCards();
+    fetchUserAndCards();
     super.initState();
     isLoading = false;
   }
 
   void reload() {
-    fetchUser();
-    fetchCards();
+    isLoading = true;
+    debugPrint('reloading...');
+    fetchUserAndCards();
     pageController.addListener(() {
       final newIndex = pageController.page?.round() ?? 0;
       if (newIndex != pageIndex) {
@@ -54,30 +54,47 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     });
+    debugPrint('reloaded');
+    isLoading = false;
   }
 
-  void fetchUser() async {
+  void fetchUserAndCards() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
+
+      // Fetch the user
       User? userTemp = authService.getCurrentUser();
       if (userTemp != null) {
+        // Fetch user profile
         Map<String, dynamic>? personProfileTemp =
             await firebaseDatabasehelper.getPersonProfile(userTemp.uid);
+
         setState(() {
           user = userTemp;
           personProfile = personProfileTemp;
         });
+
+        // Fetch cards only after user and personProfile are set
+        List<CardModel> cards =
+            await firebaseDatabasehelper.getCards(userTemp.uid);
+        setState(() {
+          myCards = cards;
+          isLoading = false;
+        });
+      } else {
+        debugPrint('User not found');
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (e) {
-      debugPrint("Error fetching user profile: $e");
+      debugPrint("Error fetching user or cards: $e");
+      setState(() {
+        isLoading = false;
+      });
     }
-  }
-
-  void fetchCards() async {
-    List<CardModel> cards = await firebaseDatabasehelper.getCards();
-    setState(() {
-      myCards = cards;
-      isLoading = false;
-    });
   }
 
   @override
@@ -267,7 +284,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void newCardScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const NewCardScreen();
+      return NewCardScreen(
+        user: user,
+        personProfile: personProfile,
+      );
     }));
   }
 
@@ -290,25 +310,43 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void transactionhistoryScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return TransactionHistoryScreen(
-          card: myCards[pageIndex],
-          myCards: myCards); // replace with your settings screen
-    })).then((value) => reload());
+    if (myCards.isNotEmpty) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return TransactionHistoryScreen(
+            card: myCards[pageIndex],
+            myCards: myCards); // replace with your settings screen
+      })).then((value) => reload());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No card selected')),
+      );
+    }
   }
 
   void statsScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return StatisticsScreen(
-          myCards: myCards); // replace with your settings screen
-    })).then((value) => reload());
+    if (myCards.isNotEmpty) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return StatisticsScreen(
+            myCards: myCards); // replace with your settings screen
+      })).then((value) => reload());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No card selected')),
+      );
+    }
   }
 
   void navUpdateCard() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return EditCardScreen(
-        card: myCards[pageIndex],
-      ); // replace with your settings screen
-    })).then((value) => reload());
+    if (myCards.isNotEmpty) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return EditCardScreen(
+          card: myCards[pageIndex],
+        ); // replace with your settings screen
+      })).then((value) => reload());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No card selected')),
+      );
+    }
   }
 }

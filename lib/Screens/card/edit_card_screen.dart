@@ -22,10 +22,9 @@ class _EditCardScreenState extends State<EditCardScreen> {
   late TextEditingController _cardholderController;
   late TextEditingController _cardNameController;
   late TextEditingController _balanceController;
-  late String title;
   late String cardType;
   late Color selectedColor;
-  bool balanceEnabled = false;
+  bool enabledEditkeyInfo = false;
 
   void _onColorSelected(Color color) {
     setState(() {
@@ -38,11 +37,10 @@ class _EditCardScreenState extends State<EditCardScreen> {
     super.initState();
     // Initialize with existing card details
     _cardholderController =
-        TextEditingController(text: widget.card.cardHolderName.split(' ').last);
+        TextEditingController(text: widget.card.cardHolderName);
     _cardNameController = TextEditingController(text: widget.card.cardName);
     _balanceController =
         TextEditingController(text: widget.card.balance.toString());
-    title = '${widget.card.cardHolderName.split(' ').first} ';
     cardType = widget.card.cardType;
     selectedColor = Color(widget.card.color);
   }
@@ -62,7 +60,8 @@ class _EditCardScreenState extends State<EditCardScreen> {
           id: widget.card.id,
           cardName: _cardNameController.text,
           balance: double.parse(_balanceController.text),
-          cardHolderName: title + _cardholderController.text,
+          cardHolderName: _cardholderController.text,
+          ownerId: widget.card.ownerId,
           cardType: cardType,
           color: selectedColor.value,
         );
@@ -87,10 +86,10 @@ class _EditCardScreenState extends State<EditCardScreen> {
         backgroundColor: Colors.deepPurple,
         actions: [
           CupertinoSwitch(
-              value: balanceEnabled,
+              value: enabledEditkeyInfo,
               onChanged: (value) {
                 setState(() {
-                  balanceEnabled = value;
+                  enabledEditkeyInfo = value;
                 });
               })
         ],
@@ -101,7 +100,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
           child: Column(
             children: [
               MyCard(
-                cardHolder: title + _cardholderController.text,
+                cardHolder:_cardholderController.text,
                 balance: double.tryParse(_balanceController.text) ?? 0.0,
                 cardName: _cardNameController.text,
                 cardType: cardType,
@@ -114,76 +113,30 @@ class _EditCardScreenState extends State<EditCardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 100.0,
-                          child: DropdownButtonFormField<String>(
-                            value: title,
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  title = value;
-                                });
-                              }
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Title',
-                              labelStyle: TextStyle(color: Colors.deepPurple),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'Mr. ',
-                                child: Text('Mr. '),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Mrs. ',
-                                child: Text('Mrs. '),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Ms. ',
-                                child: Text('Ms. '),
-                              ),
-                            ],
+                    //Card Owner Name
+                    TextFormField(
+                      controller: _cardholderController,
+                      enabled: enabledEditkeyInfo,
+                      decoration: const InputDecoration(
+                        labelText: 'Card Holder',
+                        labelStyle: TextStyle(color: Colors.deepPurple),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.deepPurple,
                           ),
                         ),
-                        const SizedBox(width: 5.0),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _cardholderController,
-                            decoration: const InputDecoration(
-                              labelText: 'Card Holder',
-                              labelStyle: TextStyle(color: Colors.deepPurple),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter card holder name';
-                              }
-                              return null;
-                            },
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.deepPurple,
                           ),
                         ),
-                      ],
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter card holder name';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16.0),
                     TextFormField(
@@ -211,7 +164,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                     ),
                     const SizedBox(height: 16.0),
                     TextFormField(
-                      enabled: balanceEnabled,
+                      enabled: enabledEditkeyInfo,
                       controller: _balanceController,
                       decoration: const InputDecoration(
                         labelText: 'Balance',
