@@ -83,7 +83,9 @@ class _EditCardScreenState extends State<EditCardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Card'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.grey,
+        elevation: 0.0,
         actions: [
           CupertinoSwitch(
               value: enabledEditkeyInfo,

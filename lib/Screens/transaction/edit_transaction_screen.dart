@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
@@ -26,6 +27,8 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
   String selectedCardType = 'visa';
+  //disable key info edit
+  bool enabledEditkeyInfo = false;
 
   @override
   void initState() {
@@ -152,6 +155,15 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         foregroundColor: Colors.grey,
+        actions: [
+          CupertinoSwitch(
+              value: enabledEditkeyInfo,
+              onChanged: (value) {
+                setState(() {
+                  enabledEditkeyInfo = value;
+                });
+              })
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
