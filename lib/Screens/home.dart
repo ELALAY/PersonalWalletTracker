@@ -9,6 +9,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Components/my_card.dart';
 import '../Utils/firebase_db.dart';
+import '../Utils/globals.dart';
 import 'card/edit_card_screen.dart';
 import 'card/new_card_screen.dart';
 
@@ -56,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.black,
+      backgroundColor: darkTheme ? Colors.black : Colors.white,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
@@ -73,17 +74,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.payment_outlined, color: Colors.grey,),
-                              Text(
+                              IconButton(
+                                icon: const Icon(Icons.settings,
+                                color: Colors.grey,),
+                                onPressed: navSettingScreen,
+                              ),
+                              const SizedBox(width: 10.0,),
+                              const Text(
                                 'My ',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 28,
                                     color: Colors.grey),
                               ),
-                              Text(
+                              const Text(
                                 'Cards',
                                 style:
                                     TextStyle(fontSize: 20, color: Colors.grey),
@@ -258,27 +264,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-      //bottom navbar
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
-        ],
-        selectedItemColor: Colors.pink,
-        unselectedItemColor: Colors.grey.shade500,
-        backgroundColor: Colors.grey.shade300,
-        currentIndex: navIndex,
-        onTap: (index) {
-          setState(() {
-            navIndex = index;
-          });
-          // Handle navigation
-          if (navIndex == 1) {
-            settingScreen();
-          }
-        },
-      ),
     );
   }
 
@@ -294,7 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }));
   }
 
-  void settingScreen() {
+  void navSettingScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const SettingsScreen(); // replace with your settings screen
     })).then((value) => reload());
@@ -315,7 +300,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void transactionSreenScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return TransactionHistoryScreen(
-          card: myCards[pageIndex], myCards: myCards); // replace with your settings screen
+          card: myCards[pageIndex],
+          myCards: myCards); // replace with your settings screen
     })).then((value) => reload());
   }
 
@@ -327,7 +313,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void navUpdateCard() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return EditCardScreen(card: myCards[pageIndex],); // replace with your settings screen
+      return EditCardScreen(
+        card: myCards[pageIndex],
+      ); // replace with your settings screen
     })).then((value) => reload());
   }
 }

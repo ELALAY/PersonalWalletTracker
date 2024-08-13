@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Utils/firebase_db.dart';
 
-import '../Components/spending_bar_chart.dart';
-import '../Models/category_spending.dart';
+import '../../Components/spending_bar_chart.dart';
+import '../../Models/category_spending.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
