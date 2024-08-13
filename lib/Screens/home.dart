@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
-import 'package:personalwallettracker/Screens/new_expense_screen.dart';
+import 'package:personalwallettracker/Screens/transaction/new_expense_screen.dart';
 import 'package:personalwallettracker/Components/my_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
-import 'package:personalwallettracker/Screens/stats_screen.dart';
-import 'package:personalwallettracker/Screens/transaction_history.dart';
+import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
+import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Components/my_card.dart';
@@ -315,7 +315,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void transactionSreenScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return TransactionHistoryScreen(
-          card: myCards[pageIndex]); // replace with your settings screen
+          card: myCards[pageIndex], myCards: myCards); // replace with your settings screen
     })).then((value) => reload());
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_color_pallette.dart';
@@ -24,6 +25,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
   late String title;
   late String cardType;
   late Color selectedColor;
+  bool balanceEnabled = false;
 
   void _onColorSelected(Color color) {
     setState(() {
@@ -35,9 +37,11 @@ class _EditCardScreenState extends State<EditCardScreen> {
   void initState() {
     super.initState();
     // Initialize with existing card details
-    _cardholderController = TextEditingController(text: widget.card.cardHolderName.split(' ').last);
+    _cardholderController =
+        TextEditingController(text: widget.card.cardHolderName.split(' ').last);
     _cardNameController = TextEditingController(text: widget.card.cardName);
-    _balanceController = TextEditingController(text: widget.card.balance.toString());
+    _balanceController =
+        TextEditingController(text: widget.card.balance.toString());
     title = '${widget.card.cardHolderName.split(' ').first} ';
     cardType = widget.card.cardType;
     selectedColor = Color(widget.card.color);
@@ -81,6 +85,15 @@ class _EditCardScreenState extends State<EditCardScreen> {
       appBar: AppBar(
         title: const Text('Edit Card'),
         backgroundColor: Colors.deepPurple,
+        actions: [
+          CupertinoSwitch(
+              value: balanceEnabled,
+              onChanged: (value) {
+                setState(() {
+                  balanceEnabled = value;
+                });
+              })
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -198,6 +211,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                     ),
                     const SizedBox(height: 16.0),
                     TextFormField(
+                      enabled: balanceEnabled,
                       controller: _balanceController,
                       decoration: const InputDecoration(
                         labelText: 'Balance',
@@ -258,7 +272,9 @@ class _EditCardScreenState extends State<EditCardScreen> {
                       ],
                     ),
                     const SizedBox(height: 16.0),
-                    ColorPalette(colors: colorOptions, onColorSelected: _onColorSelected),
+                    ColorPalette(
+                        colors: colorOptions,
+                        onColorSelected: _onColorSelected),
                     const SizedBox(height: 16.0),
                     Center(
                       child: ElevatedButton(

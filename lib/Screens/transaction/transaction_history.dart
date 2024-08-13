@@ -4,11 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Utils/firebase_db.dart';
 
-import '../Models/card_model.dart';
+import '../../Models/card_model.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   final CardModel card;
-  const TransactionHistoryScreen({super.key, required this.card});
+  final List<CardModel> myCards;
+  const TransactionHistoryScreen({super.key, required this.card, required this.myCards});
 
   @override
   TransactionHistoryScreenState createState() =>
@@ -24,7 +25,6 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   //card choice
   String selectedCard = 'All';
   //fetched cards
-  List<CardModel> myCards = [];
   // Sample summary data
   double totalIncome = 0.0;
   double totalExpenses = 0.0;
@@ -50,13 +50,6 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       transactions.sort((a, b) => a.category.compareTo(b.category));
     }
     return transactions;
-  }
-
-  void fetchCards() async {
-    List<CardModel> cards = await firebaseDB.getCards();
-    setState(() {
-      myCards = cards;
-    });
   }
 
   void fetchAllTransactions() async {
@@ -97,7 +90,6 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   @override
   void initState() {
     selectedCard = widget.card.id;
-    fetchCards();
     fetchAllTransactions();
     isLoading = false;
     super.initState();
@@ -145,7 +137,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: DropdownButtonFormField<String>(
-                    value: myCards.any((card) => card.id == selectedCard)
+                    value: widget.myCards.any((card) => card.id == selectedCard)
                         ? selectedCard
                         : 'All',
                     icon: const Icon(
@@ -176,7 +168,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                       ),
                     ),
                     items: [
-                      ...myCards.map((card) => DropdownMenuItem<String>(
+                      ...widget.myCards.map((card) => DropdownMenuItem<String>(
                             value: card.id,
                             child: Text(card.cardName),
                           )),
