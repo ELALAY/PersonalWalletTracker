@@ -23,6 +23,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController _cardholderController = TextEditingController();
+  // ignore: prefer_final_fields
   TextEditingController _cardNameController = TextEditingController();
   TextEditingController _balanceController = TextEditingController();
   String cardType = 'visa';

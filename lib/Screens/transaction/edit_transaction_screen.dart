@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
-class AddTransactionScreen extends StatefulWidget {
+class EditTransactionScreen extends StatefulWidget {
+  final TransactionModel transaction;
   final CardModel card;
-  const AddTransactionScreen({super.key, required this.card});
+  const EditTransactionScreen({super.key, required this.card, required this.transaction});
 
   @override
-  AddTransactionScreenState createState() => AddTransactionScreenState();
+  EditTransactionScreenState createState() => EditTransactionScreenState();
 }
 
-class AddTransactionScreenState extends State<AddTransactionScreen> {
+class EditTransactionScreenState extends State<EditTransactionScreen> {
   final FirebaseDB _firebaseDB = FirebaseDB();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
+  TextEditingController _amountController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
   DateTime selectedDate = DateTime.now();
   List<Category> _categories = [];
   String? _selectedCategory;
@@ -29,6 +31,14 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   void initState() {
     super.initState();
     _loadCategories();
+    // Initialize with existing card details
+    _amountController =
+        TextEditingController(text: widget.transaction.amount.toString());
+    _descriptionController = TextEditingController(text: widget.transaction.description);
+    _dateController =
+        TextEditingController(text: formatDate(widget.transaction.date));
+    _selectedCategory = widget.transaction.category;
+    isExpense = widget.transaction.isExpense;
   }
 
   Future<void> _loadCategories() async {
@@ -65,19 +75,23 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
     }
   }
 
-  Future<void> _addTransaction() async {
+  String formatDate(DateTime date) {
+    return DateFormat('dd/MM/yy').format(date);
+  }
+
+  Future<void> _editTransaction() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
         TransactionModel transaction = TransactionModel(
-          cardId: widget.card.id,
-          cardName: widget.card.cardName,
+          cardId: widget.transaction.cardId,
+          cardName: widget.transaction.cardName,
           amount: double.parse(_amountController.text),
           category: _selectedCategory.toString(),
           date: selectedDate,
           description: _descriptionController.text,
           isExpense: isExpense,
         );
-        _firebaseDB.addTransaction(transaction);
+        _firebaseDB.updateTransaction(transaction);
 
         double amount = isExpense ? -transaction.amount : transaction.amount;
         debugPrint(amount.toString());
@@ -124,7 +138,8 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
     );
     if (picked != null) {
       setState(() {
-        _dateController.text = picked.toString();
+        _dateController.text = formatDate(selectedDate);
+        selectedDate = picked;
       });
     }
   }
@@ -279,7 +294,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                           TextFormField(
                             controller: _dateController,
                             decoration: InputDecoration(
-                              labelText: selectedDate.toString(),
+                              labelText: formatDate(selectedDate),
                               labelStyle:
                                   const TextStyle(color: Colors.deepPurple),
                               border: const OutlineInputBorder(
@@ -327,7 +342,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                           Center(
                             child: ElevatedButton(
                               onPressed:
-                                  _addTransaction, // Disable button if card or category is not selected
+                                  _editTransaction, // Disable button if card or category is not selected
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.deepPurple,
                                 padding: const EdgeInsets.symmetric(

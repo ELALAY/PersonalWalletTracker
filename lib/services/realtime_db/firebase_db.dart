@@ -114,7 +114,19 @@ class FirebaseDB {
     } catch (e) {
       throw Exception('Error fetching transaction: $e');
     }
-  }  
+  } 
+
+  // Update an existing card
+  Future<void> updateTransaction(TransactionModel transcation) async {
+    try {
+      // Reference to the 'cards' collection and the specific document to update
+      _firestore.collection('transactions').doc(transcation.id).update(transcation.toMap());
+      
+      debugPrint('Transaction updated successfully');
+    } catch (e) {
+      debugPrint('Error updating Transaction: $e');
+    }
+  } 
 
   // Add a new transaction with auto-generated ID
   Future<bool> addTransaction(TransactionModel transaction) async {

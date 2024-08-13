@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
+import 'package:personalwallettracker/Screens/transaction/edit_transaction_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Models/card_model.dart';
-import 'new_expense_screen.dart';
+import 'new_transaction_screen.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   final CardModel card;
@@ -291,7 +292,13 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text('${formatDate(transaction.date)} - ${transaction.category}'),
+                            subtitle: Text(
+                                '${formatDate(transaction.date)} - ${transaction.category}'),
+                            leading: IconButton(
+                                onPressed: () {
+                                  editTransaction(transaction);
+                                },
+                                icon: const Icon(Icons.edit)),
                             trailing: Text(
                               '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
                               style: TextStyle(
@@ -313,7 +320,11 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 ),
               ],
             ),
-      floatingActionButton: FloatingActionButton(onPressed: navUpdateCard,backgroundColor: Colors.deepPurple,child: const Icon(Icons.add),),
+      floatingActionButton: FloatingActionButton(
+        onPressed: navNewTransaction,
+        backgroundColor: Colors.deepPurple,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -351,7 +362,22 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     }
   }
 
-  void editTransaction(TransactionModel transaction) {}
+  void editTransaction(TransactionModel transaction) async {
+    if (selectedCard.isNotEmpty && selectedCard != 'All') {
+      CardModel cardTemp = await firebaseDB.getCardById(selectedCard);
+      // ignore: use_build_context_synchronously
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return EditTransactionScreen(
+          card: cardTemp,
+          transaction: transaction,
+        ); // replace with your settings screen
+      }));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error moving')),
+      );
+    }
+  }
 
   void _showTransactionDetails(TransactionModel transaction) {
     showDialog(
@@ -385,12 +411,14 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     );
   }
 
-  void navUpdateCard() async {
-    if (selectedCard.isNotEmpty && selectedCard!= 'All') {
+  void navNewTransaction() async {
+    if (selectedCard.isNotEmpty && selectedCard != 'All') {
       CardModel cardTemp = await firebaseDB.getCardById(selectedCard);
       // ignore: use_build_context_synchronously
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return AddTransactionScreen(card: cardTemp,); // replace with your settings screen
+        return AddTransactionScreen(
+          card: cardTemp,
+        ); // replace with your settings screen
       }));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

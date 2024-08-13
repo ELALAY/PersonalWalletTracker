@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
-import 'package:personalwallettracker/Screens/transaction/new_expense_screen.dart';
+import 'package:personalwallettracker/Screens/transaction/new_transaction_screen.dart';
 import 'package:personalwallettracker/Components/my_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
