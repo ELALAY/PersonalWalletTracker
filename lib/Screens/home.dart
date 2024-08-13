@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Screens/new_expense_screen.dart';
-import 'package:personalwallettracker/Screens/new_card_screen.dart';
 import 'package:personalwallettracker/Components/my_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
 import 'package:personalwallettracker/Screens/stats_screen.dart';
@@ -10,7 +9,8 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Components/my_card.dart';
 import '../Utils/firebase_db.dart';
-import 'edit_card_screen.dart';
+import 'card/edit_card_screen.dart';
+import 'card/new_card_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});

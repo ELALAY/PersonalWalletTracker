@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:personalwallettracker/Screens/user_cards_screen.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
+
+import 'card/user_cards_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

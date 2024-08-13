@@ -2,45 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_color_pallette.dart';
 import 'package:personalwallettracker/Utils/firebase_db.dart';
-import '../Models/card_model.dart';
-import '../Utils/globals.dart';
+import '../../Models/card_model.dart';
+import '../../Utils/globals.dart';// Import your firebase_db.dart file
 
-class EditCardScreen extends StatefulWidget {
-  final CardModel card;
-
-  const EditCardScreen({super.key, required this.card});
+class NewCardScreen extends StatefulWidget {
+  const NewCardScreen({super.key});
 
   @override
-  State<EditCardScreen> createState() => _EditCardScreenState();
+  State<NewCardScreen> createState() => _NewCardScreenState();
 }
 
-class _EditCardScreenState extends State<EditCardScreen> {
+class _NewCardScreenState extends State<NewCardScreen> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _cardholderController;
-  late TextEditingController _cardNameController;
-  late TextEditingController _balanceController;
-  late String title;
-  late String cardType;
-  late Color selectedColor;
+  final TextEditingController _cardholderController = TextEditingController();
+  final TextEditingController _cardNameController = TextEditingController();
+  final TextEditingController _balanceController = TextEditingController();
+  String title = 'Mr. '; // Default value
+  String cardType = 'visa';
+  Color selectedColor = Colors.deepPurple; //Default color
 
   void _onColorSelected(Color color) {
     setState(() {
       selectedColor = color;
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize with existing card details
-    _cardholderController = TextEditingController(text: widget.card.cardHolderName.split(' ').last);
-    _cardNameController = TextEditingController(text: widget.card.cardName);
-    _balanceController = TextEditingController(text: widget.card.balance.toString());
-    title = '${widget.card.cardHolderName.split(' ').first} ';
-    cardType = widget.card.cardType;
-    selectedColor = Color(widget.card.color);
   }
 
   @override
@@ -51,25 +37,28 @@ class _EditCardScreenState extends State<EditCardScreen> {
     super.dispose();
   }
 
-  Future<void> _editCard() async {
+  Future<void> _addCard() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final updatedCard = CardModel.withId(
-          id: widget.card.id,
+        final newCard = CardModel(
           cardName: _cardNameController.text,
           balance: double.parse(_balanceController.text),
           cardHolderName: title + _cardholderController.text,
-          cardType: cardType,
+          cardType: cardType, // Optional field, adjust as needed
           color: selectedColor.value,
         );
 
-        await firebaseDatabasehelper.updateCard(updatedCard);
+        debugPrint('Adding Card: $newCard'); // Debugging statement
+
+        await firebaseDatabasehelper.addCard(newCard);
+
+        debugPrint('Card added');
 
         // ignore: use_build_context_synchronously
         Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating card: $e')),
+          SnackBar(content: Text('Error adding card: $e')),
         );
       }
     }
@@ -79,7 +68,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Card'),
+        title: const Text('Add New Card'),
         backgroundColor: Colors.deepPurple,
       ),
       body: Padding(
@@ -92,7 +81,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                 balance: double.tryParse(_balanceController.text) ?? 0.0,
                 cardName: _cardNameController.text,
                 cardType: cardType,
-                color: selectedColor,
+                color: selectedColor, // Default color
                 onTap: () {},
               ),
               const SizedBox(height: 20.0),
@@ -101,6 +90,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    //title
                     Row(
                       children: [
                         SizedBox(
@@ -119,12 +109,14 @@ class _EditCardScreenState extends State<EditCardScreen> {
                               labelStyle: TextStyle(color: Colors.deepPurple),
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.deepPurple,
+                                  color:
+                                      Colors.deepPurple, // Deep Purple border
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.deepPurple,
+                                  color: Colors
+                                      .deepPurple, // Deep Purple focused border
                                 ),
                               ),
                             ),
@@ -153,12 +145,14 @@ class _EditCardScreenState extends State<EditCardScreen> {
                               labelStyle: TextStyle(color: Colors.deepPurple),
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.deepPurple,
+                                  color:
+                                      Colors.deepPurple, // Deep Purple border
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Colors.deepPurple,
+                                  color: Colors
+                                      .deepPurple, // Deep Purple focused border
                                 ),
                               ),
                             ),
@@ -173,6 +167,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                       ],
                     ),
                     const SizedBox(height: 16.0),
+                    //card name
                     TextFormField(
                       controller: _cardNameController,
                       decoration: const InputDecoration(
@@ -180,12 +175,13 @@ class _EditCardScreenState extends State<EditCardScreen> {
                         labelStyle: TextStyle(color: Colors.deepPurple),
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.deepPurple,
+                            color: Colors.deepPurple, // Deep Purple border
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.deepPurple,
+                            color:
+                                Colors.deepPurple, // Deep Purple focused border
                           ),
                         ),
                       ),
@@ -197,6 +193,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                       },
                     ),
                     const SizedBox(height: 16.0),
+                    //card color
                     TextFormField(
                       controller: _balanceController,
                       decoration: const InputDecoration(
@@ -204,12 +201,13 @@ class _EditCardScreenState extends State<EditCardScreen> {
                         labelStyle: TextStyle(color: Colors.deepPurple),
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.deepPurple,
+                            color: Colors.deepPurple, // Deep Purple border
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.deepPurple,
+                            color:
+                                Colors.deepPurple, // Deep Purple focused border
                           ),
                         ),
                       ),
@@ -223,6 +221,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                       },
                     ),
                     const SizedBox(height: 16.0),
+                    //card type
                     DropdownButtonFormField<String>(
                       value: cardType,
                       onChanged: (value) {
@@ -237,12 +236,13 @@ class _EditCardScreenState extends State<EditCardScreen> {
                         labelStyle: TextStyle(color: Colors.deepPurple),
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.deepPurple,
+                            color: Colors.deepPurple, // Deep Purple border
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.deepPurple,
+                            color:
+                                Colors.deepPurple, // Deep Purple focused border
                           ),
                         ),
                       ),
@@ -258,17 +258,19 @@ class _EditCardScreenState extends State<EditCardScreen> {
                       ],
                     ),
                     const SizedBox(height: 16.0),
-                    ColorPalette(colors: colorOptions, onColorSelected: _onColorSelected),
+                    ColorPalette(
+                        colors: colorOptions,
+                        onColorSelected: _onColorSelected),
                     const SizedBox(height: 16.0),
                     Center(
                       child: ElevatedButton(
-                        onPressed: _editCard,
+                        onPressed: _addCard,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 40.0, vertical: 20.0),
                         ),
-                        child: const Text('Update Card'),
+                        child: const Text('Add Card'),
                       ),
                     ),
                   ],
