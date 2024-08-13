@@ -307,7 +307,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void statsScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const StatisticsScreen(); // replace with your settings screen
+      return StatisticsScreen(myCards: myCards); // replace with your settings screen
     })).then((value) => reload());
   }
 

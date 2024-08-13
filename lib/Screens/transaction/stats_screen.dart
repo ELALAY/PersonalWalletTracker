@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Utils/firebase_db.dart';
 
@@ -6,7 +7,8 @@ import '../../Components/spending_bar_chart.dart';
 import '../../Models/category_spending.dart';
 
 class StatisticsScreen extends StatefulWidget {
-  const StatisticsScreen({Key? key}) : super(key: key);
+  List<CardModel> myCards = [];
+  StatisticsScreen({super.key, required this.myCards});
 
   @override
   StatisticsScreenState createState() => StatisticsScreenState();
@@ -17,6 +19,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   Map<String, double> _categoryTotals = {};
   bool _isLoading = true;
   List<CategorySpending> _spendingData = [];
+  //card choice
+  String selectedCard = 'All';
 
   @override
   void initState() {
@@ -26,8 +30,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
   Future<void> _loadStatistics() async {
     try {
-      List<TransactionModel> transactions =
-          await _firebaseDB.fetchTransactions();
+      List<TransactionModel> transactions = [];
+      if (selectedCard == 'All') {
+        transactions = await _firebaseDB.fetchTransactions();
+      } else {
+        transactions =
+            await _firebaseDB.fetchTransactionsByCardId(selectedCard);
+      }
 
       // Group transactions by category and sum up the amounts
       Map<String, double> totals = {};
@@ -75,6 +84,55 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                // Card Selector
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: DropdownButtonFormField<String>(
+                    value: widget.myCards.any((card) => card.id == selectedCard)
+                        ? selectedCard
+                        : 'All',
+                    icon: const Icon(
+                      Icons.arrow_downward,
+                      color: Colors.deepPurple,
+                    ),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedCard = value;
+                          _loadStatistics();
+                        });
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Card',
+                      labelStyle: TextStyle(color: Colors.deepPurple),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.deepPurple, // Deep Purple border
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color:
+                              Colors.deepPurple, // Deep Purple focused border
+                        ),
+                      ),
+                    ),
+                    items: [
+                      ...widget.myCards.map((card) => DropdownMenuItem<String>(
+                            value: card.id,
+                            child: Text(card.cardName),
+                          )),
+                      const DropdownMenuItem<String>(
+                        value: 'All',
+                        child: Text('All'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 10.0,
+                ),
                 SizedBox(
                   height: 300.0,
                   child: Padding(
