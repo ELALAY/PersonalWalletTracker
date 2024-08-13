@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:personalwallettracker/Components/my_list_tile.dart';
 import 'package:personalwallettracker/Screens/home.dart';
+import 'package:personalwallettracker/Screens/profile_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../services/auth/auth_service.dart';
 import '../services/auth/login_register_screen.dart';
@@ -117,11 +119,15 @@ class _MyDrawerState extends State<MyDrawer> {
                             color: Colors.black,
                           ),
                   ),
-                  ListTile(
-                    title: const Text('Reload!'),
-                    trailing: IconButton(
-                        onPressed: navHomePage,
-                        icon: const Icon(Icons.refresh)),
+                  MyListTile(
+                    icon: const Icon(Icons.refresh),
+                    tileTitle: 'Reload!',
+                    onTap: navHomePage,
+                  ),
+                  MyListTile(
+                    icon: const Icon(Icons.person_2_outlined),
+                    tileTitle: 'Profile',
+                    onTap: navProfile,
                   )
                 ],
               ),
@@ -151,11 +157,11 @@ class _MyDrawerState extends State<MyDrawer> {
     );
   }
 
-  // void navProfile() {
-  //   Navigator.push(context, MaterialPageRoute(builder: (context) {
-  //     return const MyProfile();
-  //   }));
-  // }
+  void navProfile() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return MyProfileScreen(user: widget.user, personProfile: widget.personProfile,);
+    }));
+  }
 
   void navHomePage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
