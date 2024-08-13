@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
           : SafeArea(
               child: SingleChildScrollView(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     const SizedBox(
                       height: 20.0,
@@ -73,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           const Row(
                             children: [
+                              Icon(Icons.payment_outlined, color: Colors.grey,),
                               Text(
                                 'My ',
                                 style: TextStyle(
@@ -111,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       balance: card.balance,
                                       cardName: card.cardName,
                                       cardType: card.cardType,
-                                      color: Colors.deepPurple,
+                                      color: Color(card.color),
                                       onTap: () {},
                                     ))
                                 .toList()

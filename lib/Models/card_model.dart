@@ -1,15 +1,19 @@
+import 'package:flutter/material.dart';
+
 class CardModel {
   final String id;
   final String cardName;
   final double balance;
   final String cardHolderName;
   final String cardType;
+  final int color;
 
   CardModel({
     required this.cardName,
     required this.balance,
     required this.cardHolderName,
     required this.cardType,
+    required this.color,
   }): id = '';
 
   CardModel.withId({
@@ -18,6 +22,7 @@ class CardModel {
     required this.balance,
     required this.cardHolderName,
     required this.cardType,
+    required this.color,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,6 +31,7 @@ class CardModel {
       'balance': balance,
       'cardHolderName': cardHolderName,
       'cardType': cardType,
+      'color': color,
     };
   }
 
@@ -36,6 +42,7 @@ class CardModel {
       balance: map['balance'],
       cardHolderName: map['cardHolderName'],
       cardType: map['cardType'],
+      color: map['color'] ?? Colors.deepPurple.value, // Default color
     );
   }
 }

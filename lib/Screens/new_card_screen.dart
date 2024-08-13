@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
+import 'package:personalwallettracker/Components/my_color_pallette.dart';
 import 'package:personalwallettracker/Utils/firebase_db.dart';
 import '../Models/card_model.dart'; // Import your firebase_db.dart file
 
@@ -19,7 +20,24 @@ class _NewCardScreenState extends State<NewCardScreen> {
   final TextEditingController _balanceController = TextEditingController();
   String title = 'Mr. '; // Default value
   String cardType = 'visa';
+  Color selectedColor = Colors.deepPurple; //Default color
 
+  //allowed colors
+  final List<Color> colorOptions = [
+    Colors.red,
+    Colors.green,
+    Colors.blue,
+    Colors.blueGrey,
+    Colors.deepOrange,
+    Colors.deepPurple,
+    Colors.cyan,
+    Colors.pink,
+  ];
+   void _onColorSelected(Color color) {
+    setState(() {
+      selectedColor = color;
+    });
+  }
   @override
   void dispose() {
     _cardholderController.dispose();
@@ -36,6 +54,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
           balance: double.parse(_balanceController.text),
           cardHolderName: title + _cardholderController.text,
           cardType: cardType, // Optional field, adjust as needed
+          color: selectedColor.value,
         );
 
         debugPrint('Adding Card: $newCard'); // Debugging statement
@@ -71,7 +90,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
                 balance: double.tryParse(_balanceController.text) ?? 0.0,
                 cardName: _cardNameController.text,
                 cardType: cardType,
-                color: Colors.deepPurple, // Default color
+                color: selectedColor, // Default color
                 onTap: () {},
               ),
               const SizedBox(height: 20.0),
@@ -80,6 +99,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    //title
                     Row(
                       children: [
                         SizedBox(
@@ -156,6 +176,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
                       ],
                     ),
                     const SizedBox(height: 16.0),
+                    //card name
                     TextFormField(
                       controller: _cardNameController,
                       decoration: const InputDecoration(
@@ -181,6 +202,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
                       },
                     ),
                     const SizedBox(height: 16.0),
+                    //card color
                     TextFormField(
                       controller: _balanceController,
                       decoration: const InputDecoration(
@@ -208,6 +230,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
                       },
                     ),
                     const SizedBox(height: 16.0),
+                    //card type
                     DropdownButtonFormField<String>(
                       value: cardType,
                       onChanged: (value) {
@@ -243,6 +266,8 @@ class _NewCardScreenState extends State<NewCardScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 16.0),
+                    ColorPalette(colors: colorOptions, onColorSelected: _onColorSelected),
                     const SizedBox(height: 16.0),
                     Center(
                       child: ElevatedButton(

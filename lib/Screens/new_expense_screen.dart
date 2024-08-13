@@ -151,10 +151,10 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                     Column(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.money_rounded,
                           size: 70,
-                          color: Colors.deepPurple,
+                          color: Color(widget.card.color),
                         ),
                         const SizedBox(
                           height: 10.0,
