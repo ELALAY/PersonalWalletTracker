@@ -5,7 +5,7 @@ class MyCard extends StatefulWidget {
   final double balance;
   final String cardName;
   final Color color;
-  final Function? onTap;
+  final VoidCallback onTap;
   final String cardType; // Add card type (e.g., Visa, Mastercard)
 
   const MyCard({
@@ -14,7 +14,7 @@ class MyCard extends StatefulWidget {
     required this.balance,
     required this.cardName,
     required this.color,
-    this.onTap,
+    required this.onTap,
     required this.cardType, // Initialize cardType
   });
 
@@ -75,7 +75,7 @@ class _MyCardState extends State<MyCard> {
                   ),
                 ),
                 IconButton(
-                  onPressed: (){}, //edit card
+                  onPressed: widget.onTap, //edit card
                   icon: const Icon(Icons.edit, color: Colors.white),
                 ),
               ],

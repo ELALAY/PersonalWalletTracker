@@ -34,6 +34,18 @@ class FirebaseDB {
     }
   }
 
+  // Update an existing card
+  Future<void> updateCard(CardModel card) async {
+    try {
+      // Reference to the 'cards' collection and the specific document to update
+      _firestore.collection('cards').doc(card.id).update(card.toMap());
+      
+      debugPrint('Card updated successfully');
+    } catch (e) {
+      debugPrint('Error updating card: $e');
+    }
+  }
+
   Future<CardModel> getCardById(String cardId) async {
     try {
       DocumentSnapshot doc =

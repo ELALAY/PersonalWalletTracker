@@ -10,6 +10,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Components/my_card.dart';
 import '../Utils/firebase_db.dart';
+import 'edit_card_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -114,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       cardName: card.cardName,
                                       cardType: card.cardType,
                                       color: Color(card.color),
-                                      onTap: () {},
+                                      onTap: navUpdateCard,
                                     ))
                                 .toList()
                             : [
@@ -321,6 +322,12 @@ class _MyHomePageState extends State<MyHomePage> {
   void statsScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const StatisticsScreen(); // replace with your settings screen
+    })).then((value) => reload());
+  }
+
+  void navUpdateCard() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return EditCardScreen(card: myCards[pageIndex],); // replace with your settings screen
     })).then((value) => reload());
   }
 }
