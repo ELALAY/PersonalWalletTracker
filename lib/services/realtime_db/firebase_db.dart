@@ -190,6 +190,59 @@ class FirebaseDB {
     }
   }
 
+  Future<void> transferMoney({
+  required String fromCardId,
+  required String toCardId,
+  required double amount,
+}) async {
+  try {
+    // Fetch the cards from Firebase
+    DocumentSnapshot fromCardSnapshot = await FirebaseFirestore.instance
+        .collection('cards')
+        .doc(fromCardId)
+        .get();
+    DocumentSnapshot toCardSnapshot = await FirebaseFirestore.instance
+        .collection('cards')
+        .doc(toCardId)
+        .get();
+
+    if (fromCardSnapshot.exists && toCardSnapshot.exists) {
+      double fromCardBalance = fromCardSnapshot['balance'];
+      double toCardBalance = toCardSnapshot['balance'];
+
+      if (fromCardBalance >= amount) {
+        // Update the balances
+        await FirebaseFirestore.instance
+            .collection('cards')
+            .doc(fromCardId)
+            .update({'balance': fromCardBalance - amount});
+        await FirebaseFirestore.instance
+            .collection('cards')
+            .doc(toCardId)
+            .update({'balance': toCardBalance + amount});
+
+        // Optionally, record the transaction in a transactions collection
+        await FirebaseFirestore.instance.collection('transactions').add({
+          'fromCardId': fromCardId,
+          'toCardId': toCardId,
+          'amount': amount,
+          'date': DateTime.now(),
+          'type': 'transfer',
+        });
+
+        print('Transfer successful!');
+      } else {
+        throw Exception('Insufficient balance on the source card.');
+      }
+    } else {
+      throw Exception('One or both cards do not exist.');
+    }
+  } catch (e) {
+    print('Error during transfer: $e');
+  }
+}
+
+
 //--------------------------------------------------------------------------------------
 //********  Category Functions**********/
 //--------------------------------------------------------------------------------------

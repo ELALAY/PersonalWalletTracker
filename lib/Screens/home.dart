@@ -7,6 +7,7 @@ import 'package:personalwallettracker/Components/my_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
+import 'package:personalwallettracker/Screens/transaction/transfer_money.dart';
 import 'package:personalwallettracker/services/auth/auth_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -29,7 +30,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final pageController = PageController();
   List<CardModel> myCards = [];
   bool isLoading = true;
-  int navIndex = 0;
   int pageIndex = 0;
   //user and profile info
   User? user;
@@ -175,12 +175,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       //send
                       GestureDetector(
-                        onTap: () {},
+                        onTap: navTeansferMoney,
                         child: const MyButton(
                           icon: 'transfer',
                           action: 'Top Up',
                         ),
                       ),
+                      //new transaction
                       GestureDetector(
                         onTap: newTransactionScreen,
                         child: const MyButton(
@@ -346,6 +347,18 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No card selected')),
+      );
+    }
+  }
+
+  void navTeansferMoney() {
+    if (myCards.length > 1) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return TransferMoney(myCards: myCards,);// replace with your settings screen
+      })).then((value) => reload());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Not enough cards')),
       );
     }
   }
