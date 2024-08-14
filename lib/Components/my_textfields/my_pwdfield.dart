@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyPwdField extends StatefulWidget {
@@ -5,7 +6,12 @@ class MyPwdField extends StatefulWidget {
   final String label;
   final Color color;
   final bool enabled;
-  const MyPwdField({super.key, required this.controller, required this.label, required this.color, required this.enabled});
+  const MyPwdField(
+      {super.key,
+      required this.controller,
+      required this.label,
+      required this.color,
+      required this.enabled});
 
   @override
   State<MyPwdField> createState() => _MyPwdFieldState();
@@ -13,7 +19,13 @@ class MyPwdField extends StatefulWidget {
 
 class _MyPwdFieldState extends State<MyPwdField> {
   bool obscure = true;
-  
+
+  void toggleObscure() {
+    setState(() {
+      obscure = !obscure;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -22,7 +34,7 @@ class _MyPwdFieldState extends State<MyPwdField> {
         controller: widget.controller,
         obscureText: obscure,
         enabled: widget.enabled,
-        decoration:  InputDecoration(
+        decoration: InputDecoration(
           border: OutlineInputBorder(
             borderSide: BorderSide(color: widget.color),
           ),
@@ -34,6 +46,11 @@ class _MyPwdFieldState extends State<MyPwdField> {
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: widget.color),
           ),
+          suffixIcon: IconButton(
+              onPressed: toggleObscure,
+              icon: obscure
+                  ? Icon(CupertinoIcons.eye_solid, color: widget.color,)
+                  : Icon(CupertinoIcons.eye_slash_fill, color: widget.color,)),
         ),
       ),
     );
