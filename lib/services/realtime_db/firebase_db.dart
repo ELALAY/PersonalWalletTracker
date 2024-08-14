@@ -95,15 +95,61 @@ class FirebaseDB {
     }
   }
 
+  // Method to delete a card
+  Future<void> deleteCard(String cardId) async {
+    try {
+      //delete all transactions related to the card
+      deleteTransactionsByCardId(cardId);
+      //delete card
+      await _firestore.collection('cards').doc(cardId).delete();
+    } catch (e) {
+      debugPrint('Error deleting card: $e');
+      rethrow;
+    }
+  }
+
 //--------------------------------------------------------------------------------------
 //********  Transaction Functions**********/
 //--------------------------------------------------------------------------------------
+
+  //delete transaction by id
+  Future<void> deleteTransactionsById(String transactionId) async {
+    try {
+      // Fetch transactions associated with the card
+      await _firestore
+          .collection('transactions').doc(transactionId).delete();
+
+    } catch (e) {
+      debugPrint('Error deleting transactions: $e');
+      rethrow;
+    }
+  }
+
+
+  // Method to delete transactions by card ID
+  Future<void> deleteTransactionsByCardId(String cardId) async {
+    try {
+      // Fetch transactions associated with the card
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('transactions')
+          .where('cardId', isEqualTo: cardId)
+          .get();
+
+      // Delete all fetched transactions
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e) {
+      debugPrint('Error deleting transactions: $e');
+      rethrow;
+    }
+  }
 
   Future<TransactionModel> getTransactionById(String transactionId) async {
     try {
       debugPrint('fething transaction $transactionId');
       DocumentSnapshot doc =
-          await _firestore.collection('cards').doc(transactionId).get();
+          await _firestore.collection('transactions').doc(transactionId).get();
       if (doc.exists) {
         return TransactionModel.fromMap(
             doc.data() as Map<String, dynamic>, doc.id);
@@ -175,8 +221,7 @@ class FirebaseDB {
   }
 
   // Fetch transactions by card ID
-  Future<List<TransactionModel>> fetchUserTransactionsByCardId(
-      String cardId) async {
+  Future<List<TransactionModel>> fetchUserTransactions(String cardId) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')

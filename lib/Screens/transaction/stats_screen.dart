@@ -30,10 +30,20 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Future<void> _loadStatistics() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       List<TransactionModel> transactions = [];
       if (selectedCard == 'All') {
-        transactions = await _firebaseDB.fetchTransactions();
+        for (CardModel card in widget.myCards) {
+          debugPrint('All');
+          List<TransactionModel> temp = [];
+          temp = await _firebaseDB.fetchTransactionsByCardId(card.id);
+          debugPrint(temp.length.toString());
+          transactions.addAll(temp);
+          debugPrint(transactions.length.toString());
+        }
       } else {
         transactions =
             await _firebaseDB.fetchTransactionsByCardId(selectedCard);

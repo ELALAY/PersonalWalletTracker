@@ -56,12 +56,26 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   }
 
   void fetchAllTransactions() async {
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
     List<TransactionModel> transactionstemp = [];
     if (selectedCard == 'All') {
-      transactionstemp = await firebaseDB.fetchTransactions();
+      for (CardModel card in widget.myCards) {
+        debugPrint('All');
+        List<TransactionModel> temp = [];
+        temp = await firebaseDB.fetchTransactionsByCardId(card.id);
+        debugPrint(temp.length.toString());
+        transactionstemp.addAll(temp);
+        debugPrint(transactionstemp.length.toString());
+      }
     } else {
+      debugPrint('All');
       transactionstemp =
           await firebaseDB.fetchTransactionsByCardId(selectedCard);
+      debugPrint(transactionstemp.length.toString());
     }
     double totalIncometemp = 0.0;
     double totalExpensestemp = 0.0;
@@ -89,6 +103,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         transactions = transactionstemp;
         totalIncome = totalIncometemp;
         totalExpenses = totalExpensestemp;
+        isLoading = false;
       });
     }
   }
