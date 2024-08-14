@@ -78,6 +78,51 @@ class _EditCardScreenState extends State<EditCardScreen> {
     }
   }
 
+  void deleteCard() async {
+    await firebaseDatabasehelper.deleteCard(widget.card.id);
+    // ignore: use_build_context_synchronously
+    Navigator.pop(context);
+  }
+
+  void _deleteCardDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Deleting Card will delete all related transaction'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                // leading: Icon(transaction['categoryIcon']),
+                title:
+                    Text('Card Name: ${widget.card.cardName}'),
+                subtitle: Text('Card Holder: ${widget.card.cardHolderName}'),
+              ),
+              const SizedBox(height: 16.0),
+              Text('Balance: \$${widget.card.balance.toStringAsFixed(2)}'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close', style: TextStyle(color: Colors.deepPurple),),
+            ),
+            TextButton(
+              onPressed: () {
+                deleteCard();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.deepPurple),),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +138,8 @@ class _EditCardScreenState extends State<EditCardScreen> {
                 setState(() {
                   enabledEditkeyInfo = value;
                 });
-              })
+              }),
+          IconButton(onPressed: _deleteCardDialog, icon: const Icon(CupertinoIcons.delete_solid)),
         ],
       ),
       body: Padding(
@@ -102,7 +148,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
           child: Column(
             children: [
               MyCard(
-                cardHolder:_cardholderController.text,
+                cardHolder: _cardholderController.text,
                 balance: double.tryParse(_balanceController.text) ?? 0.0,
                 cardName: _cardNameController.text,
                 cardType: cardType,
