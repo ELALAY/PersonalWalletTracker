@@ -202,7 +202,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: darkTheme ? Colors.black : Colors.white,
       appBar: AppBar(
-        foregroundColor: Colors.white,
+        title: const Text('Register'),
+        foregroundColor: Colors.grey,
+        elevation: 0.0,
+        backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
@@ -215,13 +218,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ? CircleAvatar(
                         radius: 64,
                         backgroundImage: FileImage(_profileImage!),
-                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        backgroundColor: Colors.deepPurple,
                       )
-                    : CircleAvatar(
+                    : const CircleAvatar(
                         radius: 64,
-                        backgroundImage: const NetworkImage(
+                        backgroundImage: NetworkImage(
                             'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png'),
-                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        backgroundColor: Colors.deepPurple,
                       ),
                 Positioned(
                   bottom: -15,
@@ -242,12 +245,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
               controller: usernameController,
               obscureText: false,
-              decoration: InputDecoration(
-                  label: const Text('Username'),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary),
-                  )),
+              decoration: const InputDecoration(
+                label: Text('Username'),
+                labelStyle: TextStyle(color: Colors.deepPurple),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple border
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple focused border
+                  ),
+                ),
+              ),
             ),
             const SizedBox(
               height: 10,
@@ -255,12 +266,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
               controller: emailController,
               obscureText: false,
-              decoration: InputDecoration(
-                  label: const Text('Email'),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary),
-                  )),
+              decoration: const InputDecoration(
+                label: Text('Email'),
+                labelStyle: TextStyle(color: Colors.deepPurple),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple border
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple focused border
+                  ),
+                ),
+              ),
             ),
             const SizedBox(
               height: 10,
@@ -268,12 +287,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(
-                  label: const Text('Password'),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary),
-                  )),
+              decoration: const InputDecoration(
+                label: Text('Password'),
+                labelStyle: TextStyle(color: Colors.deepPurple),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple border
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple focused border
+                  ),
+                ),
+              ),
             ),
             const SizedBox(
               height: 10,
@@ -281,18 +308,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
               controller: confirmPasswordController,
               obscureText: true,
-              decoration: InputDecoration(
-                  label: const Text('Confirm Password'),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary),
-                  )),
+              decoration: const InputDecoration(
+                label: Text('Confirm Password'),
+                labelStyle: TextStyle(color: Colors.deepPurple),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple border
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple focused border
+                  ),
+                ),
+              ),
             ),
             const SizedBox(
               height: 20,
             ),
             ElevatedButton(
               onPressed: register,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 40.0, vertical: 20.0),
+              ),
               child: const Text(
                 'Register',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),

@@ -37,7 +37,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   //loading indicator
   bool isLoading = true;
   //sorting choice: true => date, false => category
-  bool _isSortedByDate = true; // Default sorting by date
+  bool _isSortedByNewest = true; // Default sorting by date
 
   String formatDate(DateTime date) {
     return DateFormat('dd/MM/yy').format(date);
@@ -45,12 +45,12 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
 
   List<TransactionModel> _sortTransactions(
       List<TransactionModel> transactions) {
-    if (_isSortedByDate) {
+    if (_isSortedByNewest) {
       // Sort by date
       transactions.sort((a, b) => b.date.compareTo(a.date)); // Newest first
     } else {
       // Sort by category name
-      transactions.sort((a, b) => a.category.compareTo(b.category));
+      transactions.sort((a, b) => a.date.compareTo(b.date));
     }
     return transactions;
   }
@@ -113,7 +113,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
           PopupMenuButton<String>(
             onSelected: (String value) {
               setState(() {
-                _isSortedByDate = value == 'Date';
+                _isSortedByNewest = value == 'Newsest';
               });
               _sortTransactions(transactions);
             },
@@ -121,12 +121,22 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             itemBuilder: (BuildContext context) {
               return [
                 const PopupMenuItem<String>(
-                  value: 'Date',
-                  child: Text('Sort by Date'),
+                  value: 'Oldest',
+                  child: Row(
+                    children: [
+                      Text('Sort by Oldest'),
+                      Icon(Icons.arrow_upward)
+                    ],
+                  ),
                 ),
                 const PopupMenuItem<String>(
-                  value: 'Category',
-                  child: Text('Sort by Category'),
+                  value: 'Newsest',
+                  child: Row(
+                    children: [
+                      Text('Sort by Newsest'),
+                      Icon(Icons.arrow_downward)
+                    ],
+                  ),
                 ),
               ];
             },

@@ -110,24 +110,30 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.lock_open_rounded,
               size: 100,
-              color: Theme.of(context).colorScheme.primary,
+              color: Colors.deepPurple,
             ),
             const Text(
-              'Login to GroupExpensesBuddy',
+              'Login to Personal Wallet Tracker',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
             ),
             const SizedBox(height: 40),
             TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                label: const Text('Email'),
-                enabledBorder: OutlineInputBorder(
+              decoration: const InputDecoration(
+                label: Text('Email'),
+                labelStyle: TextStyle(color: Colors.deepPurple),
+                border: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Colors.deepPurple, // Deep Purple border
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple focused border
                   ),
                 ),
               ),
@@ -136,21 +142,32 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(
-                label: const Text('Password'),
-                enabledBorder: OutlineInputBorder(
+              decoration: const InputDecoration(
+                label: Text('Password'),
+                labelStyle: TextStyle(color: Colors.deepPurple),
+                border: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Colors.deepPurple, // Deep Purple border
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.deepPurple, // Deep Purple focused border
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: login,
-              child: const Text(
-                'Login',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            Center(
+              child: ElevatedButton(
+                onPressed:
+                    login, // Disable button if card or category is not selected
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 40.0, vertical: 20.0),
+                ),
+                child: const Text('Add Transaction'),
               ),
             ),
             const SizedBox(height: 20),
