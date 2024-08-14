@@ -8,7 +8,6 @@ import '../../Models/transaction_model.dart';
 class FirebaseDB {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
 //--------------------------------------------------------------------------------------
 //********  Cards Functions**********/
 //--------------------------------------------------------------------------------------
@@ -63,7 +62,7 @@ class FirebaseDB {
     try {
       // Reference to the 'cards' collection and the specific document to update
       _firestore.collection('cards').doc(card.id).update(card.toMap());
-      
+
       debugPrint('Card updated successfully');
     } catch (e) {
       debugPrint('Error updating card: $e');
@@ -114,19 +113,22 @@ class FirebaseDB {
     } catch (e) {
       throw Exception('Error fetching transaction: $e');
     }
-  } 
+  }
 
   // Update an existing card
   Future<void> updateTransaction(TransactionModel transcation) async {
     try {
       // Reference to the 'cards' collection and the specific document to update
-      _firestore.collection('transactions').doc(transcation.id).update(transcation.toMap());
-      
+      _firestore
+          .collection('transactions')
+          .doc(transcation.id)
+          .update(transcation.toMap());
+
       debugPrint('Transaction updated successfully');
     } catch (e) {
       debugPrint('Error updating Transaction: $e');
     }
-  } 
+  }
 
   // Add a new transaction with auto-generated ID
   Future<bool> addTransaction(TransactionModel transaction) async {
@@ -191,57 +193,73 @@ class FirebaseDB {
   }
 
   Future<void> transferMoney({
-  required String fromCardId,
-  required String toCardId,
-  required double amount,
-}) async {
-  try {
-    // Fetch the cards from Firebase
-    DocumentSnapshot fromCardSnapshot = await FirebaseFirestore.instance
-        .collection('cards')
-        .doc(fromCardId)
-        .get();
-    DocumentSnapshot toCardSnapshot = await FirebaseFirestore.instance
-        .collection('cards')
-        .doc(toCardId)
-        .get();
+    required CardModel fromCard,
+    required CardModel toCard,
+    required double amount,
+  }) async {
+    try {
+      // Fetch the cards from Firebase
+      DocumentSnapshot fromCardSnapshot = await FirebaseFirestore.instance
+          .collection('cards')
+          .doc(fromCard.id)
+          .get();
+      DocumentSnapshot toCardSnapshot = await FirebaseFirestore.instance
+          .collection('cards')
+          .doc(toCard.id)
+          .get();
 
-    if (fromCardSnapshot.exists && toCardSnapshot.exists) {
-      double fromCardBalance = fromCardSnapshot['balance'];
-      double toCardBalance = toCardSnapshot['balance'];
+      if (fromCardSnapshot.exists && toCardSnapshot.exists) {
+        double fromCardBalance = fromCardSnapshot['balance'];
+        double toCardBalance = toCardSnapshot['balance'];
 
-      if (fromCardBalance >= amount) {
-        // Update the balances
-        await FirebaseFirestore.instance
-            .collection('cards')
-            .doc(fromCardId)
-            .update({'balance': fromCardBalance - amount});
-        await FirebaseFirestore.instance
-            .collection('cards')
-            .doc(toCardId)
-            .update({'balance': toCardBalance + amount});
+        if (fromCardBalance >= amount) {
+          // Update the balances
+          await FirebaseFirestore.instance
+              .collection('cards')
+              .doc(fromCard.id)
+              .update({'balance': fromCardBalance - amount});
+          await FirebaseFirestore.instance
+              .collection('cards')
+              .doc(toCard.id)
+              .update({'balance': toCardBalance + amount});
 
-        // Optionally, record the transaction in a transactions collection
-        await FirebaseFirestore.instance.collection('transactions').add({
-          'fromCardId': fromCardId,
-          'toCardId': toCardId,
-          'amount': amount,
-          'date': DateTime.now(),
-          'type': 'transfer',
-        });
+          TransactionModel sendTransaction = TransactionModel(
+              cardId: fromCard.id,
+              cardName: fromCard.cardName,
+              amount: amount,
+              category: 'transfer',
+              date: DateTime.now(),
+              description: 'Money Transfer',
+              isExpense: true);
+          TransactionModel receiverTransaction = TransactionModel(
+              cardId: toCard.id,
+              cardName: toCard.cardName,
+              amount: amount,
+              category: 'transfer',
+              date: DateTime.now(),
+              description: 'Money Transfer',
+              isExpense: false);
 
-        print('Transfer successful!');
+          // Optionally, (Sender) record the transaction in a transactions collection
+          await FirebaseFirestore.instance
+              .collection('transactions')
+              .add(sendTransaction.toMap());
+          // Optionally, (Receiver) record the transaction in a transactions collection
+          await FirebaseFirestore.instance
+              .collection('transactions')
+              .add(receiverTransaction.toMap());
+
+          debugPrint('Transfer successful!');
+        } else {
+          throw Exception('Insufficient balance on the source card.');
+        }
       } else {
-        throw Exception('Insufficient balance on the source card.');
+        throw Exception('One or both cards do not exist.');
       }
-    } else {
-      throw Exception('One or both cards do not exist.');
+    } catch (e) {
+      debugPrint('Error during transfer: $e');
     }
-  } catch (e) {
-    print('Error during transfer: $e');
   }
-}
-
 
 //--------------------------------------------------------------------------------------
 //********  Category Functions**********/
@@ -341,7 +359,8 @@ class FirebaseDB {
     }
   }
 
-  Future<void> updatePersonProfile(String userId, Map<String, dynamic> updatedData) async {
+  Future<void> updatePersonProfile(
+      String userId, Map<String, dynamic> updatedData) async {
     try {
       await _firestore.collection('users').doc(userId).update(updatedData);
       debugPrint('Profile updated successfully.');

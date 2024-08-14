@@ -4,6 +4,8 @@ import 'package:personalwallettracker/Components/my_textfield.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../../services/realtime_db/firebase_db.dart';
+
 class TransferMoney extends StatefulWidget {
   final List<CardModel> myCards;
   const TransferMoney({super.key, required this.myCards});
@@ -13,6 +15,7 @@ class TransferMoney extends StatefulWidget {
 }
 
 class _TransferMoneyState extends State<TransferMoney> {
+  FirebaseDB firebaseDatabasehelper = FirebaseDB();
   bool isLoading = false;
   final TextEditingController _amountController = TextEditingController();
   final PageController pageSendController = PageController();
@@ -113,7 +116,7 @@ class _TransferMoneyState extends State<TransferMoney> {
                               enabled: true),
                         ),
                         GestureDetector(
-                          onTap: transferMoney,
+                          onTap: transferDialog,
                           child: Container(
                             height: 50.0,
                             width: 50.0,
@@ -178,7 +181,12 @@ class _TransferMoneyState extends State<TransferMoney> {
     );
   }
 
-  void transferMoney () {
+  void transferMoney(CardModel sendCard, CardModel receiveCard, double amount) {
+    firebaseDatabasehelper.transferMoney(
+        fromCard: sendCard, toCard: receiveCard, amount: amount);
+  }
+
+  void transferDialog() {
     showDialog(
       context: context,
       builder: (context) {
@@ -189,8 +197,7 @@ class _TransferMoneyState extends State<TransferMoney> {
             children: [
               ListTile(
                 // leading: Icon(transaction['categoryIcon']),
-                title:
-                    Text(widget.myCards[pageSendIndex].cardName),
+                title: Text(widget.myCards[pageSendIndex].cardName),
                 subtitle: Text(widget.myCards[pageReceiveIndex].cardName),
               ),
               const SizedBox(height: 16.0),
@@ -202,7 +209,23 @@ class _TransferMoneyState extends State<TransferMoney> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Close'),
+              child: const Text(
+                'Close',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                transferMoney(
+                    widget.myCards[pageSendIndex],
+                    widget.myCards[pageReceiveIndex],
+                    double.parse(_amountController.text));
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Add',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
             ),
           ],
         );
