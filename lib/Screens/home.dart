@@ -4,7 +4,7 @@ import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/transaction/new_transaction_screen.dart';
-import 'package:personalwallettracker/Components/my_button.dart';
+import 'package:personalwallettracker/Components/my_image_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
@@ -61,10 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void fetchUserAndCards() async {
     try {
-      setState(() {
-        isLoading = true;
-      });
-
       // Fetch the user
       User? userTemp = authService.getCurrentUser();
       if (userTemp != null) {
@@ -89,15 +85,9 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       } else {
         debugPrint('User not found');
-        setState(() {
-          isLoading = false;
-        });
       }
     } catch (e) {
       debugPrint("Error fetching user or cards: $e");
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
@@ -180,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       //tranfer
                       GestureDetector(
                         onTap: navTeansferMoney,
-                        child: const MyButton(
+                        child: const MyImageButton(
                           icon: 'transfer',
                           action: 'Transfer',
                         ),
@@ -188,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       //new transaction
                       GestureDetector(
                         onTap: newTransactionScreen,
-                        child: const MyButton(
+                        child: const MyImageButton(
                           icon: 'add_transaction',
                           action: 'Transaction',
                         ),

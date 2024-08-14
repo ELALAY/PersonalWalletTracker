@@ -116,6 +116,12 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     super.initState();
   }
 
+  void reload() async {
+    isLoading = true;
+    fetchAllTransactions();
+    isLoading = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -444,7 +450,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         return AddTransactionScreen(
           card: cardTemp,
         ); // replace with your settings screen
-      }));
+      })).then((value) => reload());
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No card selected')),

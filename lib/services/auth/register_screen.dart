@@ -6,6 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:personalwallettracker/Components/my_button.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_emailfield.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_pwdfield.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import '../../Screens/home.dart';
 import '../../Utils/globals.dart';
@@ -228,6 +232,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 )
               ],
             ),
+            const SizedBox(
+              height: 20,
+            ),
             const Text(
               'Register to ScoreBuddy',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
@@ -235,102 +242,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(
               height: 40,
             ),
-            TextField(
-              controller: usernameController,
-              obscureText: false,
-              decoration: const InputDecoration(
-                label: Text('Username'),
-                labelStyle: TextStyle(color: Colors.deepPurple),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple border
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple focused border
-                  ),
-                ),
-              ),
-            ),
+            //Username Field
+            MyTextField(
+                controller: usernameController,
+                label: 'Username',
+                color: Colors.deepPurple,
+                enabled: true),
             const SizedBox(
               height: 10,
             ),
-            TextField(
-              controller: emailController,
-              obscureText: false,
-              decoration: const InputDecoration(
-                label: Text('Email'),
-                labelStyle: TextStyle(color: Colors.deepPurple),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple border
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple focused border
-                  ),
-                ),
-              ),
-            ),
+            //Email Field
+            MyEmailField(
+                controller: emailController,
+                label: 'Email',
+                color: Colors.deepPurple,
+                enabled: true),
             const SizedBox(
               height: 10,
             ),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                label: Text('Password'),
-                labelStyle: TextStyle(color: Colors.deepPurple),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple border
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple focused border
-                  ),
-                ),
-              ),
-            ),
+            MyPwdField(
+                controller: passwordController,
+                label: 'Password',
+                color: Colors.deepPurple,
+                enabled: true),
             const SizedBox(
               height: 10,
             ),
-            TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                label: Text('Confirm Password'),
-                labelStyle: TextStyle(color: Colors.deepPurple),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple border
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple focused border
-                  ),
-                ),
-              ),
-            ),
+            MyPwdField(
+                controller: confirmPasswordController,
+                label: 'Confirm Password',
+                color: Colors.deepPurple,
+                enabled: true),
             const SizedBox(
               height: 20,
             ),
-            ElevatedButton(
-              onPressed: register,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 40.0, vertical: 20.0),
-              ),
-              child: const Text(
-                'Register',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-            ),
+            //Register button
+            MyButton(label: 'Register', onTap: register),
             const SizedBox(
               height: 20,
             ),

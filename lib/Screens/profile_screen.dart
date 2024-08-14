@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:personalwallettracker/Components/my_textfield.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../Models/person_model.dart';

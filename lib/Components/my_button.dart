@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class MyButton extends StatefulWidget {
-  final String icon;
-  final String action;
-  const MyButton({super.key, required this.icon, required this.action});
+  final VoidCallback onTap;
+  final String label;
+  const MyButton({super.key,required this.label, required this.onTap});
 
   @override
   State<MyButton> createState() => _MyButtonState();
@@ -12,31 +12,15 @@ class MyButton extends StatefulWidget {
 class _MyButtonState extends State<MyButton> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 100.0,
-          width: 150.0,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.pink,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Image.asset(
-            'lib/Images/${widget.icon}.png',
-            color: Colors.white,
-          ),
+    return Center(
+      child: ElevatedButton(
+        onPressed: widget.onTap, // Disable button if card or category is not selected
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.deepPurple,
+          padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
         ),
-        const SizedBox(
-          height: 10.0,
-        ),
-        Text(widget.action,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-            )),
-      ],
+        child: Text(widget.label),
+      ),
     );
   }
 }

@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:personalwallettracker/Components/my_button.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_emailfield.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_pwdfield.dart';
 import 'package:personalwallettracker/services/auth/register_screen.dart';
 import '../../Screens/home.dart';
 import '../../Utils/globals.dart';
@@ -116,60 +119,17 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
               color: Colors.deepPurple,
             ),
             const Text(
-              'Login to Personal Wallet Tracker',
+              'Personal Wallet Tracker',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
             ),
             const SizedBox(height: 40),
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                label: Text('Email'),
-                labelStyle: TextStyle(color: Colors.deepPurple),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple border
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple focused border
-                  ),
-                ),
-              ),
-            ),
+            //Email Field
+            MyEmailField(controller: emailController, label: 'Email', color: Colors.deepPurple, enabled: true),
             const SizedBox(height: 10),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                label: Text('Password'),
-                labelStyle: TextStyle(color: Colors.deepPurple),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple border
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.deepPurple, // Deep Purple focused border
-                  ),
-                ),
-              ),
-            ),
+            //Password Field
+            MyPwdField(controller: passwordController, label: 'Password', color: Colors.deepPurple, enabled: true),
             const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed:
-                    login, // Disable button if card or category is not selected
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 40.0, vertical: 20.0),
-                ),
-                child: const Text('Add Transaction'),
-              ),
-            ),
+            MyButton(label: 'Log In', onTap: login),
             const SizedBox(height: 20),
             GestureDetector(
               onTap: navRegister,

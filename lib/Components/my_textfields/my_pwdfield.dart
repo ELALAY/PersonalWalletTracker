@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 
-class MyTextField extends StatefulWidget {
+class MyPwdField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final Color color;
   final bool enabled;
-  const MyTextField({super.key, required this.controller, required this.label, required this.color, required this.enabled});
+  const MyPwdField({super.key, required this.controller, required this.label, required this.color, required this.enabled});
 
   @override
-  State<MyTextField> createState() => _MyTextFieldState();
+  State<MyPwdField> createState() => _MyPwdFieldState();
 }
 
-class _MyTextFieldState extends State<MyTextField> {
+class _MyPwdFieldState extends State<MyPwdField> {
+  bool obscure = true;
+  
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
         controller: widget.controller,
+        obscureText: obscure,
         enabled: widget.enabled,
-        keyboardType: TextInputType.number,
         decoration:  InputDecoration(
           border: OutlineInputBorder(
             borderSide: BorderSide(color: widget.color),
