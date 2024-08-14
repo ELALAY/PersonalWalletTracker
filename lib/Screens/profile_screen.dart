@@ -1,12 +1,9 @@
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:personalwallettracker/Components/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfield.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
@@ -53,6 +50,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   Future<String?> _uploadProfileImage(File image) async {
     try {
+      debugPrint('uploaded prfile image to cloud');
       Reference storageReference = FirebaseStorage.instance
           .ref()
           .child('profile_images/${image.path.split('/').last}');
@@ -82,15 +80,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
+    debugPrint('saving Profile');
     setState(() {
       isLoading = true;
     });
-
+    debugPrint('uploading image');
     try {
       String? profileImageUrl;
       if (_profileImage != null) {
         profileImageUrl = await _uploadProfileImage(_profileImage!);
       }
+      debugPrint('uploaded image');
 
       Map<String, dynamic> updatedData = {
         'username': _usernameController.text,
@@ -101,11 +101,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
       await firebaseDatabasehelper.updatePersonProfile(
           widget.user.uid, updatedData);
-
+      debugPrint('saved profile');
       setState(() {
         isLoading = false;
       });
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully!')),
       );
