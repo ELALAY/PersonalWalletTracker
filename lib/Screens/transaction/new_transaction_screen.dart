@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
@@ -179,133 +182,95 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Amount
-                          TextFormField(
-                            controller: _amountController,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              labelText: 'Amount',
-                              labelStyle: TextStyle(color: Colors.deepPurple),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color:
-                                      Colors.deepPurple, // Deep Purple border
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .deepPurple, // Deep Purple focused border
-                                ),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter an amount';
-                              } else if (double.tryParse(value) == null) {
-                                return 'Enter a valid amount';
-                              }
-                              return null;
-                            },
-                          ),
+                          MyNumberField(
+                              controller: _amountController,
+                              label: 'Amount',
+                              color: Colors.deepPurple,
+                              enabled: true),
                           const SizedBox(height: 16.0),
                           // Description
-                          TextFormField(
-                            controller: _descriptionController,
-                            decoration: const InputDecoration(
-                              labelText: 'Description',
-                              labelStyle: TextStyle(color: Colors.deepPurple),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color:
-                                      Colors.deepPurple, // Deep Purple border
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .deepPurple, // Deep Purple focused border
-                                ),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter a description';
-                              }
-                              return null;
-                            },
-                          ),
+                          MyTextField(
+                              controller: _descriptionController,
+                              label: 'Description',
+                              color: Colors.deepPurple,
+                              enabled: true),
                           const SizedBox(height: 16.0),
                           // Category
-                          DropdownButtonFormField<String>(
-                            value: _selectedCategory,
-                            icon: IconButton(
-                              onPressed: _showCreateCategoryDialog,
-                              icon: const Icon(
-                                Icons.add,
-                                color: Colors.deepPurple,
-                              ),
-                            ),
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  _selectedCategory = value;
-                                });
-                              }
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Category',
-                              labelStyle: TextStyle(color: Colors.deepPurple),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color:
-                                      Colors.deepPurple, // Deep Purple border
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedCategory,
+                              icon: IconButton(
+                                onPressed: _showCreateCategoryDialog,
+                                icon: const Icon(
+                                  Icons.add,
+                                  color: Colors.deepPurple,
                                 ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .deepPurple, // Deep Purple focused border
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _selectedCategory = value;
+                                  });
+                                }
+                              },
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
+                                ),
+                                labelText: 'Category',
+                                labelStyle: TextStyle(color: Colors.deepPurple),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                               ),
+                              items: [
+                                ..._categories
+                                    .map((category) => DropdownMenuItem<String>(
+                                          value: category.name,
+                                          child: Text(category.name),
+                                        )),
+                                const DropdownMenuItem<String>(
+                                  value: 'Create New...',
+                                  child: Text('Create New... +'),
+                                ),
+                              ],
                             ),
-                            items: [
-                              ..._categories
-                                  .map((category) => DropdownMenuItem<String>(
-                                        value: category.name,
-                                        child: Text(category.name),
-                                      )),
-                              const DropdownMenuItem<String>(
-                                value: 'Create New...',
-                                child: Text('Create New... +'),
-                              ),
-                            ],
                           ),
                           const SizedBox(height: 16.0),
                           // Date Picker
-                          TextFormField(
-                            controller: _dateController,
-                            decoration: InputDecoration(
-                              labelText: formatDate(selectedDate),
-                              labelStyle:
-                                  const TextStyle(color: Colors.deepPurple),
-                              border: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.deepPurple,
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              controller: _dateController,
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                ),
+                                labelText: formatDate(selectedDate),
+                                labelStyle: const TextStyle(color: Colors.deepPurple),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                ),
+                                focusedBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(
+                                      Icons.calendar_month_outlined,
+                                      color: Colors.deepPurple),
+                                  onPressed: () => _selectDate(context),
                                 ),
                               ),
-                              focusedBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.calendar_month_outlined,
-                                    color: Colors.deepPurple),
-                                onPressed: () => _selectDate(context),
-                              ),
+                              readOnly: true,
+                              onTap: () => _selectDate(context),
                             ),
-                            readOnly: true,
-                            onTap: () => _selectDate(context),
                           ),
                           const SizedBox(height: 16.0),
                           //Income or Expense = isExpense`
@@ -330,18 +295,9 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                             ],
                           ),
                           const SizedBox(height: 16.0),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed:
-                                  _addTransaction, // Disable button if card or category is not selected
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.deepPurple,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40.0, vertical: 20.0),
-                              ),
-                              child: const Text('Add Transaction'),
-                            ),
-                          ),
+                          MyButton(
+                              label: 'Save transaction',
+                              onTap: _addTransaction),
                         ],
                       ),
                     ),

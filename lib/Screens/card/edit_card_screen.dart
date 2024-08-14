@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_color_pallette.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../../Models/card_model.dart';
 import '../../Utils/globals.dart';
@@ -89,14 +92,14 @@ class _EditCardScreenState extends State<EditCardScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Deleting Card will delete all related transaction'),
+          title:
+              const Text('Deleting Card will delete all related transaction'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 // leading: Icon(transaction['categoryIcon']),
-                title:
-                    Text('Card Name: ${widget.card.cardName}'),
+                title: Text('Card Name: ${widget.card.cardName}'),
                 subtitle: Text('Card Holder: ${widget.card.cardHolderName}'),
               ),
               const SizedBox(height: 16.0),
@@ -108,14 +111,20 @@ class _EditCardScreenState extends State<EditCardScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Close', style: TextStyle(color: Colors.deepPurple),),
+              child: const Text(
+                'Close',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
             ),
             TextButton(
               onPressed: () {
                 deleteCard();
                 Navigator.of(context).pop();
               },
-              child: const Text('Delete', style: TextStyle(color: Colors.deepPurple),),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
             ),
           ],
         );
@@ -139,7 +148,9 @@ class _EditCardScreenState extends State<EditCardScreen> {
                   enabledEditkeyInfo = value;
                 });
               }),
-          IconButton(onPressed: _deleteCardDialog, icon: const Icon(CupertinoIcons.delete_solid)),
+          IconButton(
+              onPressed: _deleteCardDialog,
+              icon: const Icon(CupertinoIcons.delete_solid)),
         ],
       ),
       body: Padding(
@@ -162,132 +173,71 @@ class _EditCardScreenState extends State<EditCardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     //Card Owner Name
-                    TextFormField(
-                      controller: _cardholderController,
-                      enabled: enabledEditkeyInfo,
-                      decoration: const InputDecoration(
-                        labelText: 'Card Holder',
-                        labelStyle: TextStyle(color: Colors.deepPurple),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.deepPurple,
+                    MyTextField(
+                        controller: _cardholderController,
+                        label: 'Card Holder',
+                        color: Colors.deepPurple,
+                        enabled: enabledEditkeyInfo),
+                    const SizedBox(height: 16.0),
+                    //Card Name
+                    MyTextField(
+                        controller: _cardNameController,
+                        label: 'Card Name',
+                        color: Colors.deepPurple,
+                        enabled: true),
+                    const SizedBox(height: 16.0),
+                    //Card Balance
+                    MyNumberField(
+                        controller: _balanceController,
+                        label: 'Balance',
+                        color: Colors.deepPurple,
+                        enabled: enabledEditkeyInfo),
+                    const SizedBox(height: 16.0),
+                    //Card Type
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: DropdownButtonFormField<String>(
+                        value: cardType,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              cardType = value;
+                            });
+                          }
+                        },
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.deepPurple),
+                          ),
+                          labelText: 'Card Type',
+                          labelStyle: TextStyle(color: Colors.deepPurple),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.deepPurple),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.deepPurple),
                           ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.deepPurple,
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'visa',
+                            child: Text('Visa'),
                           ),
-                        ),
+                          DropdownMenuItem(
+                            value: 'mastercard',
+                            child: Text('Mastercard'),
+                          ),
+                        ],
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter card holder name';
-                        }
-                        return null;
-                      },
                     ),
                     const SizedBox(height: 16.0),
-                    TextFormField(
-                      controller: _cardNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Card Name',
-                        labelStyle: TextStyle(color: Colors.deepPurple),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your card name';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    TextFormField(
-                      enabled: enabledEditkeyInfo,
-                      controller: _balanceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Balance',
-                        labelStyle: TextStyle(color: Colors.deepPurple),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter the balance';
-                        } else if (double.tryParse(value) == null) {
-                          return 'Enter a valid amount';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    DropdownButtonFormField<String>(
-                      value: cardType,
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            cardType = value;
-                          });
-                        }
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Card Type',
-                        labelStyle: TextStyle(color: Colors.deepPurple),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'visa',
-                          child: Text('Visa'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'mastercard',
-                          child: Text('Mastercard'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
+                    //Card Color Choice
                     ColorPalette(
                         colors: colorOptions,
                         onColorSelected: _onColorSelected),
                     const SizedBox(height: 16.0),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: _editCard,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40.0, vertical: 20.0),
-                        ),
-                        child: const Text('Update Card'),
-                      ),
-                    ),
+                    //Save Updates
+                    MyButton(label: 'Update Card', onTap: _editCard),
                   ],
                 ),
               ),

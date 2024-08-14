@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:personalwallettracker/Components/my_button.dart';
+import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_emailfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_pwdfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';

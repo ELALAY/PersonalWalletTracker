@@ -4,7 +4,7 @@ import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/transaction/new_transaction_screen.dart';
-import 'package:personalwallettracker/Components/my_image_button.dart';
+import 'package:personalwallettracker/Components/my_buttons/my_image_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
