@@ -1,6 +1,13 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:personalwallettracker/Components/my_button.dart';
+import 'package:personalwallettracker/Components/my_textfield.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../services/auth/auth_service.dart';
@@ -8,7 +15,8 @@ import '../services/auth/auth_service.dart';
 class MyProfileScreen extends StatefulWidget {
   final User user;
   final Map<String, dynamic> personProfile;
-  const MyProfileScreen({super.key, required this.user, required this.personProfile});
+  const MyProfileScreen(
+      {super.key, required this.user, required this.personProfile});
 
   @override
   State<MyProfileScreen> createState() => _MyProfileScreenState();
@@ -17,14 +25,99 @@ class MyProfileScreen extends StatefulWidget {
 class _MyProfileScreenState extends State<MyProfileScreen> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
   AuthService authService = AuthService();
-  //loading screen
+  final ImagePicker _picker = ImagePicker();
+
+  // Text Editing Controllers
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _idController = TextEditingController();
+
+  // Loading and Editing State
   bool isLoading = true;
-  //key info to edit
   bool enabledEditkeyInfo = false;
+
+  // Profile Image
+  File? _profileImage;
+  String errorMessage = '';
 
   @override
   void initState() {
     super.initState();
+    _usernameController =
+        TextEditingController(text: widget.personProfile['username']);
+    _emailController =
+        TextEditingController(text: widget.personProfile['email']);
+    _idController = TextEditingController(text: widget.personProfile['id']);
+    isLoading = false;
+  }
+
+  Future<String?> _uploadProfileImage(File image) async {
+    try {
+      Reference storageReference = FirebaseStorage.instance
+          .ref()
+          .child('profile_images/${image.path.split('/').last}');
+      UploadTask uploadTask = storageReference.putFile(image);
+      TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
+      String downloadURL = await taskSnapshot.ref.getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  Future<void> _pickProfileImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _profileImage = File(pickedFile.path);
+        });
+      } else {
+        debugPrint('No image selected.');
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  Future<void> _saveProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      String? profileImageUrl;
+      if (_profileImage != null) {
+        profileImageUrl = await _uploadProfileImage(_profileImage!);
+      }
+
+      Map<String, dynamic> updatedData = {
+        'username': _usernameController.text,
+        'email': _emailController.text,
+        'id': _idController.text,
+        if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
+      };
+
+      await firebaseDatabasehelper.updatePersonProfile(
+          widget.user.uid, updatedData);
+
+      setState(() {
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully!')),
+      );
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating profile: $e')),
+      );
+    }
   }
 
   @override
@@ -37,17 +130,91 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         foregroundColor: Colors.grey,
         actions: [
           CupertinoSwitch(
-              value: enabledEditkeyInfo,
-              onChanged: (value) {
-                setState(() {
-                  enabledEditkeyInfo = value;
-                });
-              })
+            value: enabledEditkeyInfo,
+            onChanged: (value) {
+              setState(() {
+                enabledEditkeyInfo = value;
+              });
+            },
+          ),
         ],
       ),
-      body: isLoading ?
-        const Center(child: CircularProgressIndicator(),)
-        : SingleChildScrollView(child: Column(children: [],),),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20.0,),
+                    Stack(
+                      children: [
+                        Container(
+                          width: 120, // Set width to make the CircleAvatar bigger
+                          height:
+                              120, // Set height to make the CircleAvatar bigger
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: _profileImage != null
+                                  ? FileImage(_profileImage!)
+                                  : widget.personProfile['profile_picture'] !=
+                                          null
+                                      ? NetworkImage(
+                                          widget.personProfile['profile_picture'])
+                                      : const NetworkImage(
+                                          'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
+                                        ) as ImageProvider,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: -15,
+                          left: -10,
+                          child: IconButton(
+                              onPressed: _pickProfileImage,
+                              icon: const Icon(Icons.add_a_photo_outlined)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    MyTextField(
+                      controller: _idController,
+                      enabled: false,
+                      label: 'User ID',
+                      color: Colors.deepPurple,
+                    ),
+                    MyTextField(
+                      controller: _usernameController,
+                      enabled: enabledEditkeyInfo,
+                      label: 'Username',
+                      color: Colors.deepPurple,
+                    ),
+                    MyTextField(
+                      controller: _emailController,
+                      enabled: enabledEditkeyInfo,
+                      label: 'Email',
+                      color: Colors.deepPurple,
+                    ),
+                    const SizedBox(height: 20),
+                    enabledEditkeyInfo ? Center(
+                      child: ElevatedButton(
+                        onPressed:_saveProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40.0, vertical: 20.0),
+                        ),
+                        child: const Text('save profile'),
+                      ),
+                    ) : Container(),
+                  ],
+                ),
+              ),
+          ),
     );
   }
 }

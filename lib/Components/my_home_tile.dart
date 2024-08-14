@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
-class MyListTile extends StatefulWidget {
+class MyHomeTile extends StatefulWidget {
   final Icon icon;
   final String tileTitle;
   final String titleSubName;
-  const MyListTile(
+  const MyHomeTile(
       {super.key,
       required this.icon,
       required this.tileTitle,
       required this.titleSubName});
 
   @override
-  State<MyListTile> createState() => _MyListTileState();
+  State<MyHomeTile> createState() => _MyHomeTileState();
 }
 
-class _MyListTileState extends State<MyListTile> {
+class _MyHomeTileState extends State<MyHomeTile> {
   @override
   Widget build(BuildContext context) {
     return Row(

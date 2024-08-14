@@ -294,11 +294,11 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                             ),
                             subtitle: Text(
                                 '${formatDate(transaction.date)} - ${transaction.category}'),
-                            leading: IconButton(
-                                onPressed: () {
-                                  editTransaction(transaction);
-                                },
-                                icon: const Icon(Icons.edit)),
+                            // leading: IconButton(
+                            //     onPressed: () {
+                            //       editTransaction(transaction);
+                            //     },
+                            //     icon: const Icon(Icons.edit)),
                             trailing: Text(
                               '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
                               style: TextStyle(

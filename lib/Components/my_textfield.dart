@@ -4,7 +4,8 @@ class MyTextField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final Color color;
-  const MyTextField({super.key, required this.controller, required this.label, required this.color});
+  final bool enabled;
+  const MyTextField({super.key, required this.controller, required this.label, required this.color, required this.enabled});
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -17,6 +18,7 @@ class _MyTextFieldState extends State<MyTextField> {
       padding: const EdgeInsets.all(8.0),
       child: TextField(
         controller: widget.controller,
+        enabled: widget.enabled,
         keyboardType: TextInputType.number,
         decoration:  InputDecoration(
           border: OutlineInputBorder(

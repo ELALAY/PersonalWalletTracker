@@ -287,4 +287,14 @@ class FirebaseDB {
       return [];
     }
   }
+
+  Future<void> updatePersonProfile(String userId, Map<String, dynamic> updatedData) async {
+    try {
+      await _firestore.collection('users').doc(userId).update(updatedData);
+      debugPrint('Profile updated successfully.');
+    } catch (e) {
+      debugPrint('Failed to update profile: $e');
+      throw Exception('Error updating profile');
+    }
+  }
 }
