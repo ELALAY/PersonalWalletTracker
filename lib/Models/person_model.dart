@@ -2,14 +2,17 @@ class Person {
   String id;
   String username;
   String email;
+  String profile_picture;
 
-  Person(this.username, this.email) : id = '';
-  Person.withId(this.id, this.username, this.email);
+  Person(this.username, this.email, this.profile_picture) : id = '';
+  Person.withId(this.id, this.username, this.email, this.profile_picture);
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{};
+    map['id'] = id;
     map['username'] = username;
     map['email'] = email;
+    map['profile_picture'] = profile_picture;
 
     return map;
   }
@@ -19,6 +22,7 @@ class Person {
       id,
       map['username'],
       map['email'],
+      map['profile_picture'],
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:personalwallettracker/Models/person_model.dart';
 import '../../Screens/home.dart';
 import '../../Utils/globals.dart';
 import '../realtime_db/firebase_db.dart';
@@ -31,15 +32,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   File? _profileImage;
   String errorMessage = '';
   User? user;
-  Map<String, dynamic>? personProfile;
-
-  void fetchUser() async {
-    user = authService.getCurrentUser();
-    if (user != null) {
-      personProfile = await fbdatabaseHelper.getPersonProfile(user!.uid);
-    }
-    setState(() {});
-  }
 
   Future<void> saveUsername() async {
     String username = usernameController.text.trim();
@@ -65,15 +57,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png';
       }
 
-      await FirebaseFirestore.instance
-          .collection('persons')
-          .doc(user!.uid)
-          .set({
-        'id': user!.uid,
+      Person personProfile = Person.fromMap({
         'username': username,
         'email': user!.email,
         'profile_picture': profileImageUrl,
-      });
+      }, user!.uid);
+
+      await FirebaseFirestore.instance
+          .collection('persons')
+          .doc(user!.uid)
+          .set(personProfile.toMap());
 
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(

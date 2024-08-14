@@ -3,14 +3,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_color_pallette.dart';
+import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../../Models/card_model.dart';
 import '../../Utils/globals.dart'; // Import your firebase_db.dart file
 
 class NewCardScreen extends StatefulWidget {
   //user and profile info
-  final User? user;
-  final Map<String, dynamic>? personProfile;
+  final User user;
+  final Person personProfile;
   const NewCardScreen(
       {super.key, required this.user, required this.personProfile});
 
@@ -40,7 +41,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
     super.initState();
     // Initialize with existing card details
     _cardholderController =
-        TextEditingController(text: widget.personProfile!['username']);
+        TextEditingController(text: widget.personProfile.username);
     _balanceController = TextEditingController(text: '0');
   }
 
@@ -58,8 +59,8 @@ class _NewCardScreenState extends State<NewCardScreen> {
         final newCard = CardModel(
           cardName: _cardNameController.text,
           balance: double.parse(_balanceController.text),
-          cardHolderName: widget.personProfile!['username'],
-          ownerId: widget.user!.uid,
+          cardHolderName: widget.personProfile.username,
+          ownerId: widget.user.uid,
           cardType: cardType, // Optional field, adjust as needed
           color: selectedColor.value,
         );
@@ -102,7 +103,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
           child: Column(
             children: [
               MyCard(
-                cardHolder: widget.personProfile!['username'],
+                cardHolder: widget.personProfile.username,
                 balance: double.tryParse(_balanceController.text) ?? 0.0,
                 cardName: _cardNameController.text,
                 cardType: cardType,

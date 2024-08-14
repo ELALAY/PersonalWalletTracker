@@ -7,11 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:personalwallettracker/Components/my_textfield.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
+import '../Models/person_model.dart';
 import '../services/auth/auth_service.dart';
 
 class MyProfileScreen extends StatefulWidget {
   final User user;
-  final Map<String, dynamic> personProfile;
+  final Person personProfile;
   const MyProfileScreen(
       {super.key, required this.user, required this.personProfile});
 
@@ -41,10 +42,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   void initState() {
     super.initState();
     _usernameController =
-        TextEditingController(text: widget.personProfile['username']);
+        TextEditingController(text: widget.personProfile.username);
     _emailController =
-        TextEditingController(text: widget.personProfile['email']);
-    _idController = TextEditingController(text: widget.personProfile['id']);
+        TextEditingController(text: widget.personProfile.email);
+    _idController = TextEditingController(text: widget.personProfile.id);
     isLoading = false;
   }
 
@@ -162,10 +163,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               fit: BoxFit.cover,
                               image: _profileImage != null
                                   ? FileImage(_profileImage!)
-                                  : widget.personProfile['profile_picture'] !=
-                                          null
+                                  : widget.personProfile.profile_picture.isNotEmpty
                                       ? NetworkImage(
-                                          widget.personProfile['profile_picture'])
+                                          widget.personProfile.profile_picture)
                                       : const NetworkImage(
                                           'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
                                         ) as ImageProvider,

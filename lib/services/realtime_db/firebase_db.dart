@@ -125,7 +125,6 @@ class FirebaseDB {
     }
   }
 
-
   // Method to delete transactions by card ID
   Future<void> deleteTransactionsByCardId(String cardId) async {
     try {
@@ -352,13 +351,13 @@ class FirebaseDB {
     }
   }
 
-  Future<Map<String, dynamic>?> getPersonProfile(String uid) async {
+  Future<Person?> getPersonProfile(String uid) async {
     try {
       DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
           await _firestore.collection('persons').doc(uid).get();
 
       if (documentSnapshot.exists) {
-        return documentSnapshot.data();
+        return Person.fromMap(documentSnapshot.data()!, uid);
       } else {
         debugPrint('No user profile found for uid: $uid');
         return null;
@@ -369,7 +368,7 @@ class FirebaseDB {
     }
   }
 
-  Future<Map<String, dynamic>?> getPersonProfileByUsername(
+  Future<Person?> getPersonProfileByUsername(
       String username) async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
@@ -379,7 +378,7 @@ class FirebaseDB {
 
       if (querySnapshot.docs.isNotEmpty) {
         // Assuming you want to return the first match
-        return querySnapshot.docs.first.data();
+        return Person.fromMap(querySnapshot.docs.first.data(), querySnapshot.docs.first['id']);
       } else {
         debugPrint('No user profile found for username: $username');
         return null;

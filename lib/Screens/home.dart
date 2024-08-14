@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
+import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/transaction/new_transaction_screen.dart';
 import 'package:personalwallettracker/Components/my_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
@@ -33,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int pageIndex = 0;
   //user and profile info
   User? user;
-  Map<String, dynamic>? personProfile;
+  Person? personProfile;
 
   @override
   void initState() {
@@ -67,10 +68,13 @@ class _MyHomePageState extends State<MyHomePage> {
       // Fetch the user
       User? userTemp = authService.getCurrentUser();
       if (userTemp != null) {
+        debugPrint('got user: ${userTemp.email}');
         // Fetch user profile
-        Map<String, dynamic>? personProfileTemp =
+        Person? personProfileTemp =
             await firebaseDatabasehelper.getPersonProfile(userTemp.uid);
-
+        personProfileTemp != null
+            ? debugPrint('got user: ${personProfileTemp.email}')
+            : debugPrint('no user profile');
         setState(() {
           user = userTemp;
           personProfile = personProfileTemp;
@@ -113,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.grey)),
         ],
       ),
-      drawer: user != null && personProfile != null
+      drawer: user != null
           ? MyDrawer(user: user!, personProfile: personProfile!)
           : null,
       body: isLoading
@@ -173,12 +177,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      //send
+                      //tranfer
                       GestureDetector(
                         onTap: navTeansferMoney,
                         child: const MyButton(
                           icon: 'transfer',
-                          action: 'Top Up',
+                          action: 'Transfer',
                         ),
                       ),
                       //new transaction
@@ -186,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onTap: newTransactionScreen,
                         child: const MyButton(
                           icon: 'add_transaction',
-                          action: 'transaction',
+                          action: 'Transaction',
                         ),
                       ),
                     ],
@@ -286,8 +290,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void newCardScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return NewCardScreen(
-        user: user,
-        personProfile: personProfile,
+        user: user!,
+        personProfile: personProfile!,
       );
     }));
   }
@@ -354,7 +358,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void navTeansferMoney() {
     if (myCards.length > 1) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return TransferMoney(myCards: myCards,);// replace with your settings screen
+        return TransferMoney(
+          myCards: myCards,
+        ); // replace with your settings screen
       })).then((value) => reload());
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

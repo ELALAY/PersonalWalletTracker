@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_list_tile.dart';
+import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/profile_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
@@ -10,7 +11,7 @@ import '../Utils/globals.dart';
 
 class MyDrawer extends StatefulWidget {
   final User user;
-  final Map<String, dynamic> personProfile;
+  final Person personProfile;
   const MyDrawer({super.key, required this.user, required this.personProfile});
 
   @override
@@ -67,14 +68,14 @@ class _MyDrawerState extends State<MyDrawer> {
                       color: Colors.pink,
                     ),
                     accountName: Text(
-                      '${widget.personProfile['username'] ?? 'No username'} ',
+                      '${widget.personProfile.username} ',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                       ),
                     ),
                     accountEmail: Text(
-                      '${widget.personProfile['email'] ?? 'No email'}',
+                      widget.personProfile.email,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -82,9 +83,9 @@ class _MyDrawerState extends State<MyDrawer> {
                     ),
                     currentAccountPicture: CircleAvatar(
                       backgroundImage:
-                          widget.personProfile['profile_picture'] != null
+                          widget.personProfile.profile_picture.isNotEmpty
                               ? NetworkImage(
-                                  widget.personProfile['profile_picture'])
+                                  widget.personProfile.profile_picture)
                               : const NetworkImage(
                                   'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
                                 ),
