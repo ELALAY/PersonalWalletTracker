@@ -115,10 +115,22 @@ class FirebaseDB {
   //delete transaction by id
   Future<void> deleteTransactionsById(String transactionId) async {
     try {
+      TransactionModel transaction = await getTransactionById(transactionId);
+      CardModel card = await getCardById(transaction.cardId);
+      final updatedCard = CardModel.withId(
+        id: card.id,
+        cardName: card.cardName,
+        balance: transaction.isExpense
+            ? card.balance + transaction.amount
+            : card.balance - transaction.amount,
+        cardHolderName: card.cardHolderName,
+        ownerId: card.ownerId,
+        cardType: card.cardType,
+        color: card.color,
+      );
+      updateCard(updatedCard);
       // Fetch transactions associated with the card
-      await _firestore
-          .collection('transactions').doc(transactionId).delete();
-
+      await _firestore.collection('transactions').doc(transactionId).delete();
     } catch (e) {
       debugPrint('Error deleting transactions: $e');
       rethrow;
@@ -127,7 +139,19 @@ class FirebaseDB {
 
   // Method to delete transactions by card ID
   Future<void> deleteTransactionsByCardId(String cardId) async {
-    try {
+    try {      
+      //update the card balance if the amount of the transaction has changed
+        CardModel card = await getCardById(cardId);
+        final updatedCard = CardModel.withId(
+          id: card.id,
+          cardName: card.cardName,
+          balance: 0,
+          cardHolderName: card.cardHolderName,
+          ownerId: card.ownerId,
+          cardType: card.cardType,
+          color: card.color,
+        );
+        updateCard(updatedCard);
       // Fetch transactions associated with the card
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')
@@ -161,13 +185,32 @@ class FirebaseDB {
   }
 
   // Update an existing card
-  Future<void> updateTransaction(TransactionModel transcation) async {
+  Future<void> updateTransaction(TransactionModel transaction) async {
     try {
-      // Reference to the 'cards' collection and the specific document to update
+      //fetch the currenct state of the transaction to check the changes
+      TransactionModel transactionTemp =
+          await getTransactionById(transaction.id);
+      //update the card balance if the amount of the transaction has changed
+      if (transactionTemp.amount != transaction.amount) {
+        CardModel card = await getCardById(transaction.cardId);
+        final updatedCard = CardModel.withId(
+          id: card.id,
+          cardName: card.cardName,
+          balance: transaction.isExpense
+              ? card.balance + transaction.amount
+              : card.balance - transaction.amount,
+          cardHolderName: card.cardHolderName,
+          ownerId: card.ownerId,
+          cardType: card.cardType,
+          color: card.color,
+        );
+        updateCard(updatedCard);
+      }
+      //update transaction
       _firestore
           .collection('transactions')
-          .doc(transcation.id)
-          .update(transcation.toMap());
+          .doc(transaction.id)
+          .update(transaction.toMap());
 
       debugPrint('Transaction updated successfully');
     } catch (e) {
@@ -368,8 +411,7 @@ class FirebaseDB {
     }
   }
 
-  Future<Person?> getPersonProfileByUsername(
-      String username) async {
+  Future<Person?> getPersonProfileByUsername(String username) async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
           .collection('persons')
@@ -378,7 +420,8 @@ class FirebaseDB {
 
       if (querySnapshot.docs.isNotEmpty) {
         // Assuming you want to return the first match
-        return Person.fromMap(querySnapshot.docs.first.data(), querySnapshot.docs.first['id']);
+        return Person.fromMap(
+            querySnapshot.docs.first.data(), querySnapshot.docs.first['id']);
       } else {
         debugPrint('No user profile found for username: $username');
         return null;

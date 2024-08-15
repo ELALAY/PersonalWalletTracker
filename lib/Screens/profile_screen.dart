@@ -209,7 +209,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     //Email Field
                     MyTextField(
                       controller: _emailController,
-                      enabled: enabledEditkeyInfo,
+                      enabled: false,
                       label: 'Email',
                       color: Colors.deepPurple,
                     ),

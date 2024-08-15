@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
-import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
