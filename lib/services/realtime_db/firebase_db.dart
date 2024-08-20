@@ -212,7 +212,7 @@ class FirebaseDB {
         throw Exception('Error fetching transaction: $e');
       }
     } else {
-      throw Exception('Transaction ID cannot be empty'); 
+      throw Exception('Transaction ID cannot be empty');
     }
   }
 
@@ -417,6 +417,57 @@ class FirebaseDB {
       return snapshot.docs.map((doc) => Category.fromDocument(doc)).toList();
     } catch (e) {
       throw Exception('Failed to fetch categories: $e');
+    }
+  }
+
+  //fetch category
+  Future<bool> fetchCategory(Category category) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('transactions')
+          .where('category', isEqualTo: category.name)
+          .get();
+      if (querySnapshot == null) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('error fetching category $e');
+      return false;
+    }
+  }
+
+  //update category
+  Future<void> updateCategory(Category category) async {
+    try {
+      // Update transaction in Firestore
+      await _firestore
+          .collection('categories')
+          .doc(category.id)
+          .update(category.toMap());
+    } catch (e) {
+      debugPrint('error updating category');
+    }
+  }
+
+  // Delete transaction
+  Future<void> deleteCategory(Category category) async {
+    try {
+      debugPrint('fetching transactions for ${category.name}');
+      //delete transactions of this categories
+      List<TransactionModel> transactions =
+          await fetchTransactionsByCategory(category.name);
+      if (transactions.isNotEmpty) {
+        for (TransactionModel transaction in transactions) {
+          await deleteTransaction(transaction);
+        }
+      }
+      //delete category
+      await _firestore.collection('categories').doc(category.id).delete();
+      debugPrint('category deleted');
+    } catch (e) {
+      debugPrint('error deleting category $e');
     }
   }
 
