@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
+import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
+import 'package:personalwallettracker/Screens/transaction/category_transactions.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Components/spending_bar_chart.dart';
@@ -79,6 +81,22 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           SnackBar(content: Text('Error loading statistics: $e')),
         );
       }
+    }
+  }
+
+  void navCategoryTransactions(String category) async {
+    if (widget.myCards.isNotEmpty && selectedCard != 'All') {
+      CardModel card = await _firebaseDB.getCardById(selectedCard);
+      // ignore: use_build_context_synchronously
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return CategoryTransactions(
+            card: card,
+            category: category,); // replace with your settings screen
+      }));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No card selected')),
+      );
     }
   }
 
@@ -190,10 +208,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     String category =
                                         _categoryTotals.keys.elementAt(index);
                                     double total = _categoryTotals[category]!;
-                                    return ListTile(
-                                      title: Text(category),
-                                      trailing:
-                                          Text('\$${total.toStringAsFixed(2)}'),
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ListTile(
+                                        title: Text(category),
+                                        tileColor: Colors.amber[100],
+                                        trailing:
+                                            Text('\$${total.toStringAsFixed(2)}'),
+                                        onTap: (){navCategoryTransactions(category);},
+                                      ),
                                     );
                                   },
                                 ),
