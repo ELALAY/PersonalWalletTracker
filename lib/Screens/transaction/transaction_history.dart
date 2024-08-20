@@ -222,6 +222,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      //dates
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -232,9 +233,6 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                           ),
                           Row(
                             children: [
-                              // TextField(
-                              //   controller: startDateController,
-                              //   ),
                               Text(_startDate != null
                                   ? formatDate(_startDate!)
                                   : ''),
@@ -247,6 +245,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                           )
                         ],
                       ),
+                      //select date range
                       IconButton(
                         onPressed: () {
                           _selectDateRange(context);

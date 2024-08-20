@@ -295,6 +295,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                             ],
                           ),
                           const SizedBox(height: 16.0),
+                          //save transaction
                           MyButton(
                               label: 'Save transaction',
                               onTap: _addTransaction),
