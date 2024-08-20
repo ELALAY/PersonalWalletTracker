@@ -132,8 +132,8 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
     );
     if (picked != null) {
       setState(() {
-        _dateController.text = formatDate(selectedDate);
         selectedDate = picked;
+        _dateController.text = formatDate(selectedDate);
       });
     }
   }

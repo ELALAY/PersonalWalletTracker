@@ -11,7 +11,8 @@ import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 class EditTransactionScreen extends StatefulWidget {
   final TransactionModel transaction;
   final CardModel card;
-  const EditTransactionScreen({super.key, required this.card, required this.transaction});
+  const EditTransactionScreen(
+      {super.key, required this.card, required this.transaction});
 
   @override
   EditTransactionScreenState createState() => EditTransactionScreenState();
@@ -39,7 +40,8 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
     // Initialize with existing card details
     _amountController =
         TextEditingController(text: widget.transaction.amount.toString());
-    _descriptionController = TextEditingController(text: widget.transaction.description);
+    _descriptionController =
+        TextEditingController(text: widget.transaction.description);
     _dateController =
         TextEditingController(text: formatDate(widget.transaction.date));
     _selectedCategory = widget.transaction.category;
@@ -96,24 +98,27 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
           description: _descriptionController.text,
           isExpense: isExpense,
         );
+
         _firebaseDB.updateTransaction(transaction);
 
-        double amount = isExpense ? -transaction.amount : transaction.amount;
-        debugPrint(amount.toString());
-        _firebaseDB.updateCardBalance(
-            widget.card.id, widget.card.balance + amount);
-        debugPrint('updated card balance!');
+        if (widget.transaction.amount != transaction.amount) {
+          double amount = isExpense ? -transaction.amount : transaction.amount;
+          debugPrint(amount.toString());
+          _firebaseDB.updateCardBalance(
+              widget.card.id, widget.card.balance + amount);
+          debugPrint('updated card balance!');
+        }
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Created transaction')),
+            const SnackBar(content: Text('transaction Updated')),
           );
           Navigator.pop(context); // Go back after adding transaction
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error creating transaction: $e')),
+            SnackBar(content: Text('Error editting transaction: $e')),
           );
         }
       }
@@ -143,9 +148,30 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
     );
     if (picked != null) {
       setState(() {
-        _dateController.text = formatDate(selectedDate);
+        debugPrint('picked: ${picked.toString()}');
         selectedDate = picked;
+        debugPrint('selected date: ${selectedDate.toString()}');
+        _dateController.text = formatDate(selectedDate);
+        debugPrint('date controller:_${_dateController.text}');
       });
+    } else {
+      debugPrint('picked date is null');
+    }
+  }
+
+  void deleteTransaction(TransactionModel transaction) async {
+    bool deleted = await _firebaseDB.deleteTransaction(transaction);
+    if (deleted) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Transaction ${transaction.description} deleted!')),
+      );
+    } else {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error deleting transaction')),
+      );
     }
   }
 
@@ -164,7 +190,15 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                 setState(() {
                   enabledEditkeyInfo = value;
                 });
-              })
+              }),
+          IconButton(
+              onPressed: () {
+                deleteTransaction(widget.transaction);
+              },
+              icon: const Icon(
+                Icons.delete_forever,
+                color: Colors.red,
+              )),
         ],
       ),
       body: Padding(
@@ -202,10 +236,18 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Amount
-                          MyNumberField(controller: _amountController, label: 'Amount', color: Colors.deepPurple, enabled: true),
+                          MyNumberField(
+                              controller: _amountController,
+                              label: 'Amount',
+                              color: Colors.deepPurple,
+                              enabled: true),
                           const SizedBox(height: 16.0),
                           // Description
-                          MyTextField(controller: _descriptionController, label: 'Description', color: Colors.deepPurple, enabled: true),
+                          MyTextField(
+                              controller: _descriptionController,
+                              label: 'Description',
+                              color: Colors.deepPurple,
+                              enabled: true),
                           const SizedBox(height: 16.0),
                           // Category
                           Padding(
@@ -228,15 +270,18 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                               },
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                                 labelText: 'Category',
                                 labelStyle: TextStyle(color: Colors.deepPurple),
                                 enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                               ),
                               items: [
@@ -260,24 +305,37 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                               controller: _dateController,
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                                 labelText: formatDate(selectedDate),
-                                labelStyle: const TextStyle(color: Colors.deepPurple),
+                                labelStyle:
+                                    const TextStyle(color: Colors.deepPurple),
                                 enabledBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                                 focusedBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                                 suffixIcon: IconButton(
-                                  icon: const Icon(Icons.calendar_month_outlined,
+                                  icon: const Icon(
+                                      Icons.calendar_month_outlined,
                                       color: Colors.deepPurple),
-                                  onPressed: () => _selectDate(context),
+                                  onPressed: () {
+                                    _selectDate(context);
+                                    _dateController = TextEditingController(
+                                        text: formatDate(selectedDate));
+                                  },
                                 ),
                               ),
                               readOnly: true,
-                              onTap: () => _selectDate(context),
+                              onTap: () {
+                                _selectDate(context);
+                                _dateController = TextEditingController(
+                                    text: formatDate(selectedDate));
+                              },
                             ),
                           ),
                           const SizedBox(height: 16.0),
@@ -312,7 +370,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 40.0, vertical: 20.0),
                               ),
-                              child: const Text('Add Transaction'),
+                              child: const Text('Edit Transaction'),
                             ),
                           ),
                         ],
