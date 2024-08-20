@@ -115,11 +115,6 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
                       ),
                       subtitle: Text(
                           '${formatDate(transaction.date)} - ${transaction.category}'),
-                      // leading: IconButton(
-                      //     onPressed: () {
-                      //       editTransaction(transaction);
-                      //     },
-                      //     icon: const Icon(Icons.edit)),
                       trailing: Text(
                         '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
                         style: TextStyle(

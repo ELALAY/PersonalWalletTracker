@@ -337,14 +337,14 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                             ],
                           ),
                           child: ListTile(
-                            tileColor: Colors.blueGrey.shade100,
+                            tileColor: Colors.grey.shade300,
                             title: Text(
                               transaction.description,
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             subtitle: Text(
-                                '${formatDate(transaction.date)} - ${transaction.category} - ${transaction.id}'),
+                                '${formatDate(transaction.date)} - ${transaction.category}'),
                             trailing: Text(
                               '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
                               style: TextStyle(
@@ -430,7 +430,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     if (deleted) {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Transaction ${transaction.description} deleted!')),
+        SnackBar(
+            content: Text('Transaction ${transaction.description} deleted!')),
       );
       reload();
     } else {

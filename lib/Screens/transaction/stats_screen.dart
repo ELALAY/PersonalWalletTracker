@@ -211,7 +211,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: ListTile(
                                         title: Text(category),
-                                        tileColor: Colors.amber[100],
+                                        tileColor: Colors.blueGrey[100],
                                         trailing:
                                             Text('\$${total.toStringAsFixed(2)}'),
                                         onTap: (){navCategoryTransactions(category);},
