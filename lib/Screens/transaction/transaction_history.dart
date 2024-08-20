@@ -72,7 +72,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         debugPrint(transactionstemp.length.toString());
       }
     } else {
-      debugPrint('All');
+      debugPrint(selectedCard);
       transactionstemp =
           await firebaseDB.fetchTransactionsByCardId(selectedCard);
       debugPrint(transactionstemp.length.toString());

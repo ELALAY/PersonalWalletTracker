@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/category_transactions.dart';
@@ -23,6 +24,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   List<CategorySpending> _spendingData = [];
   //card choice
   String selectedCard = 'All';
+  //Dates for the filters
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   @override
   void initState() {
@@ -48,6 +52,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       } else {
         transactions =
             await _firebaseDB.fetchTransactionsByCardId(selectedCard);
+      }
+
+      // Filter transactions by selected date range
+      if (_startDate != null && _endDate != null) {
+        transactions = transactions.where((transaction) {
+          return transaction.date.isAfter(_startDate!) &&
+              transaction.date.isBefore(_endDate!.add(const Duration(days: 1)));
+        }).toList();
       }
 
       // Group transactions by category and sum up the amounts
@@ -83,14 +95,53 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
+  Future<void> _selectDateRange(BuildContext context) async {
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      initialDateRange: _startDate != null && _endDate != null
+          ? DateTimeRange(start: _startDate!, end: _endDate!)
+          : null,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.deepPurple, // Header background color
+              onPrimary: Colors.white, // Header text color
+              onSurface: Colors.deepPurple, // Body text color
+            ),
+            dialogBackgroundColor:
+                Colors.white, // Background color of the dialog
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _startDate = picked.start;
+        _endDate = picked.end;
+      });
+
+      _loadStatistics(); // Fetch transactions again with the new date range
+    }
+  }
+
+  String formatDate(DateTime date) {
+    return DateFormat('dd/MM/yy').format(date);
+  }
+
   void navCategoryTransactions(String category) async {
     if (widget.myCards.isNotEmpty && selectedCard != 'All') {
       CardModel card = await _firebaseDB.getCardById(selectedCard);
       // ignore: use_build_context_synchronously
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return CategoryTransactions(
-            card: card,
-            category: category,); // replace with your settings screen
+          card: card,
+          category: category,
+        ); // replace with your settings screen
       }));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -112,6 +163,25 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                //chart
+                SizedBox(
+                  height: 200.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _categoryTotals.isEmpty
+                            ? const Center(
+                                child: Text('No transactions available'),
+                              )
+                            : Expanded(
+                                child: SpendingBarChart(data: _spendingData),
+                              ),
+                      ],
+                    ),
+                  ),
+                ),
                 // Card Selector
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -158,29 +228,20 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 10.0,
-                ),
-                SizedBox(
-                  height: 300.0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _categoryTotals.isEmpty
-                            ? const Center(
-                                child: Text('No transactions available'),
-                              )
-                            : Expanded(
-                                child: SpendingBarChart(data: _spendingData),
-                              ),
-                      ],
-                    ),
+                // Date Range Selector (Placeholder)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal:16.0),
+                  child: Row(
+                    children: [
+                      Text(_startDate != null
+                          ? formatDate(_startDate!)
+                          : ''),
+                      const SizedBox(
+                        width: 8.0,
+                      ),
+                      Text(_endDate != null ? formatDate(_endDate!) : '')
+                    ],
                   ),
-                ),
-                const SizedBox(
-                  height: 10.0,
                 ),
                 Expanded(
                   child: Padding(
@@ -188,12 +249,27 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Spending by Category',
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Spending by Category',
+                              style: TextStyle(
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            //select date range
+                            IconButton(
+                              onPressed: () {
+                                _selectDateRange(context);
+                              },
+                              icon: const Icon(
+                                Icons.calendar_month,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16.0),
                         Expanded(
@@ -212,9 +288,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                       child: ListTile(
                                         title: Text(category),
                                         tileColor: Colors.blueGrey[100],
-                                        trailing:
-                                            Text('\$${total.toStringAsFixed(2)}'),
-                                        onTap: (){navCategoryTransactions(category);},
+                                        trailing: Text(
+                                            '\$${total.toStringAsFixed(2)}'),
+                                        onTap: () {
+                                          navCategoryTransactions(category);
+                                        },
                                       ),
                                     );
                                   },

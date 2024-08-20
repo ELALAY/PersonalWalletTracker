@@ -21,6 +21,9 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
   final FirebaseDB _firebaseDB = FirebaseDB();
   bool _isLoading = true;
   List<TransactionModel> transactions = [];
+  //Dates for the filters
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   @override
   void initState() {
@@ -34,10 +37,17 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
   }
 
   void fetchTransactions() async {
-    List<TransactionModel> temp =
-        await _firebaseDB.fetchTransactionsByCategoryAndCard(widget.category, widget.card.id);
+    List<TransactionModel> transactionstemp = await _firebaseDB
+        .fetchTransactionsByCategoryAndCard(widget.category, widget.card.id);
+    // Filter transactions by selected date range
+    if (_startDate != null && _endDate != null) {
+      transactionstemp = transactionstemp.where((transaction) {
+        return transaction.date.isAfter(_startDate!) &&
+            transaction.date.isBefore(_endDate!.add(const Duration(days: 1)));
+      }).toList();
+    }
     setState(() {
-      transactions = temp;
+      transactions = transactionstemp;
     });
   }
 
@@ -52,88 +62,88 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
       ),
       body: Column(
         children: [
-          _isLoading ?
-          const Center(child: CircularProgressIndicator()) :
-          Expanded(
-            child: ListView.builder(
-              itemCount: transactions.length,
-              itemBuilder: (context, index) {
-                final transaction = transactions[index];
-                return Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(12)),
-                  child: Slidable(
-                    key: const ValueKey(0),
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Expanded(
+                  child: ListView.builder(
+                    itemCount: transactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = transactions[index];
+                      return Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Slidable(
+                          key: const ValueKey(0),
 
-                    // The start action pane is the one at the left or the top side.
-                    startActionPane: ActionPane(
-                      // A motion is a widget used to control how the pane animates.
-                      motion: const StretchMotion(),
+                          // The start action pane is the one at the left or the top side.
+                          startActionPane: ActionPane(
+                            // A motion is a widget used to control how the pane animates.
+                            motion: const StretchMotion(),
 
-                      // All actions are defined in the children parameter.
-                      children: [
-                        // A SlidableAction can have an icon and/or a label.
-                        SlidableAction(
-                          onPressed: (context) {
-                            deleteTransaction(transaction);
-                          },
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          icon: Icons.delete_forever_outlined,
-                          label: 'Delete',
+                            // All actions are defined in the children parameter.
+                            children: [
+                              // A SlidableAction can have an icon and/or a label.
+                              SlidableAction(
+                                onPressed: (context) {
+                                  deleteTransaction(transaction);
+                                },
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                icon: Icons.delete_forever_outlined,
+                                label: 'Delete',
+                              ),
+                            ],
+                          ),
+
+                          // The start action pane is the one at the left or the top side.
+                          endActionPane: ActionPane(
+                            // A motion is a widget used to control how the pane animates.
+                            motion: const StretchMotion(),
+
+                            // All actions are defined in the children parameter.
+                            children: [
+                              // A SlidableAction can have an icon and/or a label.
+                              SlidableAction(
+                                onPressed: (context) {
+                                  editTransaction(transaction);
+                                },
+                                backgroundColor:
+                                    const Color.fromARGB(255, 192, 174, 174),
+                                foregroundColor: Colors.white,
+                                icon: Icons.edit,
+                                label: 'Edit',
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            tileColor: Colors.blueGrey.shade100,
+                            title: Text(
+                              transaction.description,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                                '${formatDate(transaction.date)} - ${transaction.category}'),
+                            trailing: Text(
+                              '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
+                              style: TextStyle(
+                                  color: transaction.isExpense
+                                      ? Colors.red
+                                      : Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15),
+                            ),
+                            onTap: () {
+                              // Show transaction details
+                              _showTransactionDetails(transaction);
+                            },
+                          ),
                         ),
-                      ],
-                    ),
-
-                    // The start action pane is the one at the left or the top side.
-                    endActionPane: ActionPane(
-                      // A motion is a widget used to control how the pane animates.
-                      motion: const StretchMotion(),
-
-                      // All actions are defined in the children parameter.
-                      children: [
-                        // A SlidableAction can have an icon and/or a label.
-                        SlidableAction(
-                          onPressed: (context) {
-                            editTransaction(transaction);
-                          },
-                          backgroundColor:
-                              const Color.fromARGB(255, 192, 174, 174),
-                          foregroundColor: Colors.white,
-                          icon: Icons.edit,
-                          label: 'Edit',
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      tileColor: Colors.blueGrey.shade100,
-                      title: Text(
-                        transaction.description,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                          '${formatDate(transaction.date)} - ${transaction.category}'),
-                      trailing: Text(
-                        '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
-                        style: TextStyle(
-                            color: transaction.isExpense
-                                ? Colors.red
-                                : Colors.green,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15),
-                      ),
-                      onTap: () {
-                        // Show transaction details
-                        _showTransactionDetails(transaction);
-                      },
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          ),
+                ),
         ],
       ),
     );

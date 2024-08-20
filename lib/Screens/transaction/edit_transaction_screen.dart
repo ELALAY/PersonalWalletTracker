@@ -46,6 +46,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
         TextEditingController(text: formatDate(widget.transaction.date));
     _selectedCategory = widget.transaction.category;
     isExpense = widget.transaction.isExpense;
+    selectedDate = widget.transaction.date;
   }
 
   Future<void> _loadCategories() async {
