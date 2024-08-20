@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
-import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/category_transactions.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';

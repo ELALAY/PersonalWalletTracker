@@ -344,12 +344,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             subtitle: Text(
-                                '${formatDate(transaction.date)} - ${transaction.category}'),
-                            // leading: IconButton(
-                            //     onPressed: () {
-                            //       editTransaction(transaction);
-                            //     },
-                            //     icon: const Icon(Icons.edit)),
+                                '${formatDate(transaction.date)} - ${transaction.category} - ${transaction.id}'),
                             trailing: Text(
                               '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
                               style: TextStyle(
@@ -422,7 +417,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
           card: cardTemp,
           transaction: transaction,
         ); // replace with your settings screen
-      }));
+      })).then((value) => reload());
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error Editing, choose a Card')),

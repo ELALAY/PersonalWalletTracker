@@ -112,7 +112,7 @@ class FirebaseDB {
 //********  Transaction Functions**********/
 //--------------------------------------------------------------------------------------
 
-  //delete transaction by id
+  //delete transaction by ID
   Future<void> deleteTransactionsById(String transactionId) async {
     try {
       TransactionModel transaction = await getTransactionById(transactionId);
@@ -137,7 +137,7 @@ class FirebaseDB {
     }
   }
 
-  //delete transaction by id
+  //delete transaction by ID
   Future<bool> deleteTransaction(TransactionModel transaction) async {
     try {
       CardModel card = await getCardById(transaction.cardId);
@@ -164,19 +164,19 @@ class FirebaseDB {
 
   // Method to delete transactions by card ID
   Future<void> deleteTransactionsByCardId(String cardId) async {
-    try {      
+    try {
       //update the card balance if the amount of the transaction has changed
-        CardModel card = await getCardById(cardId);
-        final updatedCard = CardModel.withId(
-          id: card.id,
-          cardName: card.cardName,
-          balance: 0,
-          cardHolderName: card.cardHolderName,
-          ownerId: card.ownerId,
-          cardType: card.cardType,
-          color: card.color,
-        );
-        updateCard(updatedCard);
+      CardModel card = await getCardById(cardId);
+      final updatedCard = CardModel.withId(
+        id: card.id,
+        cardName: card.cardName,
+        balance: 0,
+        cardHolderName: card.cardHolderName,
+        ownerId: card.ownerId,
+        cardType: card.cardType,
+        color: card.color,
+      );
+      updateCard(updatedCard);
       // Fetch transactions associated with the card
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')
@@ -193,53 +193,68 @@ class FirebaseDB {
     }
   }
 
+  // fetch transaction by ID
   Future<TransactionModel> getTransactionById(String transactionId) async {
-    try {
-      debugPrint('fething transaction $transactionId');
-      DocumentSnapshot doc =
-          await _firestore.collection('transactions').doc(transactionId).get();
-      if (doc.exists) {
-        return TransactionModel.fromMap(
-            doc.data() as Map<String, dynamic>, doc.id);
-      } else {
-        throw Exception('Transaction not found');
+    if (transactionId.isNotEmpty) {
+      try {
+        debugPrint('fetching transaction $transactionId');
+        DocumentSnapshot doc = await _firestore
+            .collection('transactions')
+            .doc(transactionId)
+            .get();
+        if (doc.exists) {
+          return TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>, doc.id);
+        } else {
+          throw Exception('Transaction not found');
+        }
+      } catch (e) {
+        throw Exception('Error fetching transaction: $e');
       }
-    } catch (e) {
-      throw Exception('Error fetching transaction: $e');
+    } else {
+      throw Exception('Transaction ID cannot be empty'); 
     }
   }
 
   // Update an existing card
   Future<void> updateTransaction(TransactionModel transaction) async {
     try {
-      //fetch the currenct state of the transaction to check the changes
+      debugPrint('getting current state of transaction1 ${transaction.id}');
+      // Fetch the current state of the transaction to check the changes
       TransactionModel transactionTemp =
           await getTransactionById(transaction.id);
-      //update the card balance if the amount of the transaction has changed
+      debugPrint('Fetched transaction');
+
+      // Update the card balance if the amount of the transaction has changed
       if (transactionTemp.amount != transaction.amount) {
+        debugPrint('Updating card balance');
         CardModel card = await getCardById(transaction.cardId);
+        debugPrint('Card: ${card.cardName}');
+
         final updatedCard = CardModel.withId(
           id: card.id,
           cardName: card.cardName,
           balance: transaction.isExpense
-              ? card.balance + transaction.amount
-              : card.balance - transaction.amount,
+              ? card.balance - transactionTemp.amount + transaction.amount
+              : card.balance + transactionTemp.amount - transaction.amount,
           cardHolderName: card.cardHolderName,
           ownerId: card.ownerId,
           cardType: card.cardType,
           color: card.color,
         );
-        updateCard(updatedCard);
+        await updateCard(updatedCard);
       }
-      //update transaction
-      _firestore
+
+      debugPrint('Updating transaction');
+      // Update transaction in Firestore
+      await _firestore
           .collection('transactions')
           .doc(transaction.id)
           .update(transaction.toMap());
 
       debugPrint('Transaction updated successfully');
     } catch (e) {
-      debugPrint('Error updating Transaction: $e');
+      debugPrint('Error updating transaction: ${e.toString()}');
     }
   }
 
@@ -287,7 +302,7 @@ class FirebaseDB {
     }
   }
 
-  // Fetch transactions by card ID
+  // Fetch transactions by category
   Future<List<TransactionModel>> fetchTransactionsByCategory(
       String category) async {
     try {

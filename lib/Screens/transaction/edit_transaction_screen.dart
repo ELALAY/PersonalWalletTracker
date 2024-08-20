@@ -89,7 +89,8 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   Future<void> _editTransaction() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        TransactionModel transaction = TransactionModel(
+        TransactionModel transaction = TransactionModel.withId(
+          id: widget.transaction.id,
           cardId: widget.transaction.cardId,
           cardName: widget.transaction.cardName,
           amount: double.parse(_amountController.text),
@@ -98,16 +99,8 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
           description: _descriptionController.text,
           isExpense: isExpense,
         );
-
+        debugPrint(transaction.toString());
         _firebaseDB.updateTransaction(transaction);
-
-        if (widget.transaction.amount != transaction.amount) {
-          double amount = isExpense ? -transaction.amount : transaction.amount;
-          debugPrint(amount.toString());
-          _firebaseDB.updateCardBalance(
-              widget.card.id, widget.card.balance + amount);
-          debugPrint('updated card balance!');
-        }
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -118,7 +111,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error editting transaction: $e')),
+            SnackBar(content: Text('Error updating transaction: $e')),
           );
         }
       }
