@@ -302,6 +302,25 @@ class FirebaseDB {
     }
   }
 
+  //fetch transactions by category and by card
+  Future<List<TransactionModel>> fetchTransactionsByCategoryAndCard(
+      String category, String cardId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('transactions')
+          .where('category', isEqualTo: category)
+          .where('cardId', isEqualTo: cardId)
+          .get();
+      return querySnapshot.docs
+          .map((doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching transactions by category: $e');
+      rethrow;
+    }
+  }
+
   // Fetch transactions by category
   Future<List<TransactionModel>> fetchTransactionsByCategory(
       String category) async {

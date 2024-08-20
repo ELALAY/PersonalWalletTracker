@@ -35,7 +35,7 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
 
   void fetchTransactions() async {
     List<TransactionModel> temp =
-        await _firebaseDB.fetchTransactionsByCategory(widget.category);
+        await _firebaseDB.fetchTransactionsByCategoryAndCard(widget.category, widget.card.id);
     setState(() {
       transactions = temp;
     });
