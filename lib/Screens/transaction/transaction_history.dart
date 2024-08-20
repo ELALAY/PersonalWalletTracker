@@ -297,6 +297,26 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                           key: const ValueKey(0),
 
                           // The start action pane is the one at the left or the top side.
+                          startActionPane: ActionPane(
+                            // A motion is a widget used to control how the pane animates.
+                            motion: const StretchMotion(),
+
+                            // All actions are defined in the children parameter.
+                            children: [
+                              // A SlidableAction can have an icon and/or a label.
+                              SlidableAction(
+                                onPressed: (context) {
+                                  deleteTransaction(transaction);
+                                },
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                icon: Icons.delete_forever_outlined,
+                                label: 'Delete',
+                              ),
+                            ],
+                          ),
+
+                          // The start action pane is the one at the left or the top side.
                           endActionPane: ActionPane(
                             // A motion is a widget used to control how the pane animates.
                             motion: const StretchMotion(),
@@ -405,7 +425,23 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       }));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error moving')),
+        const SnackBar(content: Text('Error Editing, choose a Card')),
+      );
+    }
+  }
+
+  void deleteTransaction(TransactionModel transaction) async {
+    bool deleted = await firebaseDB.deleteTransaction(transaction);
+    if (deleted) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Transaction ${transaction.description} deleted!')),
+      );
+      reload();
+    } else {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error deleting transaction')),
       );
     }
   }

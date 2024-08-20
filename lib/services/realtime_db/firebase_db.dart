@@ -137,6 +137,31 @@ class FirebaseDB {
     }
   }
 
+  //delete transaction by id
+  Future<bool> deleteTransaction(TransactionModel transaction) async {
+    try {
+      CardModel card = await getCardById(transaction.cardId);
+      final updatedCard = CardModel.withId(
+        id: card.id,
+        cardName: card.cardName,
+        balance: transaction.isExpense
+            ? card.balance + transaction.amount
+            : card.balance - transaction.amount,
+        cardHolderName: card.cardHolderName,
+        ownerId: card.ownerId,
+        cardType: card.cardType,
+        color: card.color,
+      );
+      updateCard(updatedCard);
+      // Fetch transactions associated with the card
+      await _firestore.collection('transactions').doc(transaction.id).delete();
+      return true;
+    } catch (e) {
+      debugPrint('Error deleting transactions: $e');
+      return false;
+    }
+  }
+
   // Method to delete transactions by card ID
   Future<void> deleteTransactionsByCardId(String cardId) async {
     try {      
