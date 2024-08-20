@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_list_tile.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
+import 'package:personalwallettracker/Screens/catogories_screen.dart';
 import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/profile_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
@@ -82,13 +83,12 @@ class _MyDrawerState extends State<MyDrawer> {
                       ),
                     ),
                     currentAccountPicture: CircleAvatar(
-                      backgroundImage:
-                          widget.personProfile.profile_picture.isNotEmpty
-                              ? NetworkImage(
-                                  widget.personProfile.profile_picture)
-                              : const NetworkImage(
-                                  'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
-                                ),
+                      backgroundImage: widget
+                              .personProfile.profile_picture.isNotEmpty
+                          ? NetworkImage(widget.personProfile.profile_picture)
+                          : const NetworkImage(
+                              'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
+                            ),
                       backgroundColor: Colors.white,
                     ),
                   ),
@@ -129,7 +129,11 @@ class _MyDrawerState extends State<MyDrawer> {
                     icon: const Icon(Icons.person_2_outlined),
                     tileTitle: 'Profile',
                     onTap: navProfile,
-                  )
+                  ),
+                  MyListTile(
+                      icon: const Icon(Icons.category_outlined),
+                      tileTitle: 'Categories',
+                      onTap: navCategoriesScreen),
                 ],
               ),
             ),
@@ -160,13 +164,22 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void navProfile() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return MyProfileScreen(user: widget.user, personProfile: widget.personProfile,);
+      return MyProfileScreen(
+        user: widget.user,
+        personProfile: widget.personProfile,
+      );
     }));
   }
 
   void navHomePage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const MyHomePage();
+    }));
+  }
+
+  void navCategoriesScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const CategoriesScreen();
     }));
   }
 }
