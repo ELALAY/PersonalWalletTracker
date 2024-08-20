@@ -421,20 +421,20 @@ class FirebaseDB {
   }
 
   //fetch category
-  Future<bool> fetchCategory(Category category) async {
+  Future<bool> fetchCategory(String category) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')
-          .where('category', isEqualTo: category.name)
+          .where('category', isEqualTo: category)
           .get();
-      if (querySnapshot == null) {
+      if (querySnapshot.docs.isEmpty) {
         return false;
       } else {
         return true;
       }
     } catch (e) {
       debugPrint('error fetching category $e');
-      return false;
+      return true;
     }
   }
 
@@ -472,11 +472,18 @@ class FirebaseDB {
   }
 
   // Create a new category
-  Future<void> createCategory(Category category) async {
+  Future<bool> createCategory(Category category) async {
     try {
-      await _firestore.collection('categories').add(category.toMap());
+      bool exists = await fetchCategory(category.name);
+      if (exists) {
+        debugPrint('Category Already Exists');
+        return false;
+      } else {
+        await _firestore.collection('categories').add(category.toMap());
+        return true;
+      }
     } catch (e) {
-      throw Exception('Failed to create category: $e');
+      return false;
     }
   }
 

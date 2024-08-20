@@ -86,25 +86,42 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   void _showCreateCategoryDialog() {
     final TextEditingController newCategoryController = TextEditingController();
+    String errMsg = '*';
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Create New Category'),
-          content: MyTextField(
-              controller: newCategoryController,
-              label: 'Category Name',
-              color: Colors.deepPurple,
-              enabled: true),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MyTextField(
+                  controller: newCategoryController,
+                  label: 'Category Name',
+                  color: Colors.deepPurple,
+                  enabled: true),
+              Text(
+                errMsg,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ],
+          ),
           actions: [
             MyButton(
                 label: 'Create',
-                onTap: () {
+                onTap: () async {
                   final newCategoryName = newCategoryController.text.trim();
                   if (newCategoryName.isNotEmpty) {
-                    _createCategory(newCategoryName);
-                    fetchCategories();
-                    Navigator.of(context).pop();
+                    bool created = await _createCategory(newCategoryName);
+                    if (!created) {
+                      setState(() {
+                        errMsg = 'Category already created';
+                      });
+                    } else {
+                      fetchCategories();
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pop();
+                    }
                   }
                 }),
           ],
@@ -132,8 +149,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   final newCategoryName = newCategoryController.text.trim();
                   if (newCategoryName.isNotEmpty) {
                     editcategory(category, newCategoryName);
-                    fetchCategories();
                     Navigator.of(context).pop();
+                    fetchCategories();
                   }
                 }),
           ],
@@ -157,8 +174,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     categories.remove(category);
                   });
                   deleteCategory(category);
-                  fetchCategories();
                   Navigator.of(context).pop();
+                  fetchCategories();
                 }),
           ],
         );
@@ -170,46 +187,46 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     try {
       Category newCategory = Category.withId(id: catergory.id, name: newName);
       await firebaseDatabasehelper.updateCategory(newCategory);
-      if (mounted) {
+      setState(() {
         fetchCategories(); // Reload categories
-      }
+      });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating category: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating category: $e')),
+      );
     }
   }
 
-  void _createCategory(String name) async {
+  Future<bool> _createCategory(String name) async {
     final newCategory = Category(name: name);
     try {
-      await firebaseDatabasehelper.createCategory(newCategory);
-      if (mounted) {
-        fetchCategories(); // Reload categories
+      bool created = await firebaseDatabasehelper.createCategory(newCategory);
+      if (created) {
+        setState(() {
+          fetchCategories(); // Reload categories
+        });
+        return true;
+      } else {
+        return false;
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating category: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error creating category: $e')),
+      );
+      return false;
     }
   }
 
   void deleteCategory(Category category) async {
     try {
       firebaseDatabasehelper.deleteCategory(category);
-      if (mounted) {
+      setState(() {
         fetchCategories(); // Reload categories
-      }
+      });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting category: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting category: $e')),
+      );
     }
   }
 }
