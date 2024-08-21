@@ -25,7 +25,6 @@ class GoalModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
       'targetAmount': targetAmount,
       'currentAmount': currentAmount,
@@ -36,7 +35,7 @@ class GoalModel {
 
   factory GoalModel.fromMap(Map<String, dynamic> map, String id) {
     return GoalModel.withId(
-      id: map['id'],
+      id: id,
       name: map['name'],
       targetAmount: map['targetAmount'],
       currentAmount: map['currentAmount'],

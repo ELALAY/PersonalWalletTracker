@@ -608,4 +608,8 @@ class FirebaseDB {
             GoalModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
         .toList();
   }
+
+  Future<void> updateGoal(GoalModel goal) async {
+    await _firestore.collection('goals').doc(goal.id).update(goal.toMap());
+  }
 }
