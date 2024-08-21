@@ -15,8 +15,8 @@ class _MyImageButtonState extends State<MyImageButton> {
     return Column(
       children: [
         Container(
-          height: 100.0,
-          width: 150.0,
+          height: 80.0,
+          width: 100.0,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: Colors.pink,

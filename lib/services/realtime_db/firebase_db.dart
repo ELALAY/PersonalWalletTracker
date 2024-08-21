@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import '../../Models/card_model.dart';
 import '../../Models/category_model.dart';
+import '../../Models/goal_model.dart';
 import '../../Models/person_model.dart';
 import '../../Models/transaction_model.dart';
 
@@ -590,5 +592,20 @@ class FirebaseDB {
       debugPrint('Failed to update profile: $e');
       throw Exception('Error updating profile');
     }
+  }
+
+  Future<void> addGoal(GoalModel goal) async {
+    await _firestore.collection('goals').add(goal.toMap());
+  }
+
+  Future<List<GoalModel>> getGoals(User user) async {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('goals')
+        .where('uid', isEqualTo: user.uid)
+        .get();
+    return querySnapshot.docs
+        .map((doc) =>
+            GoalModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
   }
 }

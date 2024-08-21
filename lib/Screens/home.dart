@@ -17,6 +17,7 @@ import '../services/realtime_db/firebase_db.dart';
 import '../Utils/globals.dart';
 import 'card/edit_card_screen.dart';
 import 'card/new_card_screen.dart';
+import 'goal/goals_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -169,10 +170,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       //tranfer
                       GestureDetector(
-                        onTap: navTeansferMoney,
+                        onTap: navTransferMoney,
                         child: const MyImageButton(
-                          icon: 'transfer',
-                          action: 'Transfer',
+                          icon: 'financial_goal',
+                          action: 'Goal',
                         ),
                       ),
                       //new transaction
@@ -181,6 +182,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: const MyImageButton(
                           icon: 'add_transaction',
                           action: 'Transaction',
+                        ),
+                      ),
+                      //financial goal
+                      GestureDetector(
+                        onTap: navGoalScreen,
+                        child: const MyImageButton(
+                          icon: 'financial_goal',
+                          action: 'Goal',
                         ),
                       ),
                     ],
@@ -345,7 +354,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void navTeansferMoney() {
+  void navTransferMoney() {
     if (myCards.length > 1) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return TransferMoney(
@@ -355,6 +364,19 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Not enough cards')),
+      );
+    }
+  }
+
+  void navGoalScreen() {
+    if (user != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return GoalsOverviewScreen(
+            user: user!); // replace with your settings screen
+      })).then((value) => reload());
+    }else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No user is found')),
       );
     }
   }
