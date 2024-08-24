@@ -172,8 +172,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       GestureDetector(
                         onTap: navTransferMoney,
                         child: const MyImageButton(
-                          icon: 'financial_goal',
-                          action: 'Goal',
+                          icon: 'transfer',
+                          action: 'Transfer',
                         ),
                       ),
                       //new transaction
