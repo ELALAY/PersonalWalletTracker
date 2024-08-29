@@ -511,26 +511,6 @@ class FirebaseDB {
 //--------------------------------------------------------------------------------------
 //********  Person Functions**********/
 //--------------------------------------------------------------------------------------
-  Future<Person?> getPersonProfilePerson(String uid) async {
-    try {
-      DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-          await _firestore.collection('persons').doc(uid).get();
-
-      if (documentSnapshot.exists) {
-        // Create a Person object from the document data
-        Map<String, dynamic> data = documentSnapshot.data()!;
-        Person person = Person.fromMap(data, uid);
-        return person;
-      } else {
-        debugPrint('No user profile found for uid: $uid');
-        return null;
-      }
-    } catch (e) {
-      debugPrint('Error fetching user profile: $e');
-      return null;
-    }
-  }
-
   Future<Person?> getPersonProfile(String uid) async {
     try {
       DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
@@ -586,13 +566,30 @@ class FirebaseDB {
   Future<void> updatePersonProfile(
       String userId, Map<String, dynamic> updatedData) async {
     try {
-      await _firestore.collection('users').doc(userId).update(updatedData);
+      // Update the user's profile data in Firestore
+      await _firestore.collection('users').doc(userId).update(
+        {
+          'username': updatedData['username'],
+          'profile_picture': updatedData['profile_picture'],
+        }
+      );
       debugPrint('Profile updated successfully.');
     } catch (e) {
+      // Log the error with a specific message
       debugPrint('Failed to update profile: $e');
-      throw Exception('Error updating profile');
+
+      // Check if the error is a FirebaseException to provide more specific feedback
+      if (e is FirebaseException) {
+        throw Exception('Firebase error: ${e.message}');
+      } else {
+        throw Exception('Unknown error occurred while updating profile');
+      }
     }
   }
+
+//--------------------------------------------------------------------------------------
+//********  Goal Functions**********/
+//--------------------------------------------------------------------------------------
 
   Future<void> addGoal(GoalModel goal) async {
     await _firestore.collection('goals').add(goal.toMap());

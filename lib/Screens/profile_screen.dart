@@ -31,8 +31,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
 
   // Loading and Editing State
   bool isLoading = true;
@@ -89,22 +91,25 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       isLoading = true;
     });
     debugPrint('uploading image');
+
     try {
       String? profileImageUrl;
       if (_profileImage != null) {
         profileImageUrl = await _uploadProfileImage(_profileImage!);
       }
       debugPrint('uploaded image');
+      debugPrint('creating new data map');
+      Person p = Person(_usernameController.text, _emailController.text,
+          profileImageUrl ?? '');
 
       Map<String, dynamic> updatedData = {
         'username': _usernameController.text,
-        'email': _emailController.text,
-        'id': _idController.text,
-        if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
+        if (profileImageUrl != null) 'profile_picture': profileImageUrl,
       };
-
+      debugPrint(updatedData.toString());
+      debugPrint('updating profile with  new data map');
       await firebaseDatabasehelper.updatePersonProfile(
-          widget.user.uid, updatedData);
+          widget.user.uid, p.toMap());
       debugPrint('saved profile');
       setState(() {
         isLoading = false;
@@ -302,37 +307,37 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   void changePassword() async {
-  try {
-    if (_currentPasswordController.text.isNotEmpty &&
-        _passwordController.text.isNotEmpty &&
-        _confirmPasswordController.text.isNotEmpty) {
-      if (_passwordController.text == _confirmPasswordController.text) {
-        User? user = FirebaseAuth.instance.currentUser;
+    try {
+      if (_currentPasswordController.text.isNotEmpty &&
+          _passwordController.text.isNotEmpty &&
+          _confirmPasswordController.text.isNotEmpty) {
+        if (_passwordController.text == _confirmPasswordController.text) {
+          User? user = FirebaseAuth.instance.currentUser;
 
-        // Re-authenticate the user with their current password
-        AuthCredential credential = EmailAuthProvider.credential(
-            email: user!.email!, password: _currentPasswordController.text);
+          // Re-authenticate the user with their current password
+          AuthCredential credential = EmailAuthProvider.credential(
+              email: user!.email!, password: _currentPasswordController.text);
 
-        await user.reauthenticateWithCredential(credential);
+          await user.reauthenticateWithCredential(credential);
 
-        // Update the password to the new password
-        await user.updatePassword(_passwordController.text);
-        debugPrint('Password updated successfully');
-        messageDialog('Password updated successfully');
+          // Update the password to the new password
+          await user.updatePassword(_passwordController.text);
+          debugPrint('Password updated successfully');
+          messageDialog('Password updated successfully');
+        } else {
+          messageDialog("New passwords don't match");
+        }
       } else {
-        messageDialog("New passwords don't match");
+        messageDialog('All fields must be filled!');
       }
-    } else {
-      messageDialog('All fields must be filled!');
-    }
-  } catch (e) {
-    if (e is FirebaseAuthException) {
-      messageDialog('Error: ${e.message}');
-    } else {
-      messageDialog('An unexpected error occurred.');
+    } catch (e) {
+      if (e is FirebaseAuthException) {
+        messageDialog('Error: ${e.message}');
+      } else {
+        messageDialog('An unexpected error occurred.');
+      }
     }
   }
-}
 
   void messageDialog(String message) {
     showDialog(

@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'personalwallet-9bd09.appspot.com',
     iosBundleId: 'com.example.personalwallettracker',
   );
+
 }

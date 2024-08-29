@@ -24,6 +24,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     isLoading = false;
   }
 
+  void reload() {
+    isLoading = true;
+    fetchCategories();
+    isLoading = false;
+  }
+
   void fetchCategories() async {
     List<Category> temp = await firebaseDatabasehelper.getCategories();
     setState(() {
@@ -39,6 +45,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         foregroundColor: Colors.grey,
         elevation: 0.0,
         title: const Text('Categories'),
+        actions: [IconButton(onPressed: reload, icon: const Icon(Icons.refresh))],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

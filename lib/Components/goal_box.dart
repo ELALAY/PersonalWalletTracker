@@ -83,7 +83,8 @@ class _MyGoalBoxState extends State<MyGoalBox> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('${(progress * 100).toStringAsFixed(2)}% reached',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color:Colors.white)),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white)),
                   Text(
                     'End Date: ${formatDate(widget.goal.endDate)}',
                     style: const TextStyle(color: Colors.white),
