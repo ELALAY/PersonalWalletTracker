@@ -286,6 +286,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     return Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: ListTile(
+                                        leading: SizedBox(
+                                  height: 35.0,
+                                  child: categoryIcon(category)),
                                         title: Text(category),
                                         tileColor: Colors.blueGrey[100],
                                         trailing: Text(
@@ -305,5 +308,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               ],
             ),
     );
+  }
+
+  Image categoryIcon(String name) {
+    try {
+      return Image.asset(
+        'lib/Images/${name.toLowerCase()}.png',
+      );
+    } catch (e) {
+      throw Exception('Firebase error: $e');
+    }
   }
 }

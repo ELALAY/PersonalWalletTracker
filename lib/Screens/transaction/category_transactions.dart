@@ -51,11 +51,27 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
     });
   }
 
+  Image categoryIcon(String name) {
+    try {
+      return Image.asset(
+        'lib/Images/${name.toLowerCase()}.png',
+      );
+    } catch (e) {
+      throw Exception('Firebase error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category),
+        title: Row(
+          children: [
+            SizedBox(height: 35.0, child: categoryIcon(widget.category)),
+            const SizedBox(width: 12.0,),
+            Text(widget.category),
+          ],
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         foregroundColor: Colors.grey,

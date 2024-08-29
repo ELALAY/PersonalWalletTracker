@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:personalwallettracker/Components/my_transaction_tile.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/edit_transaction_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
@@ -288,6 +289,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     itemCount: transactions.length,
                     itemBuilder: (context, index) {
                       final transaction = transactions[index];
+                      // return MyTransactionTile(transaction: transaction);
                       return Container(
                         padding: const EdgeInsets.all(8.0),
                         decoration: BoxDecoration(
@@ -344,6 +346,10 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                             ),
                             subtitle: Text(
                                 '${formatDate(transaction.date)} - ${transaction.category}'),
+                            leading: SizedBox(
+                                  height: 35.0,
+                                  child: categoryIcon(transaction.category)),
+                            
                             trailing: Text(
                               '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
                               style: TextStyle(
@@ -371,6 +377,16 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Image categoryIcon(String name) {
+    try {
+      return Image.asset(
+        'lib/Images/${name.toLowerCase()}.png',
+      );
+    } catch (e) {
+      throw Exception('Firebase error: $e');
+    }
   }
 
   Future<void> _selectDateRange(BuildContext context) async {
