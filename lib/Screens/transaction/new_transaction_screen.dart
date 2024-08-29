@@ -231,15 +231,20 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                                 ),
                               ),
                               items: [
-                                ..._categories
-                                    .map((category) => DropdownMenuItem<String>(
-                                          value: category.name,
-                                          child: Text(category.name),
-                                        )),
-                                const DropdownMenuItem<String>(
-                                  value: 'Create New...',
-                                  child: Text('Create New... +'),
-                                ),
+                                ..._categories.map((category) =>
+                                    DropdownMenuItem<String>(
+                                      value: category.name,
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                              height: 35.0,
+                                              child:
+                                                  categoryIcon(category.name)),
+                                          const SizedBox(width: 12.0,),
+                                          Text(category.name),
+                                        ],
+                                      ),
+                                    )),
                               ],
                             ),
                           ),
@@ -251,15 +256,19 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                               controller: _dateController,
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                                 labelText: formatDate(selectedDate),
-                                labelStyle: const TextStyle(color: Colors.deepPurple),
+                                labelStyle:
+                                    const TextStyle(color: Colors.deepPurple),
                                 enabledBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                                 focusedBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.deepPurple),
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
                                 ),
                                 suffixIcon: IconButton(
                                   icon: const Icon(
@@ -307,6 +316,16 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
       ),
     );
+  }
+
+  Image categoryIcon(String name) {
+    try {
+      return Image.asset(
+        'lib/Images/${name.toLowerCase()}.png',
+      );
+    } catch (e) {
+      throw Exception('Firebase error: $e');
+    }
   }
 
   void _showCreateCategoryDialog() {

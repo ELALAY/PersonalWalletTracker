@@ -108,7 +108,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               title: Text(category.name),
                               leading: SizedBox(
                                   height: 35.0,
-                                  child: findImage(category.name)),
+                                  child: categoryIcon(category.name)),
                             ));
                       }),
                 ),
@@ -122,7 +122,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  Image findImage(String name) {
+  Image categoryIcon(String name) {
     try {
       return Image.asset(
         'lib/Images/${name.toLowerCase()}.png',
