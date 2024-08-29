@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 
@@ -45,7 +46,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         foregroundColor: Colors.grey,
         elevation: 0.0,
         title: const Text('Categories'),
-        actions: [IconButton(onPressed: reload, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: reload, icon: const Icon(Icons.refresh))
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -56,29 +59,57 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       itemCount: categories.length,
                       itemBuilder: (context, index) {
                         final category = categories[index];
-                        return ListTile(
-                          title: Text(category.name),
-                          //edit category
-                          leading: IconButton(
-                              onPressed: () {
-                                _showUpdateCategoryDialog(category);
-                                fetchCategories();
-                              },
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.blueGrey,
-                              )),
-                          //delete category
-                          trailing: IconButton(
-                              onPressed: () {
-                                _showDeleteCategoryDialog(category);
-                                fetchCategories();
-                              },
-                              icon: const Icon(
-                                Icons.delete_forever,
-                                color: Colors.pink,
-                              )),
-                        );
+                        return Slidable(
+                            key: const ValueKey(0),
+
+                            // The start action pane is the one at the left or the top side.
+                            startActionPane: ActionPane(
+                              // A motion is a widget used to control how the pane animates.
+                              motion: const StretchMotion(),
+
+                              // All actions are defined in the children parameter.
+                              children: [
+                                // A SlidableAction can have an icon and/or a label.
+                                SlidableAction(
+                                  onPressed: (context) {
+                                    _showUpdateCategoryDialog(category);
+                                    fetchCategories();
+                                  },
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.edit,
+                                  label: 'Update',
+                                ),
+                              ],
+                            ),
+
+                            // The start action pane is the one at the left or the top side.
+                            endActionPane: ActionPane(
+                              // A motion is a widget used to control how the pane animates.
+                              motion: const StretchMotion(),
+
+                              // All actions are defined in the children parameter.
+                              children: [
+                                // A SlidableAction can have an icon and/or a label.
+                                SlidableAction(
+                                  onPressed: (context) {
+                                    _showDeleteCategoryDialog(category);
+                                    fetchCategories();
+                                  },
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 192, 174, 174),
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.delete_forever_outlined,
+                                  label: 'Delete',
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              title: Text(category.name),
+                              leading: SizedBox(
+                                  height: 35.0,
+                                  child: findImage(category.name)),
+                            ));
                       }),
                 ),
               ],
@@ -89,6 +120,16 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Image findImage(String name) {
+    try {
+      return Image.asset(
+        'lib/Images/${name.toLowerCase()}.png',
+      );
+    } catch (e) {
+      throw Exception('Firebase error: $e');
+    }
   }
 
   void _showCreateCategoryDialog() {
