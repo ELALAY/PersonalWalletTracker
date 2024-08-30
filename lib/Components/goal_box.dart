@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/goal_model.dart';
+import 'package:personalwallettracker/Screens/goal/edit_goal_screen.dart';
 
 class MyGoalBox extends StatefulWidget {
   final GoalModel goal;
-  final Function onTap;
+  final VoidCallback onTapEnd;
+  final VoidCallback onTapStart;
 
-  const MyGoalBox({super.key, required this.goal, required this.onTap});
+  const MyGoalBox({
+    super.key,
+    required this.goal,
+    required this.onTapStart,
+    required this.onTapEnd,
+  });
 
   @override
   State<MyGoalBox> createState() => _MyGoalBoxState();
@@ -54,6 +61,7 @@ class _MyGoalBoxState extends State<MyGoalBox> {
             SlidableAction(
               borderRadius: BorderRadius.circular(12.0),
               onPressed: (context) {
+                widget.onTapStart();  // Corrected: Add the function call
               },
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -63,7 +71,7 @@ class _MyGoalBoxState extends State<MyGoalBox> {
           ],
         ),
 
-        // The start action pane is the one at the left or the top side.
+        // The end action pane is the one at the right or the bottom side.
         endActionPane: ActionPane(
           // A motion is a widget used to control how the pane animates.
           motion: const StretchMotion(),
@@ -74,6 +82,7 @@ class _MyGoalBoxState extends State<MyGoalBox> {
             SlidableAction(
               borderRadius: BorderRadius.circular(12.0),
               onPressed: (context) {
+                widget.onTapEnd();  // Corrected: Add the function call
               },
               backgroundColor: const Color.fromARGB(255, 192, 174, 174),
               foregroundColor: Colors.white,

@@ -609,4 +609,9 @@ class FirebaseDB {
   Future<void> updateGoal(GoalModel goal) async {
     await _firestore.collection('goals').doc(goal.id).update(goal.toMap());
   }
+
+  Future<void> deleteGoal(GoalModel goal) async {
+    debugPrint('deleting ${goal.name}');
+    await _firestore.collection('goals').doc(goal.id).delete();
+  }
 }

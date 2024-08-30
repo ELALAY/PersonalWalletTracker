@@ -5,6 +5,7 @@ import 'package:personalwallettracker/Components/goal_box.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../../Models/goal_model.dart';
+import 'edit_goal_screen.dart';
 import 'new_goal_screen.dart';
 
 class GoalsOverviewScreen extends StatefulWidget {
@@ -73,8 +74,14 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
                 final goal = goals[index];
                 return MyGoalBox(
                   goal: goal,
-                  onTap: () {
-                    _showAddAmountDialog(goal);
+                  onTapStart: (){showDeleteGoalDialog(goal);},
+                  onTapEnd: () {
+                    // _showAddAmountDialog(goal);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => EditGoalScreen(goal: goal),
+                      ),
+                    ).then((value) => reload());
                   },
                 );
               },
@@ -83,6 +90,12 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
         ],
       ),
     );
+  }
+
+  void navEditGoal(GoalModel goal) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return EditGoalScreen(goal: goal);
+    })).then((value) => reload());
   }
 
   void navNewGoalScreen() {
@@ -102,6 +115,31 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
         uid: goal.uid,
         goalIcon: goal.goalIcon);
     await firebaseDatabasehelper.updateGoal(updatedGoal);
+  }
+
+  void showDeleteGoalDialog(GoalModel goal) {
+    showDialog(
+        context: context,
+        builder: ((context) {
+          return AlertDialog(
+            title: const Text('Deleting Goal!'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MyButton(
+                    label: 'Delete',
+                    onTap: () {
+                      deleteGoal(goal);
+                      Navigator.pop(context);
+                    }),
+              ],
+            ),
+          );
+        }));
+  }
+
+  void deleteGoal(GoalModel goal) async {
+    firebaseDatabasehelper.deleteGoal(goal).then((value) => reload());
   }
 
   void _showAddAmountDialog(GoalModel goal) {
@@ -134,7 +172,10 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel', style: TextStyle(color: Colors.deepPurple),),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
             ),
             MyButton(
               onTap: () {
