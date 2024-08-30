@@ -91,7 +91,7 @@ class _MyGoalBoxState extends State<MyGoalBox> {
         ),
         child: Container(
           width: 400.0,
-          height: 180.0,
+          height: 200.0,
           decoration: BoxDecoration(
             color: Colors.deepPurple,
             borderRadius: BorderRadius.circular(12),
@@ -102,68 +102,74 @@ class _MyGoalBoxState extends State<MyGoalBox> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(),
-                    //Icon and goal name
-                    Center(
-                      child: Column(
-                        children: [
-                          Stack(alignment: AlignmentDirectional.center, children: [
-                            Container(
-                              height: 50,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(40)),
-                            ),
-                            Container(
-                              height: 40,
-                              width: 45,
-                              decoration: BoxDecoration(
-                                  color: Colors.deepPurple,
-                                  borderRadius: BorderRadius.circular(40)),
-                            ),
-                            SizedBox(
-                                height: 35.0,
-                                width: 35,
-                                child: categoryIcon(widget.goal.goalIcon)),
-                          ]),
-                          Text(
-                            widget.goal.name,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(onPressed: widget.iconTap, icon: const Icon(Icons.add, color: Colors.white,))
-                  ],
-                ),
-                const SizedBox(
-                  height: 10.0,
-                ),
-                //amounts: current amount / target amount
-                Row(
-                  children: [
-                    Text(widget.goal.currentAmount.toStringAsFixed(2),
-                        style: const TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17)),
-                    Text(' / ${widget.goal.targetAmount}',
+                Center(
+                  child: Column(
+                    children: [
+                      Stack(alignment: AlignmentDirectional.center, children: [
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(40)),
+                        ),
+                        Container(
+                          height: 40,
+                          width: 45,
+                          decoration: BoxDecoration(
+                              color: Colors.deepPurple,
+                              borderRadius: BorderRadius.circular(40)),
+                        ),
+                        SizedBox(
+                            height: 35.0,
+                            width: 35,
+                            child: categoryIcon(widget.goal.goalIcon)),
+                      ]),
+                      Text(
+                        widget.goal.name,
                         style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 17)),
+                            fontSize: 20),
+                      ),
+                    ],
+                  ),
+                ),
+                //amounts: current amount / target amount
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(widget.goal.currentAmount.toStringAsFixed(2),
+                            style: const TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17)),
+                        Text(' / ${widget.goal.targetAmount}',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17)),
+                      ],
+                    ),
+                    IconButton(
+                        onPressed: widget.iconTap,
+                        icon: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        ))
                   ],
                 ),
+                //progress bar
+                LinearProgressIndicator(
+                  minHeight: 12.0,
+                  value: progress,
+                  backgroundColor: Colors.grey[300],
+                  color: Colors.green,
+                ),
                 const SizedBox(
-                  height: 20.0,
+                  height: 10.0,
                 ),
                 // progress and end date
                 Row(
@@ -177,15 +183,6 @@ class _MyGoalBoxState extends State<MyGoalBox> {
                       style: const TextStyle(color: Colors.white),
                     ),
                   ],
-                ),
-                const SizedBox(
-                  height: 5.0,
-                ),
-                //progress bar
-                LinearProgressIndicator(
-                  value: progress,
-                  backgroundColor: Colors.grey[300],
-                  color: Colors.green,
                 ),
               ],
             ),

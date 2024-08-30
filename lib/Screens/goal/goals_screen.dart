@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Components/goal_box.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
+import 'package:personalwallettracker/Models/card_model.dart';
+import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../../Models/goal_model.dart';
 import 'edit_goal_screen.dart';
@@ -10,7 +12,9 @@ import 'new_goal_screen.dart';
 
 class GoalsOverviewScreen extends StatefulWidget {
   final User user;
-  const GoalsOverviewScreen({super.key, required this.user});
+  final List<CardModel> myCards;
+  const GoalsOverviewScreen(
+      {super.key, required this.user, required this.myCards});
 
   @override
   State<GoalsOverviewScreen> createState() => _GoalsOverviewScreenState();
@@ -19,6 +23,7 @@ class GoalsOverviewScreen extends StatefulWidget {
 class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
   List<GoalModel> goals = [];
+  String selectedCard = 'All';
   bool isLoading = true;
 
   @override
@@ -122,6 +127,16 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
         uid: goal.uid,
         goalIcon: goal.goalIcon);
     await firebaseDatabasehelper.updateGoal(updatedGoal);
+    CardModel card = await firebaseDatabasehelper.getCardById(selectedCard);
+    TransactionModel transaction = TransactionModel(
+        cardId: card.id,
+        cardName: card.cardName,
+        amount: amount,
+        category: 'Salary',
+        date: DateTime.now(),
+        description: 'Saving for ${goal.name}',
+        isExpense: true);
+    await firebaseDatabasehelper.addTransaction(transaction);
   }
 
   void showDeleteGoalDialog(GoalModel goal) {
@@ -151,39 +166,79 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
 
   void _showAddAmountDialog(GoalModel goal) {
     final TextEditingController amountController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Add Amount'),
-          content: TextField(
-            controller: amountController,
-            decoration: const InputDecoration(
-              labelText: 'Amount',
-              labelStyle: TextStyle(color: Colors.deepPurple),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.deepPurple, // Deep Purple border
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Card Selector
+              DropdownButtonFormField<String>(
+                value: widget.myCards.any((card) => card.id == selectedCard)
+                    ? selectedCard
+                    : 'All',
+                icon: const Icon(
+                  Icons.arrow_downward,
+                  color: Colors.deepPurple,
+                ),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedCard = value;
+                      debugPrint(selectedCard);
+                    });
+                  }
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Card',
+                  labelStyle: TextStyle(color: Colors.deepPurple),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.deepPurple, // Deep Purple border
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.deepPurple, // Deep Purple focused border
+                    ),
+                  ),
+                ),
+                items: [
+                  ...widget.myCards.map((card) => DropdownMenuItem<String>(
+                        value: card.id,
+                        child: Text(card.cardName),
+                      )),
+                  const DropdownMenuItem<String>(
+                    value: 'All',
+                    child: Text('All'),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              TextField(
+                controller: amountController,
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                  labelStyle: TextStyle(color: Colors.deepPurple),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.deepPurple, // Deep Purple border
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.deepPurple, // Deep Purple focused border
+                    ),
+                  ),
                 ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.deepPurple, // Deep Purple focused border
-                ),
-              ),
-            ),
+            ],
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.deepPurple),
-              ),
-            ),
             MyButton(
               onTap: () {
                 if (amountController.text.isNotEmpty) {
@@ -200,4 +255,5 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
       },
     ).then((value) => reload());
   }
+
 }

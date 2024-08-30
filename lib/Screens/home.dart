@@ -372,7 +372,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (user != null) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return GoalsOverviewScreen(
-            user: user!); // replace with your settings screen
+            user: user!, myCards: myCards,); // replace with your settings screen
       })).then((value) => reload());
     }else {
       ScaffoldMessenger.of(context).showSnackBar(
