@@ -5,6 +5,8 @@ class GoalModel {
   double currentAmount;
   DateTime endDate;
   String uid;
+  String goalIcon;
+
 
   GoalModel({
     required this.name,
@@ -12,6 +14,7 @@ class GoalModel {
     this.currentAmount = 0.0,
     required this.endDate,
     required this.uid,
+    required this.goalIcon
   }): id = '';
 
   GoalModel.withId({
@@ -21,6 +24,7 @@ class GoalModel {
     this.currentAmount = 0.0,
     required this.endDate,
     required this.uid,
+    required this.goalIcon
   });
 
   Map<String, dynamic> toMap() {
@@ -30,6 +34,8 @@ class GoalModel {
       'currentAmount': currentAmount,
       'endDate': endDate.toIso8601String(),
       'uid': uid,
+      'goalIcon': goalIcon,
+
     };
   }
 
@@ -41,6 +47,7 @@ class GoalModel {
       currentAmount: map['currentAmount'],
       endDate: DateTime.parse(map['endDate']),
       uid: map['uid'],
+      goalIcon: map['goalIcon'],
     );
   }
 }

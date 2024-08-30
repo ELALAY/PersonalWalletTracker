@@ -19,6 +19,16 @@ class _MyGoalBoxState extends State<MyGoalBox> {
     return DateFormat('dd/MM/yy').format(date);
   }
 
+  Image categoryIcon(String name) {
+    try {
+      return Image.asset(
+        'lib/Images/${name.toLowerCase()}.png',
+      );
+    } catch (e) {
+      throw Exception('Firebase error: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -31,7 +41,7 @@ class _MyGoalBoxState extends State<MyGoalBox> {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         width: 300.0,
-        height: 150.0,
+        height: 180.0,
         decoration: BoxDecoration(
           color: Colors.deepPurple,
           borderRadius: BorderRadius.circular(12),
@@ -42,22 +52,38 @@ class _MyGoalBoxState extends State<MyGoalBox> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.goal.name,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20),
-                  ),
-                  IconButton(
-                      onPressed: () {
-                        widget.onTap(); // Call the onTap function
-                      },
-                      icon: const Icon(Icons.add, color: Colors.white))
-                ],
+              Center(
+                child: Column(
+                  children: [
+                    Stack(alignment: AlignmentDirectional.center, children: [
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(40)),
+                      ),
+                      Container(
+                        height: 40,
+                        width: 45,
+                        decoration: BoxDecoration(
+                            color: Colors.deepPurple,
+                            borderRadius: BorderRadius.circular(40)),
+                      ),
+                      SizedBox(
+                          height: 35.0,
+                          width: 35,
+                          child: categoryIcon(widget.goal.goalIcon)),
+                    ]),
+                    Text(
+                      widget.goal.name,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(
                 height: 10.0,

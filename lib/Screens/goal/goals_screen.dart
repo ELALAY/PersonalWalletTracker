@@ -99,7 +99,8 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
         currentAmount: goal.currentAmount + amount,
         targetAmount: goal.targetAmount,
         endDate: goal.endDate,
-        uid: goal.uid);
+        uid: goal.uid,
+        goalIcon: goal.goalIcon);
     await firebaseDatabasehelper.updateGoal(updatedGoal);
   }
 
