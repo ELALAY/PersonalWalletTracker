@@ -7,7 +7,6 @@ import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Components/spending_bar_chart.dart';
 import '../../Models/category_spending.dart';
-import '../../Utils/globals.dart';
 
 // ignore: must_be_immutable
 class StatisticsScreen extends StatefulWidget {

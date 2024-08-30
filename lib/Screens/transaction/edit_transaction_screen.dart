@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
@@ -9,7 +8,7 @@ import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Utils/globals.dart';
-import '../categories/create_category.dart';
+import '../categories/create_category_screen.dart';
 
 class EditTransactionScreen extends StatefulWidget {
   final TransactionModel transaction;
@@ -68,26 +67,6 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
         );
       }
     }
-  }
-
-  Future<void> _createCategory(String name) async {
-    // final newCategory = Category(name: name);
-    // try {
-    //   await _firebaseDB.createCategory(newCategory);
-    //   if (mounted) {
-    //     _loadCategories(); // Reload categories
-    //   }
-    // } catch (e) {
-    //   if (mounted) {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text('Error creating category: $e')),
-    //     );
-    //   }
-    // }
-  }
-
-  String formatDate(DateTime date) {
-    return DateFormat('dd/MM/yy').format(date);
   }
 
   Future<void> _editTransaction() async {

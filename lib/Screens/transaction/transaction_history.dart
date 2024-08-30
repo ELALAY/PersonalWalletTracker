@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/edit_transaction_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Models/card_model.dart';
+import '../../Utils/globals.dart';
 import 'new_transaction_screen.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
@@ -97,6 +99,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     }
     // Sort transactions from newest to oldest
     transactionstemp = _sortTransactions(transactionstemp);
+
 
     if (mounted) {
       setState(() {
@@ -376,16 +379,6 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         child: const Icon(Icons.add),
       ),
     );
-  }
-
-  Image categoryIcon(String name) {
-    try {
-      return Image.asset(
-        'lib/Images/${name.toLowerCase()}.png',
-      );
-    } catch (e) {
-      throw Exception('Firebase error: $e');
-    }
   }
 
   Future<void> _selectDateRange(BuildContext context) async {

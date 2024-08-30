@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
-import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
-import 'package:personalwallettracker/Screens/categories/create_category.dart';
+import 'package:personalwallettracker/Screens/categories/create_category_screen.dart';
 
 import '../../Models/category_model.dart';
 import '../../Utils/globals.dart';
 import '../../services/realtime_db/firebase_db.dart';
+import 'edit_category_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -74,10 +74,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 // A SlidableAction can have an icon and/or a label.
                                 SlidableAction(
                                   onPressed: (context) {
-                                    _showUpdateCategoryDialog(category);
+                                    editcategory(category);
                                     fetchCategories();
                                   },
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: const Color.fromARGB(255, 192, 174, 174),
                                   foregroundColor: Colors.white,
                                   icon: Icons.edit,
                                   label: 'Update',
@@ -99,7 +99,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     fetchCategories();
                                   },
                                   backgroundColor:
-                                      const Color.fromARGB(255, 192, 174, 174),
+                                      Colors.red,
                                   foregroundColor: Colors.white,
                                   icon: Icons.delete_forever_outlined,
                                   label: 'Delete',
@@ -121,36 +121,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         backgroundColor: Colors.deepPurple,
         child: const Icon(Icons.add),
       ),
-    );
-  }
-
-
-  void _showUpdateCategoryDialog(CategoryModel category) {
-    final TextEditingController newCategoryController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Update ${category.name}'),
-          content: MyTextField(
-              controller: newCategoryController,
-              label: category.name,
-              color: Colors.deepPurple,
-              enabled: true),
-          actions: [
-            MyButton(
-                label: 'Update',
-                onTap: () {
-                  final newCategoryName = newCategoryController.text.trim();
-                  if (newCategoryName.isNotEmpty) {
-                    editcategory(category, newCategoryName);
-                    Navigator.of(context).pop();
-                    fetchCategories();
-                  }
-                }),
-          ],
-        );
-      },
     );
   }
 
@@ -178,18 +148,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  void editcategory(CategoryModel catergory, String newName) async {
-    // try {
-    //   Category newCategory = Category.withId(id: catergory.id, name: newName);
-    //   await firebaseDatabasehelper.updateCategory(newCategory);
-    //   setState(() {
-    //     fetchCategories(); // Reload categories
-    //   });
-    // } catch (e) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text('Error updating category: $e')),
-    //   );
-    // }
+  void editcategory(CategoryModel catergory) async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return EditCategory(category: catergory,); // replace with your settings screen
+    })).then((value) => reload());
   }
 
   void _createCategory() async {

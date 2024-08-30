@@ -9,7 +9,7 @@ import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Utils/globals.dart';
-import '../categories/create_category.dart';
+import '../categories/create_category_screen.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final CardModel card;
@@ -54,10 +54,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
         );
       }
     }
-  }
-
-  Future<void> _createCategory(String name) async {
-  
   }
 
   String formatDate(DateTime date) {

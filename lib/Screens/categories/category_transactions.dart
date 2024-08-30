@@ -5,7 +5,6 @@ import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 
 import '../../Models/transaction_model.dart';
-import '../../Utils/globals.dart';
 import '../../services/realtime_db/firebase_db.dart';
 import '../transaction/edit_transaction_screen.dart';
 
