@@ -8,6 +8,9 @@ import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
+import '../../Utils/globals.dart';
+import '../categories/create_category.dart';
+
 class EditTransactionScreen extends StatefulWidget {
   final TransactionModel transaction;
   final CardModel card;
@@ -25,7 +28,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   DateTime selectedDate = DateTime.now();
-  List<Category> _categories = [];
+  List<CategoryModel> _categories = [];
   String? _selectedCategory;
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
@@ -68,19 +71,19 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   }
 
   Future<void> _createCategory(String name) async {
-    final newCategory = Category(name: name);
-    try {
-      await _firebaseDB.createCategory(newCategory);
-      if (mounted) {
-        _loadCategories(); // Reload categories
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating category: $e')),
-        );
-      }
-    }
+    // final newCategory = Category(name: name);
+    // try {
+    //   await _firebaseDB.createCategory(newCategory);
+    //   if (mounted) {
+    //     _loadCategories(); // Reload categories
+    //   }
+    // } catch (e) {
+    //   if (mounted) {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       SnackBar(content: Text('Error creating category: $e')),
+    //     );
+    //   }
+    // }
   }
 
   String formatDate(DateTime date) {
@@ -249,7 +252,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                             child: DropdownButtonFormField<String>(
                               value: _selectedCategory,
                               icon: IconButton(
-                                onPressed: _showCreateCategoryDialog,
+                                onPressed: createCaegory,
                                 icon: const Icon(
                                   Icons.add,
                                   color: Colors.deepPurple,
@@ -282,12 +285,19 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                                 ..._categories
                                     .map((category) => DropdownMenuItem<String>(
                                           value: category.name,
-                                          child: Text(category.name),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                  height: 35.0,
+                                                  child: categoryIcon(
+                                                      category.iconName)),
+                                              const SizedBox(
+                                                width: 12.0,
+                                              ),
+                                              Text(category.name),
+                                            ],
+                                          ),
                                         )),
-                                const DropdownMenuItem<String>(
-                                  value: 'Create New...',
-                                  child: Text('Create New... +'),
-                                ),
                               ],
                             ),
                           ),
@@ -377,51 +387,9 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
     );
   }
 
-  void _showCreateCategoryDialog() {
-    final TextEditingController newCategoryController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Create New Category'),
-          content: TextField(
-            controller: newCategoryController,
-            decoration: const InputDecoration(
-              labelText: 'Category Name',
-              labelStyle: TextStyle(color: Colors.deepPurple),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.deepPurple, // Deep Purple border
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.deepPurple, // Deep Purple focused border
-                ),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final newCategoryName = newCategoryController.text.trim();
-                if (newCategoryName.isNotEmpty) {
-                  _createCategory(newCategoryName);
-                  Navigator.of(context).pop();
-                }
-              },
-              child: const Text('Create'),
-            ),
-          ],
-        );
-      },
-    );
+  void createCaegory() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const CreateCategory(); // replace with your settings screen
+    }));
   }
 }

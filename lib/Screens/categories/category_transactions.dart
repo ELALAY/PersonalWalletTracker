@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
+import 'package:personalwallettracker/Models/category_model.dart';
 
 import '../../Models/transaction_model.dart';
+import '../../Utils/globals.dart';
 import '../../services/realtime_db/firebase_db.dart';
-import 'edit_transaction_screen.dart';
+import '../transaction/edit_transaction_screen.dart';
 
 class CategoryTransactions extends StatefulWidget {
   final String category;
@@ -24,11 +26,14 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
   //Dates for the filters
   DateTime? _startDate;
   DateTime? _endDate;
+  CategoryModel currentCategory =
+      CategoryModel(name: 'null', iconName: 'app_icon');
 
   @override
   void initState() {
     super.initState();
     fetchTransactions();
+
     _isLoading = false;
   }
 
@@ -51,27 +56,11 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
     });
   }
 
-  Image categoryIcon(String name) {
-    try {
-      return Image.asset(
-        'lib/Images/${name.toLowerCase()}.png',
-      );
-    } catch (e) {
-      throw Exception('Firebase error: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            SizedBox(height: 35.0, child: categoryIcon(widget.category)),
-            const SizedBox(width: 12.0,),
-            Text(widget.category),
-          ],
-        ),
+        title: Text(widget.category),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         foregroundColor: Colors.grey,

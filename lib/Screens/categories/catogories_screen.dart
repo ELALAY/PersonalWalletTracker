@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
+import 'package:personalwallettracker/Screens/categories/create_category.dart';
 
-import '../Models/category_model.dart';
-import '../services/realtime_db/firebase_db.dart';
+import '../../Models/category_model.dart';
+import '../../Utils/globals.dart';
+import '../../services/realtime_db/firebase_db.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -15,7 +17,7 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
-  List<Category> categories = [];
+  List<CategoryModel> categories = [];
   bool isLoading = true;
 
   @override
@@ -32,7 +34,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   void fetchCategories() async {
-    List<Category> temp = await firebaseDatabasehelper.getCategories();
+    List<CategoryModel> temp = await firebaseDatabasehelper.getCategories();
     setState(() {
       categories = temp;
     });
@@ -108,77 +110,22 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               title: Text(category.name),
                               leading: SizedBox(
                                   height: 35.0,
-                                  child: categoryIcon(category.name)),
+                                  child: categoryIcon(category.iconName)),
                             ));
                       }),
                 ),
               ],
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showCreateCategoryDialog,
+        onPressed: _createCategory,
         backgroundColor: Colors.deepPurple,
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  Image categoryIcon(String name) {
-    try {
-      return Image.asset(
-        'lib/Images/${name.toLowerCase()}.png',
-      );
-    } catch (e) {
-      throw Exception('Firebase error: $e');
-    }
-  }
 
-  void _showCreateCategoryDialog() {
-    final TextEditingController newCategoryController = TextEditingController();
-    String errMsg = '*';
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Create New Category'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MyTextField(
-                  controller: newCategoryController,
-                  label: 'Category Name',
-                  color: Colors.deepPurple,
-                  enabled: true),
-              Text(
-                errMsg,
-                style: const TextStyle(color: Colors.red),
-              ),
-            ],
-          ),
-          actions: [
-            MyButton(
-                label: 'Create',
-                onTap: () async {
-                  final newCategoryName = newCategoryController.text.trim();
-                  if (newCategoryName.isNotEmpty) {
-                    bool created = await _createCategory(newCategoryName);
-                    if (!created) {
-                      setState(() {
-                        errMsg = 'Category already created';
-                      });
-                    } else {
-                      fetchCategories();
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pop();
-                    }
-                  }
-                }),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showUpdateCategoryDialog(Category category) {
+  void _showUpdateCategoryDialog(CategoryModel category) {
     final TextEditingController newCategoryController = TextEditingController();
     showDialog(
       context: context,
@@ -207,7 +154,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  void _showDeleteCategoryDialog(Category category) {
+  void _showDeleteCategoryDialog(CategoryModel category) {
     showDialog(
       context: context,
       builder: (context) {
@@ -231,41 +178,27 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  void editcategory(Category catergory, String newName) async {
-    try {
-      Category newCategory = Category.withId(id: catergory.id, name: newName);
-      await firebaseDatabasehelper.updateCategory(newCategory);
-      setState(() {
-        fetchCategories(); // Reload categories
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating category: $e')),
-      );
-    }
+  void editcategory(CategoryModel catergory, String newName) async {
+    // try {
+    //   Category newCategory = Category.withId(id: catergory.id, name: newName);
+    //   await firebaseDatabasehelper.updateCategory(newCategory);
+    //   setState(() {
+    //     fetchCategories(); // Reload categories
+    //   });
+    // } catch (e) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Error updating category: $e')),
+    //   );
+    // }
   }
 
-  Future<bool> _createCategory(String name) async {
-    final newCategory = Category(name: name);
-    try {
-      bool created = await firebaseDatabasehelper.createCategory(newCategory);
-      if (created) {
-        setState(() {
-          fetchCategories(); // Reload categories
-        });
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error creating category: $e')),
-      );
-      return false;
-    }
+  void _createCategory() async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const CreateCategory(); // replace with your settings screen
+    })).then((value) => reload());
   }
 
-  void deleteCategory(Category category) async {
+  void deleteCategory(CategoryModel category) async {
     try {
       firebaseDatabasehelper.deleteCategory(category);
       setState(() {

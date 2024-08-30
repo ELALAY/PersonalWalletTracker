@@ -1,31 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Category {
+class CategoryModel {
   final String id;
   final String name;
+  final String iconName;
 
-  Category({required this.name}): id = '';
-  Category.withId({required this.id, required this.name});
+  CategoryModel({required this.name, required this.iconName}): id = '';
+  CategoryModel.withId({required this.id, required this.name, required this.iconName});
 
 
-  factory Category.fromDocument(DocumentSnapshot doc) {
+  factory CategoryModel.fromDocument(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    return Category.withId(
+    return CategoryModel.withId(
       id: doc.id,
       name: data['name'] ?? '',
+      iconName: data['iconName'] ?? 'app_icon',
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
+      'iconName': iconName,
     };
   }
 
-  factory Category.fromMap(Map<String, dynamic> map, String id) {
-    return Category.withId(
+  factory CategoryModel.fromMap(Map<String, dynamic> map, String id) {
+    return CategoryModel.withId(
       id: id,
       name: map['name'],
+      iconName: map['iconName'],
     );
   }
 }

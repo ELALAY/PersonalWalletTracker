@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
-import 'package:personalwallettracker/Screens/transaction/category_transactions.dart';
+import 'package:personalwallettracker/Screens/categories/category_transactions.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import '../../Components/spending_bar_chart.dart';
 import '../../Models/category_spending.dart';
+import '../../Utils/globals.dart';
 
 // ignore: must_be_immutable
 class StatisticsScreen extends StatefulWidget {
@@ -230,12 +231,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 ),
                 // Date Range Selector (Placeholder)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal:16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     children: [
-                      Text(_startDate != null
-                          ? formatDate(_startDate!)
-                          : ''),
+                      Text(_startDate != null ? formatDate(_startDate!) : ''),
                       const SizedBox(
                         width: 8.0,
                       ),
@@ -286,9 +285,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                     return Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: ListTile(
-                                        leading: SizedBox(
-                                  height: 35.0,
-                                  child: categoryIcon(category)),
                                         title: Text(category),
                                         tileColor: Colors.blueGrey[100],
                                         trailing: Text(
@@ -308,15 +304,5 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               ],
             ),
     );
-  }
-
-  Image categoryIcon(String name) {
-    try {
-      return Image.asset(
-        'lib/Images/${name.toLowerCase()}.png',
-      );
-    } catch (e) {
-      throw Exception('Firebase error: $e');
-    }
   }
 }

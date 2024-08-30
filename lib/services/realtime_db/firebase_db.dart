@@ -432,21 +432,39 @@ class FirebaseDB {
 //--------------------------------------------------------------------------------------
 
   // Fetch all categories
-  Future<List<Category>> getCategories() async {
+  Future<List<CategoryModel>> getCategories() async {
     try {
       final snapshot = await _firestore.collection('categories').get();
-      return snapshot.docs.map((doc) => Category.fromDocument(doc)).toList();
+      return snapshot.docs.map((doc) => CategoryModel.fromDocument(doc)).toList();
     } catch (e) {
       throw Exception('Failed to fetch categories: $e');
     }
   }
 
   //fetch category
-  Future<bool> fetchCategory(String category) async {
+  Future<CategoryModel> fetchCategory(String category) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
-          .collection('transactions')
+          .collection('categories')
           .where('category', isEqualTo: category)
+          .get();
+
+        // Category found, return an instance of CategoryModel
+        var doc = querySnapshot.docs.first;
+        return CategoryModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+      
+    } catch (e) {
+      debugPrint('Error fetching category: $e');
+      throw Exception('Error fetching category'); 
+    }
+  }
+
+  //check category
+  Future<bool> checkCategory(String category) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('categories')
+          .where('name', isEqualTo: category)
           .get();
       if (querySnapshot.docs.isEmpty) {
         return false;
@@ -460,7 +478,7 @@ class FirebaseDB {
   }
 
   //update category
-  Future<void> updateCategory(Category category) async {
+  Future<void> updateCategory(CategoryModel category) async {
     try {
       // Update transaction in Firestore
       await _firestore
@@ -473,7 +491,7 @@ class FirebaseDB {
   }
 
   // Delete transaction
-  Future<void> deleteCategory(Category category) async {
+  Future<void> deleteCategory(CategoryModel category) async {
     try {
       debugPrint('fetching transactions for ${category.name}');
       //delete transactions of this categories
@@ -493,9 +511,9 @@ class FirebaseDB {
   }
 
   // Create a new category
-  Future<bool> createCategory(Category category) async {
+  Future<bool> createCategory(CategoryModel category) async {
     try {
-      bool exists = await fetchCategory(category.name);
+      bool exists = await checkCategory(category.name);
       if (exists) {
         debugPrint('Category Already Exists');
         return false;
@@ -567,12 +585,10 @@ class FirebaseDB {
       String userId, Map<String, dynamic> updatedData) async {
     try {
       // Update the user's profile data in Firestore
-      await _firestore.collection('users').doc(userId).update(
-        {
-          'username': updatedData['username'],
-          'profile_picture': updatedData['profile_picture'],
-        }
-      );
+      await _firestore.collection('users').doc(userId).update({
+        'username': updatedData['username'],
+        'profile_picture': updatedData['profile_picture'],
+      });
       debugPrint('Profile updated successfully.');
     } catch (e) {
       // Log the error with a specific message
