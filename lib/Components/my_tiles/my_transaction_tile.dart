@@ -3,8 +3,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 
-import '../Models/card_model.dart';
-import '../Screens/transaction/edit_transaction_screen.dart';
+import '../../Models/card_model.dart';
+import '../../Screens/transaction/edit_transaction_screen.dart';
 
 class MyTransactionTile extends StatefulWidget {
   final TransactionModel transaction;

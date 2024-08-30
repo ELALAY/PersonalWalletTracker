@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:personalwallettracker/Components/my_list_tile.dart';
+import 'package:personalwallettracker/Components/my_tiles/my_list_tile.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/catogories_screen.dart';
 import 'package:personalwallettracker/Screens/home.dart';

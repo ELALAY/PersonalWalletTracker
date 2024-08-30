@@ -74,14 +74,21 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
                 final goal = goals[index];
                 return MyGoalBox(
                   goal: goal,
-                  onTapStart: (){showDeleteGoalDialog(goal);},
+                  onTapStart: () {
+                    showDeleteGoalDialog(goal);
+                  },
                   onTapEnd: () {
                     // _showAddAmountDialog(goal);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => EditGoalScreen(goal: goal),
-                      ),
-                    ).then((value) => reload());
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (context) => EditGoalScreen(goal: goal),
+                          ),
+                        )
+                        .then((value) => reload());
+                  },
+                  iconTap: () {
+                    _showAddAmountDialog(goal);
                   },
                 );
               },
@@ -182,6 +189,7 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
                 if (amountController.text.isNotEmpty) {
                   final amount = double.parse(amountController.text.trim());
                   addAmount(goal, amount);
+                  reload();
                   Navigator.of(context).pop();
                 }
               },

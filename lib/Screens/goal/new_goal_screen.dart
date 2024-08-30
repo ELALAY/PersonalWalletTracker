@@ -42,19 +42,23 @@ class NewGoalScreenState extends State<NewGoalScreen> {
 
   void _saveGoal() async {
     if (_formKey.currentState!.validate()) {
-      GoalModel newGoal = GoalModel(
-        name: _nameController.text,
-        targetAmount: double.parse(_targetAmountController.text),
-        endDate: _selectedDate,
-        uid: widget.user.uid,
-        goalIcon: _selectedIcon,
-      );
+      if (_selectedIcon.isNotEmpty || _nameController.text.isNotEmpty || _targetAmountController.text.isNotEmpty) {
+        GoalModel newGoal = GoalModel(
+          name: _nameController.text,
+          targetAmount: double.parse(_targetAmountController.text),
+          endDate: _selectedDate,
+          uid: widget.user.uid,
+          goalIcon: _selectedIcon,
+        );
 
-      // Save goal to Firestore or any other database
-      await firebaseDatabasehelper.addGoal(newGoal);
+        // Save goal to Firestore or any other database
+        await firebaseDatabasehelper.addGoal(newGoal);
 
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).pop();
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).pop();
+      } else{showDialog(context: context, builder: (context){
+        return const AlertDialog(title: Text('All fields should be filled and Icon Chosen!'),);
+      });}
     }
   }
 
@@ -121,14 +125,15 @@ class NewGoalScreenState extends State<NewGoalScreen> {
                   height: 300.0,
                   width: 350.0,
                   decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12.0),
-                      border: Border.all(color: Colors.deepPurple),
-                      ),
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12.0),
+                    border: Border.all(color: Colors.deepPurple),
+                  ),
                   child: GridView.builder(
                     shrinkWrap: true,
                     itemCount: iconNames.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -151,7 +156,11 @@ class NewGoalScreenState extends State<NewGoalScreen> {
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Image.asset('lib/Images/$iconName.png', height: 35, width: 35,),
+                          child: Image.asset(
+                            'lib/Images/$iconName.png',
+                            height: 35,
+                            width: 35,
+                          ),
                         ),
                       );
                     },

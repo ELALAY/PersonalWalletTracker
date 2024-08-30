@@ -46,6 +46,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
         id: widget.goal.id,
         name: _nameController.text,
         targetAmount: double.parse(_targetAmountController.text),
+        currentAmount: widget.goal.currentAmount,
         endDate: _selectedDate,
         uid: widget.goal.uid,
         goalIcon: _selectedIcon,
