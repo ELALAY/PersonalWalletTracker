@@ -99,7 +99,6 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     // Sort transactions from newest to oldest
     transactionstemp = _sortTransactions(transactionstemp);
 
-
     if (mounted) {
       setState(() {
         transactions = transactionstemp;
@@ -113,9 +112,24 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   @override
   void initState() {
     selectedCard = widget.card.id;
+    _startDate = getStartOfMonth();
+    _endDate = getEndOfMonth();
     fetchAllTransactions();
     isLoading = false;
     super.initState();
+  }
+
+  // Get the start of the current month
+  DateTime getStartOfMonth() {
+    DateTime now = DateTime.now();
+    return DateTime(now.year, now.month, 1); // First day of the current month
+  }
+
+// Get the end of the current month
+  DateTime getEndOfMonth() {
+    DateTime now = DateTime.now();
+    return DateTime(
+        now.year, now.month + 1, 0); // Last day of the current month
   }
 
   void reload() async {
@@ -348,9 +362,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                             subtitle: Text(
                                 '${formatDate(transaction.date)} - ${transaction.category}'),
                             leading: SizedBox(
-                                  height: 35.0,
-                                  child: categoryIcon(transaction.category)),
-                            
+                                height: 35.0,
+                                child: categoryIcon(transaction.category)),
                             trailing: Text(
                               '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
                               style: TextStyle(

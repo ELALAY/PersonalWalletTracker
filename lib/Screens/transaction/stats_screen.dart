@@ -31,7 +31,22 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   @override
   void initState() {
     super.initState();
+    _startDate = getStartOfMonth();
+    _endDate = getEndOfMonth();
     _loadStatistics();
+  }
+
+  // Get the start of the current month
+  DateTime getStartOfMonth() {
+    DateTime now = DateTime.now();
+    return DateTime(now.year, now.month, 1); // First day of the current month
+  }
+
+// Get the end of the current month
+  DateTime getEndOfMonth() {
+    DateTime now = DateTime.now();
+    return DateTime(
+        now.year, now.month + 1, 0); // Last day of the current month
   }
 
   Future<void> _loadStatistics() async {
@@ -228,19 +243,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     ],
                   ),
                 ),
-                // Date Range Selector (Placeholder)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      Text(_startDate != null ? formatDate(_startDate!) : ''),
-                      const SizedBox(
-                        width: 8.0,
-                      ),
-                      Text(_endDate != null ? formatDate(_endDate!) : '')
-                    ],
-                  ),
-                ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -268,6 +270,32 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                             ),
                           ],
+                        ),
+                        // Date Range Selector (Placeholder)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Date Range:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Row(
+                                children: [
+                                  Text(_startDate != null
+                                      ? formatDate(_startDate!)
+                                      : ''),
+                                  const SizedBox(
+                                    width: 8.0,
+                                  ),
+                                  Text(_endDate != null
+                                      ? formatDate(_endDate!)
+                                      : '')
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 16.0),
                         Expanded(
