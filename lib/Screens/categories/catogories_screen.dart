@@ -116,11 +116,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 ),
               ],
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _createCategory,
-        backgroundColor: Colors.deepPurple,
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _createCategory,
+      //   backgroundColor: Colors.deepPurple,
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 
