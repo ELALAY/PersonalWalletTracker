@@ -31,7 +31,6 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   String? _selectedCategory;
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
-  String selectedCardType = 'visa';
   //disable key info edit
   bool enabledEditkeyInfo = false;
 

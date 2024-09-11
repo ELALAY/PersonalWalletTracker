@@ -413,7 +413,7 @@ class FirebaseDB {
               cardId: fromCard.id,
               cardName: fromCard.cardName,
               amount: amount,
-              category: 'transfer',
+              category: 'Transfer',
               date: DateTime.now(),
               description: 'Money Transfer',
               isExpense: true);
@@ -421,7 +421,7 @@ class FirebaseDB {
               cardId: toCard.id,
               cardName: toCard.cardName,
               amount: amount,
-              category: 'transfer',
+              category: 'Transfer',
               date: DateTime.now(),
               description: 'Money Transfer',
               isExpense: false);
