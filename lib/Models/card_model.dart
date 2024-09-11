@@ -8,6 +8,7 @@ class CardModel {
   final String cardHolderName;
   final String cardType;
   final int color;
+  final bool isArchived;
 
   CardModel({
     required this.cardName,
@@ -16,6 +17,7 @@ class CardModel {
     required this.ownerId,
     required this.cardType,
     required this.color,
+    this.isArchived = false,
   }) : id = '';
 
   CardModel.withId({
@@ -26,6 +28,7 @@ class CardModel {
     required this.ownerId,
     required this.cardType,
     required this.color,
+    this.isArchived = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -36,6 +39,7 @@ class CardModel {
       'ownerId': ownerId,
       'cardType': cardType,
       'color': color,
+      'isArchived': isArchived,
     };
   }
 
@@ -48,6 +52,21 @@ class CardModel {
       ownerId: map['ownerId'],
       cardType: map['cardType'],
       color: map['color'] ?? Colors.deepPurple.value, // Default color
+      isArchived: map['isArchived'] ?? false,
+    );
+  }
+
+  // Method to toggle the isArchived field
+  CardModel toggleArchive() {
+    return CardModel.withId(
+      id: id,
+      cardName: cardName,
+      balance: balance,
+      cardHolderName: cardHolderName,
+      ownerId: ownerId,
+      cardType: cardType,
+      color: color,
+      isArchived: !isArchived, // Toggle the isArchived value
     );
   }
 }

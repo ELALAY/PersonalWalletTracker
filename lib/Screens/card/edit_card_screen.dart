@@ -5,6 +5,7 @@ import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_color_pallette.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
+import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../../Models/card_model.dart';
 import '../../Utils/globals.dart';
@@ -28,6 +29,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
   late String cardType;
   late Color selectedColor;
   bool enabledEditkeyInfo = false;
+  bool isLoading = true;
 
   void _onColorSelected(Color color) {
     setState(() {
@@ -46,6 +48,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
         TextEditingController(text: widget.card.balance.toString());
     cardType = widget.card.cardType;
     selectedColor = Color(widget.card.color);
+    isLoading = false;
   }
 
   @override
@@ -54,6 +57,20 @@ class _EditCardScreenState extends State<EditCardScreen> {
     _cardNameController.dispose();
     _balanceController.dispose();
     super.dispose();
+  }
+
+  Future<void> _toggleArchiveCard() async {
+    try {
+      CardModel updatedCard = widget.card.toggleArchive();
+      await firebaseDatabasehelper.updateCard(updatedCard);
+
+      // ignore: use_build_context_synchronously
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return const MyHomePage();
+      }));
+    } catch (e) {
+      debugPrint('error: $e');
+    }
   }
 
   Future<void> _editCard() async {
@@ -151,6 +168,13 @@ class _EditCardScreenState extends State<EditCardScreen> {
           IconButton(
               onPressed: _deleteCardDialog,
               icon: const Icon(CupertinoIcons.delete_solid)),
+          widget.card.isArchived
+              ? IconButton(
+                  onPressed: _toggleArchiveCard,
+                  icon: const Icon(CupertinoIcons.archivebox_fill))
+              : IconButton(
+                  onPressed: _toggleArchiveCard,
+                  icon: const Icon(CupertinoIcons.archivebox))
         ],
       ),
       body: Padding(
@@ -164,6 +188,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                 cardName: _cardNameController.text,
                 cardType: cardType,
                 color: selectedColor,
+                isArchived: widget.card.isArchived,
                 onTap: () {},
               ),
               const SizedBox(height: 20.0),

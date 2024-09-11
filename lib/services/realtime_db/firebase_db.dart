@@ -27,6 +27,26 @@ class FirebaseDB {
     }
   }
 
+  // Fetch cards where ownerId matches the given user ID and isArchived is false
+  // Fetch cards where ownerId matches the given user ID
+  Future<List<CardModel>> getUserActiveCards(String uid) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('cards')
+          .where('ownerId', isEqualTo: uid)
+          .where('isArchived', isEqualTo: false)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) =>
+              CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching cards: $e');
+      rethrow;
+    }
+  } 
+
   // Fetch cards where ownerId matches the given user ID
   Future<List<CardModel>> getUserCards(String uid) async {
     try {
@@ -435,7 +455,9 @@ class FirebaseDB {
   Future<List<CategoryModel>> getCategories() async {
     try {
       final snapshot = await _firestore.collection('categories').get();
-      return snapshot.docs.map((doc) => CategoryModel.fromDocument(doc)).toList();
+      return snapshot.docs
+          .map((doc) => CategoryModel.fromDocument(doc))
+          .toList();
     } catch (e) {
       throw Exception('Failed to fetch categories: $e');
     }
@@ -449,13 +471,12 @@ class FirebaseDB {
           .where('category', isEqualTo: category)
           .get();
 
-        // Category found, return an instance of CategoryModel
-        var doc = querySnapshot.docs.first;
-        return CategoryModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-      
+      // Category found, return an instance of CategoryModel
+      var doc = querySnapshot.docs.first;
+      return CategoryModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
     } catch (e) {
       debugPrint('Error fetching category: $e');
-      throw Exception('Error fetching category'); 
+      throw Exception('Error fetching category');
     }
   }
 
@@ -629,5 +650,25 @@ class FirebaseDB {
   Future<void> deleteGoal(GoalModel goal) async {
     debugPrint('deleting ${goal.name}');
     await _firestore.collection('goals').doc(goal.id).delete();
+  }
+
+  Future<void> addFieldToAllRecords() async {
+    try {
+      // Fetch all documents in the collection
+      QuerySnapshot querySnapshot =
+          await _firestore.collection('cards').get();
+
+      // Iterate through each document
+      for (DocumentSnapshot docSnapshot in querySnapshot.docs) {
+        // Add the new field to each document
+        await _firestore.collection('cards').doc(docSnapshot.id).update({
+          'isArchived': false,
+        });
+      }
+
+      print("Field added successfully to all records.");
+    } catch (e) {
+      print("Error updating documents: $e");
+    }
   }
 }

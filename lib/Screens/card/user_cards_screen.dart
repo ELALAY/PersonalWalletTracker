@@ -82,6 +82,7 @@ class CardListScreenState extends State<CardListScreen> {
                       cardName: card.cardName,
                       cardType: card.cardType,
                       color: Color(card.color),
+                      isArchived: card.isArchived,
                       onTap: () {
                         navUpdateCard(card);
                       },

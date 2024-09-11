@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MyCard extends StatefulWidget {
+  final bool isArchived;
   final String cardHolder;
   final double balance;
   final String cardName;
@@ -16,6 +17,7 @@ class MyCard extends StatefulWidget {
     required this.color,
     required this.onTap,
     required this.cardType, // Initialize cardType
+    this.isArchived = false,
   });
 
   @override
@@ -31,7 +33,7 @@ class _MyCardState extends State<MyCard> {
         width: 300.0,
         padding: const EdgeInsets.all(20.0),
         decoration: BoxDecoration(
-          color: widget.color,
+          color: widget.isArchived ? Colors.black : widget.color,
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
             BoxShadow(color: Colors.grey, spreadRadius: 2, blurRadius: 2)
@@ -57,11 +59,15 @@ class _MyCardState extends State<MyCard> {
             const SizedBox(height: 10.0),
             Text(
               '${widget.balance.toStringAsFixed(2)} MAD',
-              style: const TextStyle(fontSize: 30, color: Colors.white),
+              style:  TextStyle(fontSize: 30, color: Colors.white, decoration: widget.isArchived
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,),
             ),
             Text(
               widget.cardName,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white, decoration: widget.isArchived
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,),
               overflow: TextOverflow.ellipsis,
             ),
             Row(
@@ -70,7 +76,9 @@ class _MyCardState extends State<MyCard> {
                 Expanded(
                   child: Text(
                     widget.cardHolder,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(
+                      color: Colors.white,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
