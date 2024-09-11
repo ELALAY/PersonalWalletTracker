@@ -28,11 +28,11 @@ List<String> iconNames = [
   'transfer',
   'transportation',
   'utilities',
+  'other',
   'financial_goal',
   'card_receive',
   'card_send',
   'add_transaction',
-  'app_icon',
   'mastercard',
   'visa',
   // Add all your icon names here

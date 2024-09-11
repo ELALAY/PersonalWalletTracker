@@ -56,7 +56,7 @@ class _MyCardState extends State<MyCard> {
             ),
             const SizedBox(height: 10.0),
             Text(
-              '${widget.balance} MAD',
+              '${widget.balance.toStringAsFixed(2)} MAD',
               style: const TextStyle(fontSize: 30, color: Colors.white),
             ),
             Text(
