@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         // Fetch cards only after user and personProfile are set
         List<CardModel> cards =
-            await firebaseDatabasehelper.getCards(userTemp.uid);
+            await firebaseDatabasehelper.getUserCards(userTemp.uid);
         setState(() {
           myCards = cards;
           isLoading = false;

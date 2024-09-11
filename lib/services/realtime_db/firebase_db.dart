@@ -28,7 +28,7 @@ class FirebaseDB {
   }
 
   // Fetch cards where ownerId matches the given user ID
-  Future<List<CardModel>> getCards(String uid) async {
+  Future<List<CardModel>> getUserCards(String uid) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('cards')

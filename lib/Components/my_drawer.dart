@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_tiles/my_list_tile.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
+import 'package:personalwallettracker/Screens/card/user_cards_screen.dart';
 import 'package:personalwallettracker/Screens/categories/catogories_screen.dart';
 import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/profile_screen.dart';
@@ -92,6 +93,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       backgroundColor: Colors.white,
                     ),
                   ),
+                  //Dart Theme
                   SwitchListTile(
                     activeColor: Colors.pink,
                     inactiveTrackColor: Colors.pink,
@@ -120,20 +122,28 @@ class _MyDrawerState extends State<MyDrawer> {
                             color: Colors.black,
                           ),
                   ),
+                  //Reload
                   MyListTile(
                     icon: const Icon(Icons.refresh),
                     tileTitle: 'Reload!',
                     onTap: navHomePage,
                   ),
+                  //Profile Screen
                   MyListTile(
                     icon: const Icon(Icons.person_2_outlined),
                     tileTitle: 'Profile',
                     onTap: navProfile,
                   ),
+                  //Categories Screen
                   MyListTile(
                       icon: const Icon(Icons.category_outlined),
                       tileTitle: 'Categories',
                       onTap: navCategoriesScreen),
+                  // Cards List Sreen
+                  MyListTile(
+                      icon: const Icon(Icons.payment_outlined),
+                      tileTitle: 'My Cards',
+                      onTap: navUserCardsScreen),
                 ],
               ),
             ),
@@ -180,6 +190,12 @@ class _MyDrawerState extends State<MyDrawer> {
   void navCategoriesScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const CategoriesScreen();
+    }));
+  }
+
+  void navUserCardsScreen() async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const CardListScreen();
     }));
   }
 }
