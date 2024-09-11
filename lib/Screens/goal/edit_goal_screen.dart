@@ -1,3 +1,4 @@
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -21,6 +22,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _targetAmountController = TextEditingController();
+  TextEditingController _currentAmountController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   String _selectedIcon = 'app_icon'; // Default selected icon
@@ -42,21 +44,29 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
 
   void _saveGoal() async {
     if (_formKey.currentState!.validate()) {
-      GoalModel newGoal = GoalModel.withId(
-        id: widget.goal.id,
-        name: _nameController.text,
-        targetAmount: double.parse(_targetAmountController.text),
-        currentAmount: widget.goal.currentAmount,
-        endDate: _selectedDate,
-        uid: widget.goal.uid,
-        goalIcon: _selectedIcon,
-      );
+      if (_currentAmountController.text.isNotEmpty &&
+          _targetAmountController.text.isNotEmpty &&
+          _nameController.text.isNotEmpty) {
+        GoalModel newGoal = GoalModel.withId(
+          id: widget.goal.id,
+          name: _nameController.text,
+          targetAmount: double.parse(_targetAmountController.text),
+          currentAmount: double.parse(_currentAmountController.text),
+          endDate: _selectedDate,
+          uid: widget.goal.uid,
+          goalIcon: _selectedIcon,
+        );
 
-      // Save goal to Firestore or any other database
-      await firebaseDatabasehelper.updateGoal(newGoal);
 
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).pop();
+        // Save goal to Firestore or any other database
+        await firebaseDatabasehelper.updateGoal(newGoal);
+
+        showSuccessSnackBar('Goal Updated Successfully!');
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).pop();
+      }
+    } else {
+      showErrorSnackBar('All fields should be filled!');
     }
   }
 
@@ -65,8 +75,10 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
     super.initState();
     // Initialize with existing card details
     _nameController = TextEditingController(text: widget.goal.name);
-    _targetAmountController =
-        TextEditingController(text: widget.goal.targetAmount.toString());
+    _targetAmountController = TextEditingController(
+        text: widget.goal.targetAmount.toStringAsFixed(2));
+    _currentAmountController = TextEditingController(
+        text: widget.goal.currentAmount.toStringAsFixed(2));
     _dateController =
         TextEditingController(text: formatDate(widget.goal.endDate));
     _selectedIcon = widget.goal.goalIcon;
@@ -106,6 +118,12 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
                     label: 'Target Amount',
                     color: Colors.deepPurple,
                     enabled: true),
+                // Current Amount
+                MyNumberField(
+                    controller: _currentAmountController,
+                    label: 'Current Amount',
+                    color: Colors.deepPurple,
+                    enabled: true),
                 // Date Picker
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -115,7 +133,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
                       border: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.deepPurple),
                       ),
-                      labelText: formatDate(_selectedDate),
+                      labelText: 'End Date',
                       labelStyle: const TextStyle(color: Colors.deepPurple),
                       enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.deepPurple),
@@ -186,5 +204,31 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
         ),
       ),
     );
+  }
+
+  void showErrorSnackBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnackBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
   }
 }

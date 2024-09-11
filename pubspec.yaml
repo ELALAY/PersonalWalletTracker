@@ -45,6 +45,8 @@ dependencies:
   image_picker: ^1.0.7
   firebase_storage: ^11.6.0
   flutter_launcher_icons: ^0.13.1
+  awesome_top_snackbar: ^0.0.3
+  slide_to_act: ^2.0.2
 
 dev_dependencies:
   flutter_test:

@@ -666,9 +666,9 @@ class FirebaseDB {
         });
       }
 
-      print("Field added successfully to all records.");
+      debugPrint("Field added successfully to all records.");
     } catch (e) {
-      print("Error updating documents: $e");
+      debugPrint("Error updating documents: $e");
     }
   }
 }
