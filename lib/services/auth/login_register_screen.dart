@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_emailfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_pwdfield.dart';
+import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
 import 'package:personalwallettracker/services/auth/register_screen.dart';
-import '../../Screens/home.dart';
 import '../../Utils/globals.dart';
 import 'auth_service.dart';
 
@@ -37,7 +37,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         // ignore: use_build_context_synchronously
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MyHomePage()),
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
         );
       } on FirebaseAuthException catch (e) {
         String errorMessage;
@@ -113,21 +113,32 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.lock_open_rounded,
-              size: 100,
-              color: Colors.deepPurple,
-            ),
+            const SizedBox(height: 50,),
+            SizedBox(height: 150, child: Image.asset('lib/Images/login.gif')),
+            // const Icon(
+            //   Icons.lock_open_rounded,
+            //   size: 100,
+            //   color: Colors.deepPurple,
+            // ),
+            const SizedBox(height: 20,),
             const Text(
               'Personal Wallet Tracker',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
             ),
             const SizedBox(height: 40),
             //Email Field
-            MyEmailField(controller: emailController, label: 'Email', color: Colors.deepPurple, enabled: true),
+            MyEmailField(
+                controller: emailController,
+                label: 'Email',
+                color: Colors.deepPurple,
+                enabled: true),
             const SizedBox(height: 10),
             //Password Field
-            MyPwdField(controller: passwordController, label: 'Password', color: Colors.deepPurple, enabled: true),
+            MyPwdField(
+                controller: passwordController,
+                label: 'Password',
+                color: Colors.deepPurple,
+                enabled: true),
             const SizedBox(height: 20),
             MyButton(label: 'Log In', onTap: login),
             const SizedBox(height: 20),
