@@ -3,6 +3,11 @@ import 'package:intl/intl.dart';
 
 bool darkTheme = false;
 
+// globals.dart
+List<String> currencies = ['MAD', 'USD', 'EUR', 'GBP', 'JPY', 'CAD']; // Add your desired currencies
+String selectedCurrency = 'USD'; // Default currency
+
+
 //allowed colors
 final List<Color> colorOptions = [
   Colors.red,
@@ -47,7 +52,7 @@ Image categoryIcon(String name) {
     throw Exception('Firebase error: $e');
   }
 }
-  
+
 String formatDate(DateTime date) {
   return DateFormat('dd/MM/yy').format(date);
 }

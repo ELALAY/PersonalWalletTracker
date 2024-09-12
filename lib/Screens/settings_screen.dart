@@ -1,16 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
+import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
 import 'card/user_cards_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final User user;
+  const SettingsScreen({super.key, required this.user});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  FirebaseDB firebaseDB = FirebaseDB();
   bool _isDarkTheme = darkTheme;
 
   void _toggleTheme(bool value) {
@@ -18,9 +22,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _isDarkTheme = value;
       darkTheme = value; // Update the global darkTheme variable
     });
-
-    // Here you would add the logic to actually apply the theme.
-    // For example, using a ThemeNotifier with Provider or another state management solution.
   }
 
   @override
@@ -29,35 +30,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: darkTheme ? Colors.black : Colors.white,
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: Colors.transparent ,
+        backgroundColor: Colors.transparent,
         elevation: 0.0,
-        foregroundColor: darkTheme? Colors.white : Colors.grey,
+        foregroundColor: darkTheme ? Colors.white : Colors.grey,
       ),
       body: Column(
-        children:[
-          const SizedBox(height: 20.0,),
+        children: [
+          const SizedBox(height: 20.0),
+          // Dark Mode
           SwitchListTile(
             value: _isDarkTheme,
             title: const Text('Dark Theme'),
-            tileColor:darkTheme ? Colors.grey : Colors.grey.shade200,
+            tileColor: darkTheme ? Colors.grey : Colors.grey.shade200,
             onChanged: _toggleTheme,
             activeColor: Colors.black,
-            
           ),
-          const SizedBox(height: 20.0,),
+          const SizedBox(height: 20.0),
+          // Cards
           ListTile(
             title: const Text('My Cards'),
             leading: const Icon(Icons.payment_outlined),
             trailing: const Icon(Icons.arrow_forward_ios),
-            tileColor:darkTheme ? Colors.grey : Colors.grey.shade200,
+            tileColor: darkTheme ? Colors.grey : Colors.grey.shade200,
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return const CardListScreen();
               }));
             },
           ),
-        ]
+          const SizedBox(height: 20.0),
+          // Currency Dropdown
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Select Currency',
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                DropdownButton<String>(
+                  value: selectedCurrency,
+                  items: currencies.map((String currency) {
+                    return DropdownMenuItem<String>(
+                      value: currency,
+                      child: Text(currency),
+                    );
+                  }).toList(),
+                  onChanged: (String? newCurrency) {
+                    setState(() {
+                      selectedCurrency = newCurrency!;
+                      updateUserCurrency();
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  void updateUserCurrency(){
+    try {
+      firebaseDB.updateUserCurrency(widget.user.uid, selectedCurrency);
+    } catch (e) {
+      // Log the error with a specific message
+      debugPrint('Failed to update currency: $e');
+    }
   }
 }

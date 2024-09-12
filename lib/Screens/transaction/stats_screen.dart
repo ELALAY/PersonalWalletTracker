@@ -10,8 +10,9 @@ import '../../Models/category_spending.dart';
 
 // ignore: must_be_immutable
 class StatisticsScreen extends StatefulWidget {
+  final String currency;
   List<CardModel> myCards = [];
-  StatisticsScreen({super.key, required this.myCards});
+  StatisticsScreen({super.key, required this.myCards, required this.currency});
 
   @override
   StatisticsScreenState createState() => StatisticsScreenState();
@@ -156,6 +157,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         return CategoryTransactions(
           card: card,
           category: category,
+          currency: widget.currency,
         ); // replace with your settings screen
       }));
     } else {
@@ -315,7 +317,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                                         title: Text(category),
                                         tileColor: Colors.blueGrey[100],
                                         trailing: Text(
-                                            '\$${total.toStringAsFixed(2)}'),
+                                            '${total.toStringAsFixed(2)} ${widget.currency}'),
                                         onTap: () {
                                           navCategoryTransactions(category);
                                         },

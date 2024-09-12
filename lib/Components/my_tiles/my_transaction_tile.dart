@@ -5,6 +5,7 @@ import 'package:personalwallettracker/Models/transaction_model.dart';
 
 import '../../Models/card_model.dart';
 import '../../Screens/transaction/edit_transaction_screen.dart';
+import '../../Utils/globals.dart';
 
 class MyTransactionTile extends StatefulWidget {
   final TransactionModel transaction;
@@ -76,7 +77,7 @@ class _MyTransactionTileState extends State<MyTransactionTile> {
           subtitle:
               Text('${formatDate(widget.transaction.date)} - ${widget.transaction.category}'),
           trailing: Text(
-            '${widget.transaction.isExpense ? '-' : '+'}\$${widget.transaction.amount.abs().toStringAsFixed(2)}',
+            '${widget.transaction.isExpense ? '-' : '+'} ${widget.transaction.amount.abs().toStringAsFixed(2)} $selectedCurrency',
             style: TextStyle(
                 color: widget.transaction.isExpense ? Colors.red : Colors.green,
                 fontWeight: FontWeight.bold,
@@ -136,7 +137,7 @@ class _MyTransactionTileState extends State<MyTransactionTile> {
               ListTile(
                 // leading: Icon(transaction['categoryIcon']),
                 title:
-                    Text('Amount: \$${transaction.amount.toStringAsFixed(2)}'),
+                    Text('Amount: ${transaction.amount.toStringAsFixed(2)} $selectedCurrency'),
                 subtitle: Text('Date: ${formatDate(transaction.date)}'),
               ),
               const SizedBox(height: 16.0),

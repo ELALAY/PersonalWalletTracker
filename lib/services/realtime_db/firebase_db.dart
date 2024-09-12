@@ -606,7 +606,7 @@ class FirebaseDB {
       String userId, Map<String, dynamic> updatedData) async {
     try {
       // Update the user's profile data in Firestore
-      await _firestore.collection('users').doc(userId).update({
+      await _firestore.collection('perons').doc(userId).update({
         'username': updatedData['username'],
         'profile_picture': updatedData['profile_picture'],
       });
@@ -620,6 +620,26 @@ class FirebaseDB {
         throw Exception('Firebase error: ${e.message}');
       } else {
         throw Exception('Unknown error occurred while updating profile');
+      }
+    }
+  }
+
+  Future<void> updateUserCurrency(String userId, String newCurrency) async {
+    try {
+      // Update the user's profile data in Firestore
+      await _firestore.collection('persons').doc(userId).update({
+        'default_currency': newCurrency,
+      });
+      debugPrint('Currency updated successfully.');
+    } catch (e) {
+      // Log the error with a specific message
+      debugPrint('Failed to update Currency: $e');
+
+      // Check if the error is a FirebaseException to provide more specific feedback
+      if (e is FirebaseException) {
+        throw Exception('Firebase error: ${e.message}');
+      } else {
+        throw Exception('Unknown error occurred while updating Currency');
       }
     }
   }

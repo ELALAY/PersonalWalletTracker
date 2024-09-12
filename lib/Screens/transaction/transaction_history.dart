@@ -10,10 +10,11 @@ import '../../Utils/globals.dart';
 import 'new_transaction_screen.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
+  final String currency;
   final CardModel card;
   final List<CardModel> myCards;
   const TransactionHistoryScreen(
-      {super.key, required this.card, required this.myCards});
+      {super.key, required this.card, required this.myCards, required this.currency});
 
   @override
   TransactionHistoryScreenState createState() =>
@@ -284,16 +285,16 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              'Total Income: \$${totalIncome.toStringAsFixed(2)}',
+                              'Total Income: ${totalIncome.toStringAsFixed(2)} ${widget.currency}',
                               style: const TextStyle(color: Colors.green)),
                           const SizedBox(height: 4.0),
                           Text(
-                              'Total Expenses: \$${totalExpenses.toStringAsFixed(2)}',
+                              'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ${widget.currency}',
                               style: const TextStyle(color: Colors.red)),
                         ],
                       ),
                       Text(
-                          'Net Balance: \$${(totalIncome - totalExpenses).toStringAsFixed(2)}',
+                          'Net Balance: ${(totalIncome - totalExpenses).toStringAsFixed(2)} ${widget.currency}',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -365,7 +366,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                                 height: 35.0,
                                 child: categoryIcon(transaction.category)),
                             trailing: Text(
-                              '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
+                              '${transaction.isExpense ? '-' : '+'} ${transaction.amount.abs().toStringAsFixed(2)} ${widget.currency}',
                               style: TextStyle(
                                   color: transaction.isExpense
                                       ? Colors.red
@@ -473,7 +474,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               ListTile(
                 // leading: Icon(transaction['categoryIcon']),
                 title:
-                    Text('Amount: \$${transaction.amount.toStringAsFixed(2)}'),
+                    Text('Amount: ${transaction.amount.toStringAsFixed(2)} ${widget.currency}'),
                 subtitle: Text('Date: ${formatDate(transaction.date)}'),
               ),
               const SizedBox(height: 16.0),

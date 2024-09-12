@@ -4,9 +4,11 @@ class Person {
   String email;
   // ignore: non_constant_identifier_names
   String profile_picture;
+  // ignore: non_constant_identifier_names
+  String default_currency;
 
-  Person(this.username, this.email, this.profile_picture) : id = '';
-  Person.withId(this.id, this.username, this.email, this.profile_picture);
+  Person(this.username, this.email, this.profile_picture) : id = '', default_currency = 'USD';
+  Person.withId(this.id, this.username, this.email, this.profile_picture, this.default_currency);
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{};
@@ -14,6 +16,7 @@ class Person {
     map['username'] = username;
     map['email'] = email;
     map['profile_picture'] = profile_picture;
+    map['default_currency'] = default_currency;
 
     return map;
   }
@@ -24,6 +27,7 @@ class Person {
       map['username'],
       map['email'],
       map['profile_picture'],
+      map['default_currency'] ?? 'USD',
     );
   }
 }

@@ -11,8 +11,9 @@ import '../transaction/edit_transaction_screen.dart';
 class CategoryTransactions extends StatefulWidget {
   final String category;
   final CardModel card;
+  final String currency;
   const CategoryTransactions(
-      {super.key, required this.category, required this.card});
+      {super.key, required this.category, required this.card, required this.currency});
 
   @override
   State<CategoryTransactions> createState() => _CategoryTransactionsState();
@@ -130,7 +131,7 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
                             subtitle: Text(
                                 '${formatDate(transaction.date)} - ${transaction.category}'),
                             trailing: Text(
-                              '${transaction.isExpense ? '-' : '+'}\$${transaction.amount.abs().toStringAsFixed(2)}',
+                              '${transaction.isExpense ? '-' : '+'}${transaction.amount.abs().toStringAsFixed(2)} ${widget.currency}',
                               style: TextStyle(
                                   color: transaction.isExpense
                                       ? Colors.red
@@ -203,7 +204,7 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
               ListTile(
                 // leading: Icon(transaction['categoryIcon']),
                 title:
-                    Text('Amount: \$${transaction.amount.toStringAsFixed(2)}'),
+                    Text('Amount: ${transaction.amount.toStringAsFixed(2)} ${widget.currency}'),
                 subtitle: Text('Date: ${formatDate(transaction.date)}'),
               ),
               const SizedBox(height: 16.0),

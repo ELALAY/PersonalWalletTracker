@@ -39,8 +39,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    fetchUserAndCards();
     super.initState();
+    fetchUserAndCards();
     isLoading = false;
   }
 
@@ -297,7 +297,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void navSettingScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const SettingsScreen(); // replace with your settings screen
+      return SettingsScreen(user: user!,); // replace with your settings screen
     })).then((value) => reload());
   }
 
@@ -317,8 +317,10 @@ class _MyHomePageState extends State<MyHomePage> {
     if (myCards.isNotEmpty) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return TransactionHistoryScreen(
-            card: myCards[pageIndex],
-            myCards: myCards); // replace with your settings screen
+          card: myCards[pageIndex],
+          myCards: myCards,
+          currency: personProfile!.default_currency,
+        ); // replace with your settings screen
       })).then((value) => reload());
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -331,7 +333,9 @@ class _MyHomePageState extends State<MyHomePage> {
     if (myCards.isNotEmpty) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return StatisticsScreen(
-            myCards: myCards); // replace with your settings screen
+          myCards: myCards,
+          currency: personProfile!.default_currency,
+        ); // replace with your settings screen
       })).then((value) => reload());
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -372,9 +376,11 @@ class _MyHomePageState extends State<MyHomePage> {
     if (user != null) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return GoalsOverviewScreen(
-            user: user!, myCards: myCards,); // replace with your settings screen
+          user: user!,
+          myCards: myCards,
+        ); // replace with your settings screen
       })).then((value) => reload());
-    }else {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No user is found')),
       );

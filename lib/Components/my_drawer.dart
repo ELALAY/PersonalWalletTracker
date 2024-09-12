@@ -7,6 +7,7 @@ import 'package:personalwallettracker/Screens/categories/catogories_screen.dart'
 import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
 import 'package:personalwallettracker/Screens/profile_screen.dart';
+import 'package:personalwallettracker/Screens/settings_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../services/auth/auth_service.dart';
 import '../services/auth/login_register_screen.dart';
@@ -94,7 +95,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       backgroundColor: Colors.white,
                     ),
                   ),
-                  //Dart Theme
+                  // Dart Theme
                   SwitchListTile(
                     activeColor: Colors.pink,
                     inactiveTrackColor: Colors.pink,
@@ -123,19 +124,24 @@ class _MyDrawerState extends State<MyDrawer> {
                             color: Colors.black,
                           ),
                   ),
-                  //Reload
+                  /// Reload
                   MyListTile(
                     icon: const Icon(Icons.refresh),
                     tileTitle: 'Reload!',
                     onTap: navHomePage,
                   ),
-                  //Profile Screen
+                  // Settings
+                  MyListTile(
+                      icon: const Icon(Icons.settings),
+                      tileTitle: 'Settings',
+                      onTap: navSettingsPage),
+                  // Profile Screen
                   MyListTile(
                     icon: const Icon(Icons.person_2_outlined),
                     tileTitle: 'Profile',
                     onTap: navProfile,
                   ),
-                  //Categories Screen
+                  // Categories Screen
                   MyListTile(
                       icon: const Icon(Icons.category_outlined),
                       tileTitle: 'Categories',
@@ -145,7 +151,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       icon: const Icon(Icons.payment_outlined),
                       tileTitle: 'My Cards',
                       onTap: navUserCardsScreen),
-                  //onboarding screen
+                  // Onboarding screen
                   MyListTile(
                       icon: const Icon(Icons.start_outlined),
                       tileTitle: 'Onboarding',
@@ -184,6 +190,12 @@ class _MyDrawerState extends State<MyDrawer> {
         user: widget.user,
         personProfile: widget.personProfile,
       );
+    }));
+  }
+
+  void navSettingsPage() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return SettingsScreen(user: widget.user,);
     }));
   }
 

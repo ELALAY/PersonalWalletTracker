@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../Utils/globals.dart';
+
 class MyCard extends StatefulWidget {
   final bool isArchived;
   final String cardHolder;
@@ -58,7 +60,7 @@ class _MyCardState extends State<MyCard> {
             ),
             const SizedBox(height: 10.0),
             Text(
-              '${widget.balance.toStringAsFixed(2)} MAD',
+              '${widget.balance.toStringAsFixed(2)} $selectedCurrency',
               style:  TextStyle(fontSize: 30, color: Colors.white, decoration: widget.isArchived
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,),
