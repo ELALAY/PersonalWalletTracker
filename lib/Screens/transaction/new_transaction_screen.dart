@@ -187,13 +187,13 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                             padding: const EdgeInsets.all(8.0),
                             child: DropdownButtonFormField<String>(
                               value: _selectedCategory,
-                              icon: IconButton(
-                                onPressed: createCategory,
-                                icon: const Icon(
-                                  Icons.add,
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
+                              // icon: IconButton(
+                              //   onPressed: createCategory,
+                              //   icon: const Icon(
+                              //     Icons.add,
+                              //     color: Colors.deepPurple,
+                              //   ),
+                              // ),
                               onChanged: (value) {
                                 if (value != null) {
                                   setState(() {
