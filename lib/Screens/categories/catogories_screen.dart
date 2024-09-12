@@ -154,6 +154,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     })).then((value) => reload());
   }
 
+  // ignore: unused_element
   void _createCategory() async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const CreateCategory(); // replace with your settings screen

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_page_1.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -11,12 +12,19 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
+  bool isLastScreen = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(children: [
         PageView(
           controller: _controller,
+          onPageChanged: (index) {
+            setState(() {
+              isLastScreen = (index == 2);
+            });
+          },
           children: const [
             // Cards
             OnboardingPage(
@@ -42,7 +50,48 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ),
         Container(
             alignment: const Alignment(0, 0.75),
-            child: SmoothPageIndicator(controller: _controller, count: 3)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                    onTap: () {
+                      _controller.jumpTo(2);
+                    },
+                    child: const Text(
+                      'Skip',
+                      style: TextStyle(
+                          color: Colors.deepPurple,
+                          fontWeight: FontWeight.bold),
+                    )),
+                SmoothPageIndicator(controller: _controller, count: 3),
+                isLastScreen
+                    ? GestureDetector(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return const MyHomePage();
+                          }));
+                        },
+                        child: const Text(
+                          'Done',
+                          style: TextStyle(
+                              color: Colors.deepPurple,
+                              fontWeight: FontWeight.bold),
+                        ))
+                    : GestureDetector(
+                        onTap: () {
+                          _controller.nextPage(
+                              duration: const Duration(seconds: 1),
+                              curve: Curves.easeIn);
+                        },
+                        child: const Text(
+                          'Next',
+                          style: TextStyle(
+                              color: Colors.deepPurple,
+                              fontWeight: FontWeight.bold),
+                        )),
+              ],
+            )),
       ]),
     );
   }

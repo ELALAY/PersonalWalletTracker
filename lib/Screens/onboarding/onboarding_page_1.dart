@@ -19,7 +19,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     return Stack(children: [
       Container(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         color: Colors.white,
         child: Column(
           children: [
@@ -27,7 +27,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               height: 200,
             ),
             Center(
-              child: Container(
+              child: SizedBox(
                   height: 300,
                   child: Image.asset('lib/Images/${widget.image}.gif')),
             ),
