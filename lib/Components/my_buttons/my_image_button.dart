@@ -17,14 +17,15 @@ class _MyImageButtonState extends State<MyImageButton> {
         Container(
           height: 80.0,
           width: 100.0,
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
-            color: Colors.pink,
-            borderRadius: BorderRadius.circular(12),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border:Border.all(color: Colors.pink, width: 5),
           ),
           child: Image.asset(
-            'lib/Images/${widget.icon}.png',
-            color: Colors.white,
+            'lib/Images/${widget.icon}.gif',
+            // color: Colors.white,
           ),
         ),
         const SizedBox(

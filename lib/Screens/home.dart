@@ -172,7 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       GestureDetector(
                         onTap: navTransferMoney,
                         child: const MyImageButton(
-                          icon: 'transfer',
+                          icon: 'cards',
                           action: 'Transfer',
                         ),
                       ),
@@ -180,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       GestureDetector(
                         onTap: newTransactionScreen,
                         child: const MyImageButton(
-                          icon: 'add_transaction',
+                          icon: 'transactions',
                           action: 'Transaction',
                         ),
                       ),
@@ -188,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       GestureDetector(
                         onTap: navGoalScreen,
                         child: const MyImageButton(
-                          icon: 'financial_goal',
+                          icon: 'target',
                           action: 'Goal',
                         ),
                       ),

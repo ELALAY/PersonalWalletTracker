@@ -53,9 +53,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // Skip to last page
                 GestureDetector(
                     onTap: () {
-                      _controller.jumpTo(2);
+                      _controller.jumpToPage(2);
                     },
                     child: const Text(
                       'Skip',
@@ -63,8 +64,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           color: Colors.deepPurple,
                           fontWeight: FontWeight.bold),
                     )),
-                SmoothPageIndicator(controller: _controller, count: 3),
+                SmoothPageIndicator(
+                  controller: _controller,
+                  count: 3,
+                  effect: const ExpandingDotsEffect(
+                      activeDotColor: Colors.deepPurple),
+                ),
                 isLastScreen
+                    // Done => to home page
                     ? GestureDetector(
                         onTap: () {
                           Navigator.push(context,
@@ -78,7 +85,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               color: Colors.deepPurple,
                               fontWeight: FontWeight.bold),
                         ))
-                    : GestureDetector(
+                    :
+                    // Next Page
+                    GestureDetector(
                         onTap: () {
                           _controller.nextPage(
                               duration: const Duration(seconds: 1),
