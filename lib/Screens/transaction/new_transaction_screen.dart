@@ -1,3 +1,4 @@
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
@@ -72,7 +73,12 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
           description: _descriptionController.text,
           isExpense: isExpense,
         );
-        _firebaseDB.addTransaction(transaction);
+        bool created = await _firebaseDB.addTransaction(transaction);
+        if (created) {
+          showSuccessSnachBar('Transaction Created!');
+        } else {
+          showErrorSnachBar('Error Creating Transaction!');
+        }
 
         double amount = isExpense ? -transaction.amount : transaction.amount;
         debugPrint(amount.toString());
@@ -80,17 +86,11 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
             widget.card.id, widget.card.balance + amount);
         debugPrint('updated card balance!');
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Created transaction')),
-          );
-          Navigator.pop(context); // Go back after adding transaction
-        }
+        
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error creating transaction: $e')),
-          );
+          showErrorSnachBar('Error creating transaction: $e');
+          
         }
       }
     }
@@ -218,20 +218,22 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                                 ),
                               ),
                               items: [
-                                ..._categories.map((category) =>
-                                    DropdownMenuItem<String>(
-                                      value: category.name,
-                                      child: Row(
-                                        children: [
-                                          SizedBox(
-                                              height: 35.0,
-                                              child:
-                                                  categoryIcon(category.iconName)),
-                                          const SizedBox(width: 12.0,),
-                                          Text(category.name),
-                                        ],
-                                      ),
-                                    )),
+                                ..._categories
+                                    .map((category) => DropdownMenuItem<String>(
+                                          value: category.name,
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                  height: 35.0,
+                                                  child: categoryIcon(
+                                                      category.iconName)),
+                                              const SizedBox(
+                                                width: 12.0,
+                                              ),
+                                              Text(category.name),
+                                            ],
+                                          ),
+                                        )),
                               ],
                             ),
                           ),
@@ -309,5 +311,44 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const CreateCategory(); // replace with your settings screen
     }));
+  }
+
+  void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showInfoSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.lightBlueAccent.shade400),
+        backgroundColor: Colors.lightBlueAccent,
+        icon: const Icon(
+          Icons.info_outline,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
   }
 }

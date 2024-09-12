@@ -1,3 +1,4 @@
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
@@ -101,9 +102,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void updateUserCurrency(){
     try {
       firebaseDB.updateUserCurrency(widget.person.id, selectedCurrency);
+      showInfoSnachBar('You might need to RELOAD!');
     } catch (e) {
       // Log the error with a specific message
       debugPrint('Failed to update currency: $e');
     }
+  }
+
+  void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showInfoSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.lightBlueAccent.shade400),
+        backgroundColor: Colors.lightBlueAccent,
+        icon: const Icon(
+          Icons.info_outline,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
   }
 }

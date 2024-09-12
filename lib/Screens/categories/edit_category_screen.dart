@@ -1,3 +1,4 @@
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 
@@ -104,13 +105,53 @@ class _EditCategoryState extends State<EditCategory> {
         CategoryModel category =
             CategoryModel.withId(id: widget.category.id,name: newCategoryController.text, iconName: _selectedIcon);
         await firebaseDatabasehelper.updateCategory(category);
+        showSuccessSnachBar('Category updated successfully!');
         // ignore: use_build_context_synchronously
         Navigator.pop(context);
       } else {
-        debugPrint('no name found');
+        showInfoSnachBar('Name should be filled!');
       }
     } catch (e) {
-      debugPrint('error creating category');
+      showErrorSnachBar('Error updating category');
     }
+  }
+
+  void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showInfoSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.lightBlueAccent.shade400),
+        backgroundColor: Colors.lightBlueAccent,
+        icon: const Icon(
+          Icons.info_outline,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
   }
 }

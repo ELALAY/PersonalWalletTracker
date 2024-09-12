@@ -1,3 +1,4 @@
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
@@ -104,9 +105,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading statistics: $e')),
-        );
+        showErrorSnachBar('Error loading Stats!');
       }
     }
   }
@@ -149,6 +148,45 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     return DateFormat('dd/MM/yy').format(date);
   }
 
+  void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showInfoSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.lightBlueAccent.shade400),
+        backgroundColor: Colors.lightBlueAccent,
+        icon: const Icon(
+          Icons.info_outline,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
+  }
+
   void navCategoryTransactions(String category) async {
     if (widget.myCards.isNotEmpty && selectedCard != 'All') {
       CardModel card = await _firebaseDB.getCardById(selectedCard);
@@ -160,11 +198,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           currency: widget.currency,
         ); // replace with your settings screen
       }));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No card selected')),
-      );
-    }
+    } else {showInfoSnachBar('Choose a Card!');}
   }
 
   @override
