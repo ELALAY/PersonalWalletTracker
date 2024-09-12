@@ -57,7 +57,6 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
           goalIcon: _selectedIcon,
         );
 
-
         // Save goal to Firestore or any other database
         await firebaseDatabasehelper.updateGoal(newGoal);
 
@@ -142,10 +141,15 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
                         borderSide: BorderSide(color: Colors.deepPurple),
                       ),
                       suffixIcon: IconButton(
-                        icon: const Icon(Icons.calendar_month_outlined,
-                            color: Colors.deepPurple),
-                        onPressed: () => _selectDate(context),
-                      ),
+                          icon: const Icon(Icons.calendar_month_outlined,
+                              color: Colors.deepPurple),
+                          onPressed: () {
+                            _selectDate(context);
+                            setState(() {
+                              _dateController = TextEditingController(
+                                  text: formatDate(_selectedDate));
+                            });
+                          }),
                     ),
                     readOnly: true,
                     onTap: () => _selectDate(context),

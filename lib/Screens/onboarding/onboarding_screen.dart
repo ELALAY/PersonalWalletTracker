@@ -22,7 +22,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           controller: _controller,
           onPageChanged: (index) {
             setState(() {
-              isLastScreen = (index == 2);
+              isLastScreen = (index == 3);
             });
           },
           children: const [
@@ -46,8 +46,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   'You can find statistics by date range and categories',
               image: 'stats',
             ),
+            // Savings
+            OnboardingPage(
+              title: 'Savings',
+              description:
+                  'Make savings and transfer money from cards you manage and track the progress towards your saving Goals',
+              image: 'target',
+            ),
           ],
         ),
+        // controls and page indicator
         Container(
             alignment: const Alignment(0, 0.75),
             child: Row(
@@ -56,7 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 // Skip to last page
                 GestureDetector(
                     onTap: () {
-                      _controller.jumpToPage(2);
+                      _controller.jumpToPage(3);
                     },
                     child: const Text(
                       'Skip',
@@ -66,7 +74,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     )),
                 SmoothPageIndicator(
                   controller: _controller,
-                  count: 3,
+                  count: 4,
                   effect: const ExpandingDotsEffect(
                       activeDotColor: Colors.deepPurple),
                 ),
@@ -90,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     GestureDetector(
                         onTap: () {
                           _controller.nextPage(
-                              duration: const Duration(seconds: 1),
+                              duration: const Duration(milliseconds: 300),
                               curve: Curves.easeIn);
                         },
                         child: const Text(
