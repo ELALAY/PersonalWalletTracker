@@ -112,6 +112,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
                 cardType: cardType,
                 color: selectedColor, // Default color
                 onTap: () {},
+                currency: widget.personProfile.default_currency,
               ),
               const SizedBox(height: 20.0),
               Form(

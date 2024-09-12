@@ -1,13 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
+import '../Models/person_model.dart';
 import 'card/user_cards_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final User user;
-  const SettingsScreen({super.key, required this.user});
+  final Person person;
+  const SettingsScreen({super.key, required this.person});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -22,6 +22,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _isDarkTheme = value;
       darkTheme = value; // Update the global darkTheme variable
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCurrency = widget.person.default_currency;
   }
 
   @override
@@ -54,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             tileColor: darkTheme ? Colors.grey : Colors.grey.shade200,
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const CardListScreen();
+                return CardListScreen(currency: widget.person.default_currency,);
               }));
             },
           ),
@@ -94,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void updateUserCurrency(){
     try {
-      firebaseDB.updateUserCurrency(widget.user.uid, selectedCurrency);
+      firebaseDB.updateUserCurrency(widget.person.id, selectedCurrency);
     } catch (e) {
       // Log the error with a specific message
       debugPrint('Failed to update currency: $e');

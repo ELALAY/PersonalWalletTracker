@@ -195,7 +195,7 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void navSettingsPage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SettingsScreen(user: widget.user,);
+      return SettingsScreen(person: widget.personProfile);
     }));
   }
 
@@ -213,7 +213,7 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void navUserCardsScreen() async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const CardListScreen();
+      return  CardListScreen(currency: widget.personProfile.default_currency,);
     }));
   }
 

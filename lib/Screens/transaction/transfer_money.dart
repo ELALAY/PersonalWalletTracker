@@ -10,7 +10,8 @@ import '../../services/realtime_db/firebase_db.dart';
 
 class TransferMoney extends StatefulWidget {
   final List<CardModel> myCards;
-  const TransferMoney({super.key, required this.myCards});
+  final String currency;
+  const TransferMoney({super.key, required this.myCards, required this.currency});
 
   @override
   State<TransferMoney> createState() => _TransferMoneyState();
@@ -82,6 +83,7 @@ class _TransferMoneyState extends State<TransferMoney> {
                                       cardType: card.cardType,
                                       color: Color(card.color),
                                       onTap: () {}, //navUpdateCard,
+                                      currency: widget.currency,
                                     ))
                                 .toList()
                             : [
@@ -129,6 +131,7 @@ class _TransferMoneyState extends State<TransferMoney> {
                                       cardType: card.cardType,
                                       color: Color(card.color),
                                       onTap: () {}, //navUpdateCard,
+                                      currency: widget.currency,
                                     ))
                                 .toList()
                             : [

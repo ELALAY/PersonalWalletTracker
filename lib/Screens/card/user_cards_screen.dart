@@ -8,7 +8,8 @@ import '../../services/auth/auth_service.dart';
 import 'edit_card_screen.dart';
 
 class CardListScreen extends StatefulWidget {
-  const CardListScreen({Key? key}) : super(key: key);
+  final String currency;
+  const CardListScreen({super.key, required this.currency});
 
   @override
   CardListScreenState createState() => CardListScreenState();
@@ -86,6 +87,7 @@ class CardListScreenState extends State<CardListScreen> {
                       onTap: () {
                         navUpdateCard(card);
                       },
+                      currency: widget.currency,
                     ),
                   ),
                 );
@@ -99,6 +101,7 @@ class CardListScreenState extends State<CardListScreen> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return EditCardScreen(
           card: card,
+          currency: widget.currency,
         ); // replace with your settings screen
       }));
     } else {

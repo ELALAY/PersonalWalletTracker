@@ -12,8 +12,9 @@ import '../../Utils/globals.dart';
 
 class EditCardScreen extends StatefulWidget {
   final CardModel card;
+  final String currency;
 
-  const EditCardScreen({super.key, required this.card});
+  const EditCardScreen({super.key, required this.card, required this.currency});
 
   @override
   State<EditCardScreen> createState() => _EditCardScreenState();
@@ -190,6 +191,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                 color: selectedColor,
                 isArchived: widget.card.isArchived,
                 onTap: () {},
+                currency: widget.currency,
               ),
               const SizedBox(height: 20.0),
               Form(

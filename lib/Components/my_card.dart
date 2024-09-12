@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../Utils/globals.dart';
-
 class MyCard extends StatefulWidget {
   final bool isArchived;
   final String cardHolder;
@@ -10,6 +8,7 @@ class MyCard extends StatefulWidget {
   final Color color;
   final VoidCallback onTap;
   final String cardType; // Add card type (e.g., Visa, Mastercard)
+  final String currency;
 
   const MyCard({
     super.key,
@@ -20,6 +19,7 @@ class MyCard extends StatefulWidget {
     required this.onTap,
     required this.cardType, // Initialize cardType
     this.isArchived = false,
+    required this.currency,
   });
 
   @override
@@ -60,7 +60,7 @@ class _MyCardState extends State<MyCard> {
             ),
             const SizedBox(height: 10.0),
             Text(
-              '${widget.balance.toStringAsFixed(2)} $selectedCurrency',
+              '${widget.balance.toStringAsFixed(2)} ${widget.currency}',
               style:  TextStyle(fontSize: 30, color: Colors.white, decoration: widget.isArchived
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,),

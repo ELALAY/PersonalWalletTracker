@@ -135,6 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     cardType: card.cardType,
                                     color: Color(card.color),
                                     onTap: navUpdateCard,
+                                    currency: personProfile!.default_currency,
                                   ))
                               .toList()
                           : [
@@ -297,7 +298,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void navSettingScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SettingsScreen(user: user!,); // replace with your settings screen
+      return SettingsScreen(person: personProfile!,); // replace with your settings screen
     })).then((value) => reload());
   }
 
@@ -349,6 +350,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return EditCardScreen(
           card: myCards[pageIndex],
+          currency: personProfile!.default_currency,
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {
@@ -363,6 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return TransferMoney(
           myCards: myCards,
+          currency: personProfile!.default_currency,
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {
