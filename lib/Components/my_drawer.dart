@@ -5,6 +5,7 @@ import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/card/user_cards_screen.dart';
 import 'package:personalwallettracker/Screens/categories/catogories_screen.dart';
 import 'package:personalwallettracker/Screens/home.dart';
+import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
 import 'package:personalwallettracker/Screens/profile_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../services/auth/auth_service.dart';
@@ -144,6 +145,11 @@ class _MyDrawerState extends State<MyDrawer> {
                       icon: const Icon(Icons.payment_outlined),
                       tileTitle: 'My Cards',
                       onTap: navUserCardsScreen),
+                  //onboarding screen
+                  MyListTile(
+                      icon: const Icon(Icons.start_outlined),
+                      tileTitle: 'Onboarding',
+                      onTap: navOnboardingScreen),
                 ],
               ),
             ),
@@ -196,6 +202,12 @@ class _MyDrawerState extends State<MyDrawer> {
   void navUserCardsScreen() async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return const CardListScreen();
+    }));
+  }
+
+  void navOnboardingScreen() async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const OnboardingScreen();
     }));
   }
 }

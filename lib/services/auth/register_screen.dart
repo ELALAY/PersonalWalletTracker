@@ -11,6 +11,7 @@ import 'package:personalwallettracker/Components/my_textfields/my_emailfield.dar
 import 'package:personalwallettracker/Components/my_textfields/my_pwdfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
+import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
 import '../../Screens/home.dart';
 import '../../Utils/globals.dart';
 import '../realtime_db/firebase_db.dart';
@@ -76,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const MyHomePage(),
+          builder: (context) => const OnboardingScreen(),
         ),
       );
     }
