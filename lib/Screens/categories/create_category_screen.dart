@@ -106,7 +106,6 @@ class _CreateCategoryState extends State<CreateCategory> {
   }
   
 
-
   void showErrorSnachBar(String message) {
     awesomeTopSnackbar(context, message,
         iconWithDecoration: BoxDecoration(

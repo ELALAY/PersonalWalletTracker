@@ -174,7 +174,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     }
   }
 
-
   void showErrorSnachBar(String message) {
     awesomeTopSnackbar(context, message,
         iconWithDecoration: BoxDecoration(

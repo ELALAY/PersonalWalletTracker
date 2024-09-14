@@ -188,17 +188,17 @@ class FirebaseDB {
   Future<void> deleteTransactionsByCardId(String cardId) async {
     try {
       //update the card balance if the amount of the transaction has changed
-      CardModel card = await getCardById(cardId);
-      final updatedCard = CardModel.withId(
-        id: card.id,
-        cardName: card.cardName,
-        balance: 0,
-        cardHolderName: card.cardHolderName,
-        ownerId: card.ownerId,
-        cardType: card.cardType,
-        color: card.color,
-      );
-      updateCard(updatedCard);
+      // CardModel card = await getCardById(cardId);
+      // final updatedCard = CardModel.withId(
+      //   id: card.id,
+      //   cardName: card.cardName,
+      //   balance: 0,
+      //   cardHolderName: card.cardHolderName,
+      //   ownerId: card.ownerId,
+      //   cardType: card.cardType,
+      //   color: card.color,
+      // );
+      // updateCard(updatedCard);
       // Fetch transactions associated with the card
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')

@@ -1,3 +1,4 @@
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
@@ -65,6 +66,8 @@ class _EditCardScreenState extends State<EditCardScreen> {
       CardModel updatedCard = widget.card.toggleArchive();
       await firebaseDatabasehelper.updateCard(updatedCard);
 
+      showInfoSnachBar('Card is archived!');
+
       // ignore: use_build_context_synchronously
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return const MyHomePage();
@@ -101,6 +104,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
 
   void deleteCard() async {
     await firebaseDatabasehelper.deleteCard(widget.card.id);
+    showSuccessSnachBar('Card and transactions deleted successfully!');
     // ignore: use_build_context_synchronously
     Navigator.pop(context);
   }
@@ -274,4 +278,44 @@ class _EditCardScreenState extends State<EditCardScreen> {
       ),
     );
   }
+  
+  void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showInfoSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.lightBlueAccent.shade400),
+        backgroundColor: Colors.lightBlueAccent,
+        icon: const Icon(
+          Icons.info_outline,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
+  }
+
 }

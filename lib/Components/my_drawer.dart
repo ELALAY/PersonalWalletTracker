@@ -151,11 +151,12 @@ class _MyDrawerState extends State<MyDrawer> {
                       icon: const Icon(Icons.payment_outlined),
                       tileTitle: 'My Cards',
                       onTap: navUserCardsScreen),
-                  // Onboarding screen
+                 /* // Onboarding screen
                   MyListTile(
                       icon: const Icon(Icons.start_outlined),
                       tileTitle: 'Onboarding',
                       onTap: navOnboardingScreen),
+                  */
                 ],
               ),
             ),
