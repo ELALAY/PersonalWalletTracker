@@ -42,7 +42,7 @@ class AuthService {
     if (gUser == null) return;
 
     // obtain auth details from request
-    final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+    final GoogleSignInAuthentication gAuth = await gUser.authentication;
 
     // Create new credential for our user
     final credential = GoogleAuthProvider.credential(

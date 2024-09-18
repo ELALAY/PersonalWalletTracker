@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_emailfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_pwdfield.dart';
+import 'package:personalwallettracker/Models/person_model.dart';
+import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
+import 'package:personalwallettracker/services/auth/google_register_screen.dart';
 import 'package:personalwallettracker/services/auth/register_screen.dart';
+import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 import '../../Utils/globals.dart';
 import 'auth_service.dart';
 
@@ -37,7 +42,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         // ignore: use_build_context_synchronously
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+          MaterialPageRoute(builder: (context) => const MyHomePage()),
         );
       } on FirebaseAuthException catch (e) {
         String errorMessage;
@@ -99,6 +104,54 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
     }
   }
 
+  void loginGoogle() async {
+    try {
+      showDialog(
+        context: context,
+        // barrierDismissible:
+        //     false, // Prevents dismissing the dialog by tapping outside
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.deepPurple,
+            ),
+          );
+        },
+      );
+      authService.signInwithGoogle();
+      User? user = authService.getCurrentUser();
+
+      if (user != null) {
+        Person? profile = await FirebaseDB().getPersonProfile(user.uid);
+        if (profile == null) {
+          // if no profile => create a new profile
+          Person personProfile = Person.fromMap({
+            'username': user.displayName,
+            'email': user.email,
+            'profile_picture': user.photoURL,
+          }, user.uid);
+          await FirebaseFirestore.instance
+              .collection('persons')
+              .doc(user.uid)
+              .set(personProfile.toMap());
+        } else {
+          // ignore: use_build_context_synchronously
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+          );
+        }
+      } else {
+        return;
+      }
+    } catch (e) {
+      debugPrint('error google sing in');
+    } //finally {
+    //   // Close the loading indicator after the process completes
+    //   Navigator.of(context).pop();
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,14 +166,18 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 50,),
+            const SizedBox(
+              height: 50,
+            ),
             SizedBox(height: 150, child: Image.asset('lib/Images/login.gif')),
             // const Icon(
             //   Icons.lock_open_rounded,
             //   size: 100,
             //   color: Colors.deepPurple,
             // ),
-            const SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             const Text(
               'Personal Wallet Tracker',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
@@ -154,6 +211,31 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            GestureDetector(
+              onTap: loginGoogle,
+              child: Container(
+                height: 100.0,
+                width: 100.0,
+                // padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.deepPurple, width: 2.0),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey,
+                        offset: Offset.fromDirection(1, 2),
+                        blurRadius: 2.0)
+                  ],
+                ),
+                child: Image.asset(
+                  'lib/Images/google_icon.png',
+                  // color: Colors.white,
+                ),
               ),
             ),
           ],

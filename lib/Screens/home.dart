@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.grey)),
         ],
       ),
-      drawer: user != null
+      drawer: user != null && personProfile != null
           ? MyDrawer(user: user!, personProfile: personProfile!)
           : null,
       body: isLoading
