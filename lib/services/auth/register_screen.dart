@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -42,6 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (username.isEmpty) {
       setState(() {
         errorMessage = 'Username cannot be empty';
+        showErrorSnachBar(errorMessage);
       });
       return;
     }
@@ -51,6 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (usernameExists) {
       setState(() {
         errorMessage = 'Username is already taken';
+        showErrorSnachBar(errorMessage);
       });
     } else {
       String? profileImageUrl;
@@ -96,11 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {
         errorMessage = 'Passwords do not match';
       });
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text(errorMessage),
-              ));
+      showErrorSnachBar(errorMessage);
       return;
     }
     if (!emailController.text.contains('@') ||
@@ -108,11 +107,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {
         errorMessage = 'invalid email';
       });
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text(errorMessage),
-              ));
+      showErrorSnachBar(errorMessage);
       return;
     }
 
@@ -139,20 +134,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           default:
             errorMessage = 'An error occurred. Please try again.';
         }
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text(errorMessage),
-                ));
+        showErrorSnachBar(errorMessage);
       });
     } catch (e) {
       setState(() {
         errorMessage = 'An error occurred. Please try again.';
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text(errorMessage),
-                ));
+        showErrorSnachBar(errorMessage);
       });
     }
   }
@@ -169,9 +156,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         debugPrint('Image picked and converted to bytes: $imageBytes');
       } else {
         debugPrint('No image selected.');
+        showErrorSnachBar('No image selected!');
       }
     } catch (e) {
       debugPrint('Error picking image: $e');
+      showErrorSnachBar('Error picking image');
     }
   }
 
@@ -307,4 +296,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return const LoginOrRegister();
     }));
   }
+
+  void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showInfoSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.lightBlueAccent.shade400),
+        backgroundColor: Colors.lightBlueAccent,
+        icon: const Icon(
+          Icons.info_outline,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
+  }
+
 }

@@ -70,18 +70,18 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
 
   void loginGoogle() async {
     try {
-      showDialog(
-        context: context,
-        // barrierDismissible:
-        //     false, // Prevents dismissing the dialog by tapping outside
-        builder: (BuildContext context) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Colors.deepPurple,
-            ),
-          );
-        },
-      );
+      // showDialog(
+      //   context: context,
+      //   // barrierDismissible:
+      //   //     false, // Prevents dismissing the dialog by tapping outside
+      //   builder: (BuildContext context) {
+      //     return const Center(
+      //       child: CircularProgressIndicator(
+      //         color: Colors.deepPurple,
+      //       ),
+      //     );
+      //   },
+      // );
       authService.signInwithGoogle();
       User? user = authService.getCurrentUser();
 
@@ -89,6 +89,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         Person? profile = await FirebaseDB().getPersonProfile(user.uid);
         if (profile == null) {
           showInfoSnachBar('Creating Profile!');
+          debugPrint('creating profile!');
           // if no profile => create a new profile
           Person personProfile = Person.fromMap({
             'username': user.displayName,
@@ -99,6 +100,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
               .collection('persons')
               .doc(user.uid)
               .set(personProfile.toMap());
+              debugPrint('created profile');
         } else {
           showSuccessSnachBar('Logged in Successfully!');
           // ignore: use_build_context_synchronously
@@ -108,6 +110,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
           );
         }
       } else {
+          showErrorSnachBar('Error logging in!');
         return;
       }
     } catch (e) {
