@@ -1,6 +1,7 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
@@ -45,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
     isLoading = false;
   }
 
-  void reload() {
+  Future<void> reload() async {
     isLoading = true;
     debugPrint('reloading...');
     fetchUserAndCards();
@@ -114,169 +115,178 @@ class _MyHomePageState extends State<MyHomePage> {
           : null,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  //cards
-                  SizedBox(
-                    height: 200.0,
-                    child: PageView(
-                      controller: pageController,
-                      scrollDirection: Axis.horizontal,
-                      children: myCards.isNotEmpty
-                          ? myCards
-                              .map((card) => MyCard(
-                                    cardHolder: card.cardHolderName,
-                                    balance: card.balance,
-                                    cardName: card.cardName,
-                                    cardType: card.cardType,
-                                    color: Color(card.color),
-                                    onTap: navUpdateCard,
-                                    currency: personProfile!.default_currency,
-                                  ))
-                              .toList()
-                          : [
-                              const Center(
-                                child: Text(
-                                  'No Cards Found! Create a Card!',
-                                  style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w200),
-                                ),
-                              )
-                            ],
+          : LiquidPullToRefresh(
+              onRefresh: () async {
+                reload();
+              },
+              backgroundColor: Colors.deepPurple.shade200,
+              height: 200.0,
+
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const SizedBox(
+                      height: 20.0,
                     ),
-                  ),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                  myCards.isNotEmpty
-                      ? SmoothPageIndicator(
-                          controller: pageController,
-                          count: myCards.length,
-                          effect: const ExpandingDotsEffect(
-                              activeDotColor: Colors.deepPurple),
-                        )
-                      : Container(),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  //buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      //tranfer
-                      GestureDetector(
-                        onTap: navTransferMoney,
-                        child: const MyImageButton(
-                          icon: 'cards',
-                          action: 'Transfer',
-                        ),
+                    //cards
+                    SizedBox(
+                      height: 200.0,
+                      child: PageView(
+                        controller: pageController,
+                        scrollDirection: Axis.horizontal,
+                        children: myCards.isNotEmpty
+                            ? myCards
+                                .map((card) => MyCard(
+                                      cardHolder: card.cardHolderName,
+                                      balance: card.balance,
+                                      cardName: card.cardName,
+                                      cardType: card.cardType,
+                                      color: Color(card.color),
+                                      onTap: navUpdateCard,
+                                      currency: personProfile!.default_currency,
+                                    ))
+                                .toList()
+                            : [
+                                const Center(
+                                  child: Text(
+                                    'No Cards Found! Create a Card!',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w200),
+                                  ),
+                                )
+                              ],
                       ),
-                      //new transaction
-                      GestureDetector(
-                        onTap: newTransactionScreen,
-                        child: const MyImageButton(
-                          icon: 'transactions',
-                          action: 'Transaction',
-                        ),
-                      ),
-                      //financial goal
-                      GestureDetector(
-                        onTap: navGoalScreen,
-                        child: const MyImageButton(
-                          icon: 'target',
-                          action: 'Goal',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  const Text(
-                    'Insights',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                  //tiles of stats & transactions
-                  Column(
-                    children: [
-                      // stats tile
-                      ListTile(
-                        tileColor: Colors.deepOrange,
-                        leading: SizedBox(
-                          height: 35.0,
-                          child: Image.asset(
-                            'lib/Images/stats.png',
-                            color: Colors.white,
+                    ),
+                    const SizedBox(
+                      height: 15.0,
+                    ),
+                    myCards.isNotEmpty
+                        ? SmoothPageIndicator(
+                            controller: pageController,
+                            count: myCards.length,
+                            effect: const ExpandingDotsEffect(
+                                activeDotColor: Colors.deepPurple),
+                          )
+                        : Container(),
+                    const SizedBox(
+                      height: 25.0,
+                    ),
+                    //buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        //tranfer
+                        GestureDetector(
+                          onTap: navTransferMoney,
+                          child: const MyImageButton(
+                            icon: 'cards',
+                            action: 'Transfer',
                           ),
                         ),
-                        trailing: const Icon(
-                          Icons.arrow_forward_ios,
-                          color: Colors.white,
-                        ),
-                        title: const Text(
-                          'Statistics',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.white,
+                        //new transaction
+                        GestureDetector(
+                          onTap: newTransactionScreen,
+                          child: const MyImageButton(
+                            icon: 'transactions',
+                            action: 'Transaction',
                           ),
                         ),
-                        subtitle: const Text(
-                          'payments & incomes',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
+                        //financial goal
+                        GestureDetector(
+                          onTap: navGoalScreen,
+                          child: const MyImageButton(
+                            icon: 'target',
+                            action: 'Goal',
                           ),
                         ),
-                        onTap: statsScreen,
-                      ),
-                      const SizedBox(
-                        height: 15.0,
-                      ),
-                      //history tile
-                      ListTile(
-                        tileColor: Colors.deepOrange,
-                        leading: SizedBox(
-                          height: 35.0,
-                          child: Image.asset(
-                            'lib/Images/history.png',
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 25.0,
+                    ),
+                    const Text(
+                      'Insights',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                    const SizedBox(
+                      height: 15.0,
+                    ),
+                    //tiles of stats & transactions
+                    Column(
+                      children: [
+                        // stats tile
+                        ListTile(
+                          tileColor: Colors.deepOrange,
+                          leading: SizedBox(
+                            height: 35.0,
+                            child: Image.asset(
+                              'lib/Images/stats.png',
+                              color: Colors.white,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
                             color: Colors.white,
                           ),
+                          title: const Text(
+                            'Statistics',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
+                          ),
+                          subtitle: const Text(
+                            'payments & incomes',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onTap: statsScreen,
                         ),
-                        trailing: const Icon(
-                          Icons.arrow_forward_ios,
-                          color: Colors.white,
+                        const SizedBox(
+                          height: 15.0,
                         ),
-                        title: const Text(
-                          'Transactions',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                        //history tile
+                        ListTile(
+                          tileColor: Colors.deepOrange,
+                          leading: SizedBox(
+                            height: 35.0,
+                            child: Image.asset(
+                              'lib/Images/history.png',
+                              color: Colors.white,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
                             color: Colors.white,
                           ),
-                        ),
-                        subtitle: const Text(
-                          'Transactions history',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
+                          title: const Text(
+                            'Transactions',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
                           ),
+                          subtitle: const Text(
+                            'Transactions history',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onTap: transactionhistoryScreen,
                         ),
-                        onTap: transactionhistoryScreen,
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
     );
@@ -299,7 +309,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void navSettingScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SettingsScreen(person: personProfile!,); // replace with your settings screen
+      return SettingsScreen(
+        person: personProfile!,
+      ); // replace with your settings screen
     })).then((value) => reload());
   }
 
@@ -435,4 +447,3 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 }
-

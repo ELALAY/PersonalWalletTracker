@@ -7,6 +7,11 @@ class TransactionModel {
   final DateTime date;
   final String description;
   final bool isExpense;
+  // Recurrence fields
+  final bool isRecurring;
+  final String recurrenceType; // daily, weekly, monthly, yearly
+  final int recurrenceInterval; // Interval between occurrences (e.g., every 2 days)
+  final DateTime? endRecurrenceDate; // Optional end date for recurrence
 
   TransactionModel({
     required this.cardId,
@@ -16,6 +21,10 @@ class TransactionModel {
     required this.date,
     required this.description,
     required this.isExpense,
+    this.isRecurring = false,
+    this.recurrenceType = '',
+    this.recurrenceInterval = 0,
+    this.endRecurrenceDate,
   }) : id = '';
 
   TransactionModel.withId({
@@ -27,6 +36,10 @@ class TransactionModel {
     required this.date,
     required this.description,
     required this.isExpense,
+    this.isRecurring = false,
+    this.recurrenceType = '',
+    this.recurrenceInterval = 0,
+    this.endRecurrenceDate,
   });
 
   Map<String, dynamic> toMap() {
@@ -38,6 +51,10 @@ class TransactionModel {
       'date': date.toIso8601String(),
       'description': description,
       'isExpense': isExpense,
+      'isRecurring': isRecurring,
+      'recurrenceType': recurrenceType,
+      'recurrenceInterval': recurrenceInterval,
+      'endRecurrenceDate': endRecurrenceDate?.toIso8601String(),
     };
   }
 
@@ -51,6 +68,12 @@ class TransactionModel {
       date: DateTime.parse(map['date']),
       description: map['description'],
       isExpense: map['isExpense'],
+      isRecurring: map['isRecurring'] ?? false,
+      recurrenceType: map['recurrenceType'] ?? '',
+      recurrenceInterval: map['recurrenceInterval'] ?? 1,
+      endRecurrenceDate: map['endRecurrenceDate'] != null
+          ? DateTime.parse(map['endRecurrenceDate'])
+          : null,
     );
   }
 }

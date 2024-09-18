@@ -2,6 +2,7 @@ import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/edit_transaction_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
@@ -15,7 +16,10 @@ class TransactionHistoryScreen extends StatefulWidget {
   final CardModel card;
   final List<CardModel> myCards;
   const TransactionHistoryScreen(
-      {super.key, required this.card, required this.myCards, required this.currency});
+      {super.key,
+      required this.card,
+      required this.myCards,
+      required this.currency});
 
   @override
   TransactionHistoryScreenState createState() =>
@@ -186,206 +190,218 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : Column(
-              children: [
-                // Card Selector
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: DropdownButtonFormField<String>(
-                    value: widget.myCards.any((card) => card.id == selectedCard)
-                        ? selectedCard
-                        : 'All',
-                    icon: const Icon(
-                      Icons.arrow_downward,
-                      color: Colors.deepPurple,
+          : LiquidPullToRefresh(
+              onRefresh: () async {
+                reload();
+              },
+              backgroundColor: Colors.deepPurple.shade200,
+              height: 200.0,
+              animSpeedFactor: 1,
+              child: Column(
+                children: [
+                  // Card Selector
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: DropdownButtonFormField<String>(
+                      value:
+                          widget.myCards.any((card) => card.id == selectedCard)
+                              ? selectedCard
+                              : 'All',
+                      icon: const Icon(
+                        Icons.arrow_downward,
+                        color: Colors.deepPurple,
+                      ),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            selectedCard = value;
+                            fetchAllTransactions();
+                          });
+                        }
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Card',
+                        labelStyle: TextStyle(color: Colors.deepPurple),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.deepPurple, // Deep Purple border
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color:
+                                Colors.deepPurple, // Deep Purple focused border
+                          ),
+                        ),
+                      ),
+                      items: [
+                        ...widget.myCards
+                            .map((card) => DropdownMenuItem<String>(
+                                  value: card.id,
+                                  child: Text(card.cardName),
+                                )),
+                        const DropdownMenuItem<String>(
+                          value: 'All',
+                          child: Text('All'),
+                        ),
+                      ],
                     ),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          selectedCard = value;
-                          fetchAllTransactions();
-                        });
-                      }
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Card',
-                      labelStyle: TextStyle(color: Colors.deepPurple),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.deepPurple, // Deep Purple border
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color:
-                              Colors.deepPurple, // Deep Purple focused border
-                        ),
-                      ),
-                    ),
-                    items: [
-                      ...widget.myCards.map((card) => DropdownMenuItem<String>(
-                            value: card.id,
-                            child: Text(card.cardName),
-                          )),
-                      const DropdownMenuItem<String>(
-                        value: 'All',
-                        child: Text('All'),
-                      ),
-                    ],
                   ),
-                ),
-                // Date Range Selector (Placeholder)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      //dates
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Date Range',
-                            style: TextStyle(
-                                fontSize: 16.0, fontWeight: FontWeight.bold),
-                          ),
-                          Row(
-                            children: [
-                              Text(_startDate != null
-                                  ? formatDate(_startDate!)
-                                  : ''),
-                              const SizedBox(
-                                width: 8.0,
-                              ),
-                              Text(
-                                  _endDate != null ? formatDate(_endDate!) : '')
-                            ],
-                          )
-                        ],
-                      ),
-                      //select date range
-                      IconButton(
-                        onPressed: () {
-                          _selectDateRange(context);
-                        },
-                        icon: const Icon(
-                          Icons.calendar_month,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Summary Section
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              'Total Income: ${totalIncome.toStringAsFixed(2)} ${widget.currency}',
-                              style: const TextStyle(color: Colors.green)),
-                          const SizedBox(height: 4.0),
-                          Text(
-                              'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ${widget.currency}',
-                              style: const TextStyle(color: Colors.red)),
-                        ],
-                      ),
-                      Text(
-                          'Net Balance: ${(totalIncome - totalExpenses).toStringAsFixed(2)} ${widget.currency}',
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-                // Transaction List
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: transactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = transactions[index];
-                      // return MyTransactionTile(transaction: transaction);
-                      return Container(
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12)),
-                        child: Slidable(
-                          key: const ValueKey(0),
-
-                          // The start action pane is the one at the left or the top side.
-                          startActionPane: ActionPane(
-                            // A motion is a widget used to control how the pane animates.
-                            motion: const StretchMotion(),
-
-                            // All actions are defined in the children parameter.
-                            children: [
-                              // A SlidableAction can have an icon and/or a label.
-                              SlidableAction(
-                                onPressed: (context) {
-                                  deleteTransaction(transaction);
-                                },
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                icon: Icons.delete_forever_outlined,
-                                label: 'Delete',
-                              ),
-                            ],
-                          ),
-
-                          // The start action pane is the one at the left or the top side.
-                          endActionPane: ActionPane(
-                            // A motion is a widget used to control how the pane animates.
-                            motion: const StretchMotion(),
-
-                            // All actions are defined in the children parameter.
-                            children: [
-                              // A SlidableAction can have an icon and/or a label.
-                              SlidableAction(
-                                onPressed: (context) {
-                                  editTransaction(transaction);
-                                },
-                                backgroundColor:
-                                    const Color.fromARGB(255, 192, 174, 174),
-                                foregroundColor: Colors.white,
-                                icon: Icons.edit,
-                                label: 'Edit',
-                              ),
-                            ],
-                          ),
-                          child: ListTile(
-                            tileColor: Colors.grey.shade300,
-                            title: Text(
-                              transaction.description,
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text(
-                                '${formatDate(transaction.date)} - ${transaction.category}'),
-                            leading: SizedBox(
-                                height: 35.0,
-                                child: categoryIcon(transaction.category)),
-                            trailing: Text(
-                              '${transaction.isExpense ? '-' : '+'} ${transaction.amount.abs().toStringAsFixed(2)} ${widget.currency}',
+                  // Date Range Selector (Placeholder)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //dates
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Date Range',
                               style: TextStyle(
-                                  color: transaction.isExpense
-                                      ? Colors.red
-                                      : Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15),
+                                  fontSize: 16.0, fontWeight: FontWeight.bold),
                             ),
-                            onTap: () {
-                              // Show transaction details
-                              _showTransactionDetails(transaction);
-                            },
+                            Row(
+                              children: [
+                                Text(_startDate != null
+                                    ? formatDate(_startDate!)
+                                    : ''),
+                                const SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(_endDate != null
+                                    ? formatDate(_endDate!)
+                                    : '')
+                              ],
+                            )
+                          ],
+                        ),
+                        //select date range
+                        IconButton(
+                          onPressed: () {
+                            _selectDateRange(context);
+                          },
+                          icon: const Icon(
+                            Icons.calendar_month,
+                            color: Colors.deepPurple,
                           ),
                         ),
-                      );
-                    },
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  // Summary Section
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                'Total Income: ${totalIncome.toStringAsFixed(2)} ${widget.currency}',
+                                style: const TextStyle(color: Colors.green)),
+                            const SizedBox(height: 4.0),
+                            Text(
+                                'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ${widget.currency}',
+                                style: const TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                        Text(
+                            'Net Balance: ${(totalIncome - totalExpenses).toStringAsFixed(2)} ${widget.currency}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                  // Transaction List
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: transactions.length,
+                      itemBuilder: (context, index) {
+                        final transaction = transactions[index];
+                        // return MyTransactionTile(transaction: transaction);
+                        return Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12)),
+                          child: Slidable(
+                            key: const ValueKey(0),
+
+                            // The start action pane is the one at the left or the top side.
+                            startActionPane: ActionPane(
+                              // A motion is a widget used to control how the pane animates.
+                              motion: const StretchMotion(),
+
+                              // All actions are defined in the children parameter.
+                              children: [
+                                // A SlidableAction can have an icon and/or a label.
+                                SlidableAction(
+                                  onPressed: (context) {
+                                    deleteTransaction(transaction);
+                                  },
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.delete_forever_outlined,
+                                  label: 'Delete',
+                                ),
+                              ],
+                            ),
+
+                            // The start action pane is the one at the left or the top side.
+                            endActionPane: ActionPane(
+                              // A motion is a widget used to control how the pane animates.
+                              motion: const StretchMotion(),
+
+                              // All actions are defined in the children parameter.
+                              children: [
+                                // A SlidableAction can have an icon and/or a label.
+                                SlidableAction(
+                                  onPressed: (context) {
+                                    editTransaction(transaction);
+                                  },
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 192, 174, 174),
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.edit,
+                                  label: 'Edit',
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              tileColor: Colors.grey.shade300,
+                              title: Text(
+                                transaction.description,
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                  '${formatDate(transaction.date)} - ${transaction.category}'),
+                              leading: SizedBox(
+                                  height: 35.0,
+                                  child: categoryIcon(transaction.category)),
+                              trailing: Text(
+                                '${transaction.isExpense ? '-' : '+'} ${transaction.amount.abs().toStringAsFixed(2)} ${widget.currency}',
+                                style: TextStyle(
+                                    color: transaction.isExpense
+                                        ? Colors.red
+                                        : Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15),
+                              ),
+                              onTap: () {
+                                // Show transaction details
+                                _showTransactionDetails(transaction);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: navNewTransaction,
@@ -465,8 +481,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             children: [
               ListTile(
                 // leading: Icon(transaction['categoryIcon']),
-                title:
-                    Text('Amount: ${transaction.amount.toStringAsFixed(2)} ${widget.currency}'),
+                title: Text(
+                    'Amount: ${transaction.amount.toStringAsFixed(2)} ${widget.currency}'),
                 subtitle: Text('Date: ${formatDate(transaction.date)}'),
               ),
               const SizedBox(height: 16.0),

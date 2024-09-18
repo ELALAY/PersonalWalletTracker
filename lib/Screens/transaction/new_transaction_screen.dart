@@ -32,6 +32,9 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
   String selectedCardType = 'visa';
+  // recurring settings
+  String? _selectedRecurrenceType;
+  bool isRecurring = false;
 
   @override
   void initState() {
@@ -131,6 +134,24 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         foregroundColor: Colors.grey,
+        actions: [
+          Row(
+            children: [
+              Text('Recurring',
+                  style: TextStyle(
+                      color: isRecurring ? Colors.deepPurple : Colors.grey)),
+              Switch(
+                value: isRecurring,
+                onChanged: (value) {
+                  setState(() {
+                    isRecurring = value;
+                  });
+                },
+                activeColor: Colors.deepPurple,
+              ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -140,9 +161,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      height: 25.0,
-                    ),
                     Column(
                       children: [
                         Icon(
@@ -159,7 +177,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                       ],
                     ),
                     const SizedBox(
-                      height: 25.0,
+                      height: 15.0,
                     ),
                     Form(
                       key: _formKey,
@@ -185,13 +203,10 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                             padding: const EdgeInsets.all(8.0),
                             child: DropdownButtonFormField<String>(
                               value: _selectedCategory,
-                              // icon: IconButton(
-                              //   onPressed: createCategory,
-                              //   icon: const Icon(
-                              //     Icons.add,
-                              //     color: Colors.deepPurple,
-                              //   ),
-                              // ),
+                              icon: const Icon(
+                                Icons.category_outlined,
+                                color: Colors.deepPurple,
+                              ),
                               onChanged: (value) {
                                 if (value != null) {
                                   setState(() {
@@ -269,29 +284,81 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                             ),
                           ),
                           const SizedBox(height: 16.0),
-                          //Income or Expense = isExpense`
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const Text('Income',
-                                  style: TextStyle(color: Colors.deepPurple)),
-                              const SizedBox(width: 20.0),
-                              Switch(
-                                value: isExpense,
-                                onChanged: (value) {
-                                  setState(() {
-                                    isExpense = value;
-                                  });
-                                },
-                                activeColor: Colors.deepPurple,
-                              ),
-                              const SizedBox(width: 20.0),
-                              const Text('Expense`',
-                                  style: TextStyle(color: Colors.deepPurple))
-                            ],
+                          // Income or Expense = isExpense`
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text('Income',
+                                    style: TextStyle(
+                                        color: isExpense
+                                            ? Colors.grey
+                                            : Colors.deepPurple)),
+                                const SizedBox(width: 30.0),
+                                Switch(
+                                  value: isExpense,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      isExpense = value;
+                                    });
+                                  },
+                                  activeColor: Colors.deepPurple,
+                                ),
+                                const SizedBox(width: 20.0),
+                                Text('Expense`',
+                                    style: TextStyle(
+                                        color: isExpense
+                                            ? Colors.deepPurple
+                                            : Colors.grey))
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 16.0),
-                          //save transaction
+                          // Recurrance Type
+                          if(isRecurring)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedRecurrenceType,
+                              icon: const Icon(
+                                Icons.type_specimen,
+                                color: Colors.deepPurple,
+                              ),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _selectedRecurrenceType = value;
+                                  });
+                                }
+                              },
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
+                                ),
+                                labelText: 'Recurrence Type',
+                                labelStyle: TextStyle(color: Colors.deepPurple),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.deepPurple),
+                                ),
+                              ),
+                              items:
+                                ['None', 'Daily', 'Weekly', 'Monthly', 'Yearly']
+                                    .map((type) => DropdownMenuItem(
+                                          value: type,
+                                          child: Text(type),//, style: const TextStyle(color: Colors.deepPurple),),
+                                        ))
+                                    .toList(),
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+                          // save transaction
                           MyButton(
                               label: 'Save transaction',
                               onTap: _addTransaction),
