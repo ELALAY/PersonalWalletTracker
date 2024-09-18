@@ -75,22 +75,20 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
         );
         bool created = await _firebaseDB.addTransaction(transaction);
         if (created) {
+          double amount = isExpense ? -transaction.amount : transaction.amount;
+          debugPrint(amount.toString());
+          _firebaseDB.updateCardBalance(
+              widget.card.id, widget.card.balance + amount);
+          debugPrint('updated card balance!');
           showSuccessSnachBar('Transaction Created!');
+          // ignore: use_build_context_synchronously
+          Navigator.pop(context);
         } else {
           showErrorSnachBar('Error Creating Transaction!');
         }
-
-        double amount = isExpense ? -transaction.amount : transaction.amount;
-        debugPrint(amount.toString());
-        _firebaseDB.updateCardBalance(
-            widget.card.id, widget.card.balance + amount);
-        debugPrint('updated card balance!');
-
-        
       } catch (e) {
         if (mounted) {
           showErrorSnachBar('Error creating transaction: $e');
-          
         }
       }
     }

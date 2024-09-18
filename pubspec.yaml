@@ -47,6 +47,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   awesome_top_snackbar: ^0.0.3
   slide_to_act: ^2.0.2
+  google_sign_in: ^6.1.6
 
 dev_dependencies:
   flutter_test:
