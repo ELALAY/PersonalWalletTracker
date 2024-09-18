@@ -104,7 +104,8 @@ class _EditCardScreenState extends State<EditCardScreen> {
 
   void deleteCard() async {
     await firebaseDatabasehelper.deleteCard(widget.card.id);
-    showSuccessSnachBar('Card and transactions deleted successfully!');
+    showSuccessSnachBar('Card deleted successfully!');
+    showWarningSnachBar('Transactions of this card deleted!');
     // ignore: use_build_context_synchronously
     Navigator.pop(context);
   }
@@ -278,8 +279,21 @@ class _EditCardScreenState extends State<EditCardScreen> {
       ),
     );
   }
-  
+
   void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.red.shade400),
+        backgroundColor: Colors.red,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showWarningSnachBar(String message) {
     awesomeTopSnackbar(context, message,
         iconWithDecoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -287,7 +301,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
             color: Colors.amber.shade400),
         backgroundColor: Colors.amber,
         icon: const Icon(
-          Icons.close,
+          Icons.warning_amber,
           color: Colors.white,
         ));
   }
@@ -317,5 +331,4 @@ class _EditCardScreenState extends State<EditCardScreen> {
           color: Colors.white,
         ));
   }
-
 }

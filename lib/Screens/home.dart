@@ -1,3 +1,4 @@
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
@@ -308,9 +309,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return AddTransactionScreen(card: myCards[pageIndex]);
       })).then((value) => reload());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No card selected')),
-      );
+      showInfoSnachBar('No card selected!');
     }
   }
 
@@ -324,9 +323,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No card selected')),
-      );
+      showInfoSnachBar('No card selected!');
     }
   }
 
@@ -339,9 +336,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No card selected')),
-      );
+      showInfoSnachBar('No card selected!');
     }
   }
 
@@ -369,9 +364,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Not enough cards')),
-      );
+      showInfoSnachBar('Not enough cards!!');
     }
   }
 
@@ -389,4 +382,58 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
   }
+
+
+  void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.red.shade400),
+        backgroundColor: Colors.red,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showWarningSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.warning_amber,
+          color: Colors.white,
+        ));
+  }
+
+  void showInfoSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.lightBlueAccent.shade400),
+        backgroundColor: Colors.lightBlueAccent,
+        icon: const Icon(
+          Icons.info_outline,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
+  }
 }
+

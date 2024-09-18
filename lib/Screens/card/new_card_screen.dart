@@ -69,12 +69,12 @@ class _NewCardScreenState extends State<NewCardScreen> {
           color: selectedColor.value,
         );
 
-        debugPrint('Adding Card: $newCard'); // Debugging statement
+        debugPrint('Adding Card: ${newCard.cardName}'); // Debugging statement
 
         await firebaseDatabasehelper.addCard(newCard);
 
         debugPrint('Card added');
-        showSuccessSnachBar('Card $newCard crated succeffully!');
+        showSuccessSnachBar('Card ${newCard.cardName} crated succeffully!');
 
         // ignore: use_build_context_synchronously
         Navigator.pop(context);
