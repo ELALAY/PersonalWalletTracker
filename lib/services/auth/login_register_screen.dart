@@ -1,3 +1,4 @@
+import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -58,48 +59,12 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
           default:
             errorMessage = 'An error occurred. Please try again.';
         }
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Login Error'),
-            content: Text(errorMessage),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+        showInfoSnachBar(errorMessage);
       } catch (e) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Login Error'),
-            content: const Text('Invalid Credentials'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+        showInfoSnachBar('Invalid Credentials, try again!');
       }
     } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Input Error'),
-          content: const Text('Both fields should be filled!'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+      showInfoSnachBar('Both fields should be filled!');
     }
   }
 
@@ -123,6 +88,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
       if (user != null) {
         Person? profile = await FirebaseDB().getPersonProfile(user.uid);
         if (profile == null) {
+          showInfoSnachBar('Creating Profile!');
           // if no profile => create a new profile
           Person personProfile = Person.fromMap({
             'username': user.displayName,
@@ -134,6 +100,7 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
               .doc(user.uid)
               .set(personProfile.toMap());
         } else {
+          showSuccessSnachBar('Logged in Successfully!');
           // ignore: use_build_context_synchronously
           Navigator.pushReplacement(
             context,
@@ -145,10 +112,8 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
       }
     } catch (e) {
       debugPrint('error google sing in');
-    } //finally {
-    //   // Close the loading indicator after the process completes
-    //   Navigator.of(context).pop();
-    // }
+      showInfoSnachBar('Error Signing in with Google, try again!');
+    }
   }
 
   @override
@@ -241,5 +206,44 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         ),
       ),
     );
+  }
+
+  void showErrorSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.close,
+          color: Colors.white,
+        ));
+  }
+
+  void showInfoSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.lightBlueAccent.shade400),
+        backgroundColor: Colors.lightBlueAccent,
+        icon: const Icon(
+          Icons.info_outline,
+          color: Colors.white,
+        ));
+  }
+
+  void showSuccessSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.green.shade400),
+        backgroundColor: Colors.green,
+        icon: const Icon(
+          Icons.check,
+          color: Colors.white,
+        ));
   }
 }

@@ -383,7 +383,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-
   void showErrorSnachBar(String message) {
     awesomeTopSnackbar(context, message,
         iconWithDecoration: BoxDecoration(
