@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Components/goal_box.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
@@ -67,40 +68,59 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
           IconButton(onPressed: navNewGoalScreen, icon: const Icon(Icons.add))
         ],
       ),
-      body: Column(
-        children: [
-          const SizedBox(
-            height: 16.0,
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: goals.length,
-              itemBuilder: (context, index) {
-                final goal = goals[index];
-                return MyGoalBox(
-                  goal: goal,
-                  onTapStart: () {
-                    showDeleteGoalDialog(goal);
-                  },
-                  onTapEnd: () {
-                    // _showAddAmountDialog(goal);
-                    Navigator.of(context)
-                        .push(
-                          MaterialPageRoute(
-                            builder: (context) => EditGoalScreen(goal: goal),
-                          ),
-                        )
-                        .then((value) => reload());
-                  },
-                  iconTap: () {
-                    _showAddAmountDialog(goal);
-                  },
-                );
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Colors.deepPurple,
+              ),
+            )
+          : LiquidPullToRefresh(
+              onRefresh: () async {
+                debugPrint('reloading...');
+                reload();
+                debugPrint('reloaded!');
               },
+              backgroundColor: Colors.deepPurple.shade200,
+              showChildOpacityTransition: false,
+              color: Colors.deepPurple,
+              height: 100.0,
+              animSpeedFactor: 1,
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: goals.length,
+                      itemBuilder: (context, index) {
+                        final goal = goals[index];
+                        return MyGoalBox(
+                          goal: goal,
+                          onTapStart: () {
+                            showDeleteGoalDialog(goal);
+                          },
+                          onTapEnd: () {
+                            // _showAddAmountDialog(goal);
+                            Navigator.of(context)
+                                .push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        EditGoalScreen(goal: goal),
+                                  ),
+                                )
+                                .then((value) => reload());
+                          },
+                          iconTap: () {
+                            _showAddAmountDialog(goal);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -255,5 +275,4 @@ class _GoalsOverviewScreenState extends State<GoalsOverviewScreen> {
       },
     ).then((value) => reload());
   }
-
 }

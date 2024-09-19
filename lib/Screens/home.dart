@@ -121,7 +121,8 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               backgroundColor: Colors.deepPurple.shade200,
               height: 200.0,
-
+              color: Colors.deepPurple,
+              showChildOpacityTransition: true,
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

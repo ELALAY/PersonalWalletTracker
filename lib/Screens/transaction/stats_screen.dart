@@ -1,6 +1,7 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/categories/category_transactions.dart';
@@ -36,6 +37,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     _startDate = getStartOfMonth();
     _endDate = getEndOfMonth();
     _loadStatistics();
+    _isLoading = false;
+  }
+
+  void reload() async {
+    _startDate = getStartOfMonth();
+    _endDate = getEndOfMonth();
+    _loadStatistics();
+    _isLoading = false;
   }
 
   // Get the start of the current month
@@ -101,7 +110,6 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       setState(() {
         _categoryTotals = totals;
         _spendingData = spendingData;
-        _isLoading = false;
       });
     } catch (e) {
       if (mounted) {
@@ -198,7 +206,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           currency: widget.currency,
         ); // replace with your settings screen
       }));
-    } else {showInfoSnachBar('Choose a Card!');}
+    } else {
+      showInfoSnachBar('Choose a Card!');
+    }
   }
 
   @override
@@ -212,159 +222,174 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                //chart
-                SizedBox(
-                  height: 200.0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _categoryTotals.isEmpty
-                            ? const Center(
-                                child: Text('No transactions available'),
-                              )
-                            : Expanded(
-                                child: SpendingBarChart(data: _spendingData),
-                              ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Card Selector
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: DropdownButtonFormField<String>(
-                    value: widget.myCards.any((card) => card.id == selectedCard)
-                        ? selectedCard
-                        : 'All',
-                    icon: const Icon(
-                      Icons.arrow_downward,
-                      color: Colors.deepPurple,
-                    ),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          selectedCard = value;
-                          _loadStatistics();
-                        });
-                      }
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Card',
-                      labelStyle: TextStyle(color: Colors.deepPurple),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.deepPurple, // Deep Purple border
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color:
-                              Colors.deepPurple, // Deep Purple focused border
-                        ),
-                      ),
-                    ),
-                    items: [
-                      ...widget.myCards.map((card) => DropdownMenuItem<String>(
-                            value: card.id,
-                            child: Text(card.cardName),
-                          )),
-                      const DropdownMenuItem<String>(
-                        value: 'All',
-                        child: Text('All'),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Spending by Category',
-                              style: TextStyle(
-                                fontSize: 24.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            //select date range
-                            IconButton(
-                              onPressed: () {
-                                _selectDateRange(context);
-                              },
-                              icon: const Icon(
-                                Icons.calendar_month,
-                                color: Colors.deepPurple,
-                              ),
-                            ),
-                          ],
-                        ),
-                        // Date Range Selector (Placeholder)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Date Range:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Row(
-                                children: [
-                                  Text(_startDate != null
-                                      ? formatDate(_startDate!)
-                                      : ''),
-                                  const SizedBox(
-                                    width: 8.0,
-                                  ),
-                                  Text(_endDate != null
-                                      ? formatDate(_endDate!)
-                                      : '')
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        Expanded(
-                          child: _categoryTotals.isEmpty
+          : LiquidPullToRefresh(
+              onRefresh: () async {
+                debugPrint('reloading...');
+                reload();
+                debugPrint('reloaded!');
+              },
+              backgroundColor: Colors.deepPurple.shade200,
+              showChildOpacityTransition: false,
+              color: Colors.deepPurple,
+              height: 100.0,
+              animSpeedFactor: 1,
+              child: Column(
+                children: [
+                  //chart
+                  SizedBox(
+                    height: 200.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _categoryTotals.isEmpty
                               ? const Center(
                                   child: Text('No transactions available'),
                                 )
-                              : ListView.builder(
-                                  itemCount: _categoryTotals.length,
-                                  itemBuilder: (context, index) {
-                                    String category =
-                                        _categoryTotals.keys.elementAt(index);
-                                    double total = _categoryTotals[category]!;
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ListTile(
-                                        title: Text(category),
-                                        tileColor: Colors.blueGrey[100],
-                                        trailing: Text(
-                                            '${total.toStringAsFixed(2)} ${widget.currency}'),
-                                        onTap: () {
-                                          navCategoryTransactions(category);
-                                        },
-                                      ),
-                                    );
-                                  },
+                              : Expanded(
+                                  child: SpendingBarChart(data: _spendingData),
                                 ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Card Selector
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: DropdownButtonFormField<String>(
+                      value:
+                          widget.myCards.any((card) => card.id == selectedCard)
+                              ? selectedCard
+                              : 'All',
+                      icon: const Icon(
+                        Icons.arrow_downward,
+                        color: Colors.deepPurple,
+                      ),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            selectedCard = value;
+                            _loadStatistics();
+                          });
+                        }
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Card',
+                        labelStyle: TextStyle(color: Colors.deepPurple),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.deepPurple, // Deep Purple border
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color:
+                                Colors.deepPurple, // Deep Purple focused border
+                          ),
+                        ),
+                      ),
+                      items: [
+                        ...widget.myCards
+                            .map((card) => DropdownMenuItem<String>(
+                                  value: card.id,
+                                  child: Text(card.cardName),
+                                )),
+                        const DropdownMenuItem<String>(
+                          value: 'All',
+                          child: Text('All'),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Spending by Category',
+                                style: TextStyle(
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              //select date range
+                              IconButton(
+                                onPressed: () {
+                                  _selectDateRange(context);
+                                },
+                                icon: const Icon(
+                                  Icons.calendar_month,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Date Range Selector (Placeholder)
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Date Range:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(_startDate != null
+                                        ? formatDate(_startDate!)
+                                        : ''),
+                                    const SizedBox(
+                                      width: 8.0,
+                                    ),
+                                    Text(_endDate != null
+                                        ? formatDate(_endDate!)
+                                        : '')
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+                          Expanded(
+                            child: _categoryTotals.isEmpty
+                                ? const Center(
+                                    child: Text('No transactions available'),
+                                  )
+                                : ListView.builder(
+                                    itemCount: _categoryTotals.length,
+                                    itemBuilder: (context, index) {
+                                      String category =
+                                          _categoryTotals.keys.elementAt(index);
+                                      double total = _categoryTotals[category]!;
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ListTile(
+                                          title: Text(category),
+                                          tileColor: Colors.blueGrey[100],
+                                          trailing: Text(
+                                              '${total.toStringAsFixed(2)} ${widget.currency}'),
+                                          onTap: () {
+                                            navCategoryTransactions(category);
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }

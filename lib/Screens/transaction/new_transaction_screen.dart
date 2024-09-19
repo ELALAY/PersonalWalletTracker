@@ -26,6 +26,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _intervalController = TextEditingController();
   DateTime selectedDate = DateTime.now();
   List<CategoryModel> _categories = [];
   String? _selectedCategory;
@@ -135,6 +136,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
         elevation: 0.0,
         foregroundColor: Colors.grey,
         actions: [
+          // isRecurring
           Row(
             children: [
               Text('Recurring',
@@ -190,14 +192,12 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                               label: 'Amount',
                               color: Colors.deepPurple,
                               enabled: true),
-                          const SizedBox(height: 16.0),
                           // Description
                           MyTextField(
                               controller: _descriptionController,
                               label: 'Description',
                               color: Colors.deepPurple,
                               enabled: true),
-                          const SizedBox(height: 16.0),
                           // Category
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -283,7 +283,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                               onTap: () => _selectDate(context),
                             ),
                           ),
-                          const SizedBox(height: 16.0),
                           // Income or Expense = isExpense`
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -314,50 +313,69 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16.0),
                           // Recurrance Type
-                          if(isRecurring)
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: DropdownButtonFormField<String>(
-                              value: _selectedRecurrenceType,
-                              icon: const Icon(
-                                Icons.type_specimen,
-                                color: Colors.deepPurple,
-                              ),
-                              onChanged: (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    _selectedRecurrenceType = value;
-                                  });
-                                }
-                              },
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                          if (isRecurring)
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: DropdownButtonFormField<String>(
+                                      value: _selectedRecurrenceType,
+                                      icon: const Icon(
+                                        Icons.type_specimen,
+                                        color: Colors.deepPurple,
+                                      ),
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          setState(() {
+                                            _selectedRecurrenceType = value;
+                                          });
+                                        }
+                                      },
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.deepPurple),
+                                        ),
+                                        labelText: 'Recurrence Type',
+                                        labelStyle:
+                                            TextStyle(color: Colors.deepPurple),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.deepPurple),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.deepPurple),
+                                        ),
+                                      ),
+                                      items: [
+                                        'None',
+                                        'Daily',
+                                        'Weekly',
+                                        'Monthly',
+                                        'Yearly'
+                                      ]
+                                          .map((type) => DropdownMenuItem(
+                                                value: type,
+                                                child: Text(
+                                                    type), //, style: const TextStyle(color: Colors.deepPurple),),
+                                              ))
+                                          .toList(),
+                                    ),
+                                  ),
                                 ),
-                                labelText: 'Recurrence Type',
-                                labelStyle: TextStyle(color: Colors.deepPurple),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
-                                ),
-                              ),
-                              items:
-                                ['None', 'Daily', 'Weekly', 'Monthly', 'Yearly']
-                                    .map((type) => DropdownMenuItem(
-                                          value: type,
-                                          child: Text(type),//, style: const TextStyle(color: Colors.deepPurple),),
-                                        ))
-                                    .toList(),
+                                Expanded(
+                                  child: MyNumberField(
+                                      controller: _intervalController,
+                                      label: 'Interval',
+                                      color: Colors.deepPurple,
+                                      enabled: true),
+                                )
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 16.0),
+                            const SizedBox(height: 20,),
                           // save transaction
                           MyButton(
                               label: 'Save transaction',

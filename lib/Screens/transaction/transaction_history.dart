@@ -192,10 +192,14 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             )
           : LiquidPullToRefresh(
               onRefresh: () async {
+                debugPrint('reloading...');
                 reload();
+                debugPrint('reloaded!');
               },
               backgroundColor: Colors.deepPurple.shade200,
-              height: 200.0,
+              showChildOpacityTransition: false,
+              color: Colors.deepPurple,
+              height: 100.0,
               animSpeedFactor: 1,
               child: Column(
                 children: [
