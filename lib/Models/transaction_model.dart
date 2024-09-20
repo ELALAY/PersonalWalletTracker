@@ -7,6 +7,8 @@ class TransactionModel {
   final DateTime date;
   final String description;
   final bool isExpense;
+  final bool
+      isRecurring; // denotes if the transaction has been created as a recurring transaction
 
   TransactionModel({
     required this.cardId,
@@ -16,6 +18,7 @@ class TransactionModel {
     required this.date,
     required this.description,
     required this.isExpense,
+    this.isRecurring = false,
   }) : id = '';
 
   TransactionModel.withId({
@@ -27,6 +30,7 @@ class TransactionModel {
     required this.date,
     required this.description,
     required this.isExpense,
+    this.isRecurring = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -38,6 +42,7 @@ class TransactionModel {
       'date': date.toIso8601String(),
       'description': description,
       'isExpense': isExpense,
+      'isRecurring': isRecurring,
     };
   }
 
@@ -51,6 +56,7 @@ class TransactionModel {
       date: DateTime.parse(map['date']),
       description: map['description'],
       isExpense: map['isExpense'],
+      isRecurring: map['isRecurring']?? false,
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
+import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/recurring_transactions/new_recurring_transaction_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
@@ -34,6 +35,7 @@ class _RecurringTransactionsScreenState
   bool isLoading = true;
   bool isSortedByNewest = true;
   List<RecurringTransactionModel> transactions = [];
+  CardModel? selectedCard;
 
   @override
   void initState() {
@@ -168,11 +170,13 @@ class _RecurringTransactionsScreenState
                       leading: SizedBox(
                           height: 35.0,
                           child: categoryIcon(transaction.category)),
-                      trailing: const Icon(
-                        Icons.add_outlined,
-                        color: Colors.deepPurple,
+                      trailing: IconButton(
+                        icon: const Icon(Icons.add_outlined,
+                            color: Colors.deepPurple),
+                        onPressed: () {
+                          addRecurringTransactionDialog(transaction);
+                        },
                       ),
-                      onTap: () {},
                     ),
                   ),
                 );
@@ -188,17 +192,115 @@ class _RecurringTransactionsScreenState
     );
   }
 
-  // void editTransaction(RecurringTransactionModel transaction) async {
-  //     // ignore: use_build_context_synchronously
-  //     Navigator.push(context, MaterialPageRoute(builder: (context) {
-  //       return EditRecurringTransactionScreen(
-  //         myCards: widget.myCards,
-  //         transaction: transaction,
-  //         user: widget.user,
-  //         personProfile: widget.personProfile,
-  //       ); // replace with your settings screen
-  //     })).then((value) => reload());
-  // }
+  void addRecurringTransaction(RecurringTransactionModel transaction) async {
+    try {
+      bool isCreated = false;
+      if (selectedCard != null) {
+        TransactionModel newTransaction = TransactionModel(
+            cardId: selectedCard!.id,
+            cardName: selectedCard!.cardName,
+            amount: transaction.amount,
+            category: transaction.category,
+            date: DateTime.now(),
+            description: transaction.description,
+            isExpense: transaction.isExpense,
+            isRecurring: true);
+        isCreated = await firebaseDB.addTransaction(newTransaction);
+        if (isCreated) {
+          debugPrint(transaction.amount.toString());
+          // isEpense ? negative amount : positive amount
+          double amount = transaction.isExpense ? -transaction.amount : transaction.amount;
+
+          // since isCreated=true => update card balance
+          firebaseDB.updateCardBalance(
+              selectedCard!.id, selectedCard!.balance + amount);
+          debugPrint('updated card balance!');
+          showSuccessSnachBar('Transaction Created Successfully!');
+        } else {
+          showErrorSnachBar('Error Creating Transaction!');
+        }
+      } else {
+        showInfoSnachBar("Couldn't load card! please try again ...");
+      }
+    } catch (e) {
+      showErrorSnachBar('Error Creating Transaction!');
+      debugPrint('Error Creating Transaction');
+    }
+  }
+
+  void addRecurringTransactionDialog(RecurringTransactionModel transaction) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Choose Card for: ${transaction.description}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Card Selector
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: DropdownButtonFormField<CardModel>(
+                  icon: const Icon(
+                    Icons.arrow_downward,
+                    color: Colors.deepPurple,
+                  ),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedCard = value;
+                      });
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Card',
+                    labelStyle: TextStyle(color: Colors.deepPurple),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.deepPurple, // Deep Purple border
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.deepPurple, // Deep Purple focused border
+                      ),
+                    ),
+                  ),
+                  items: [
+                    ...widget.myCards.map((card) => DropdownMenuItem<CardModel>(
+                          value: card,
+                          child: Text(card.cardName),
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Close',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                addRecurringTransaction(transaction);
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Add',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void editRecurringTransaction(RecurringTransactionModel transaction) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -208,7 +310,7 @@ class _RecurringTransactionsScreenState
         personProfile: widget.personProfile,
         myCards: widget.myCards,
       );
-    }));
+    })).then((value) => reload());
   }
 
   void deleteTransaction(RecurringTransactionModel transaction) async {

@@ -42,7 +42,6 @@ class _EditReccuringTransactionScreenState
   String? _selectedCategory;
   bool isLoading = true;
   bool isExpense = true; // Default to 'Transaction'
-  String selectedCardType = 'visa';
 
   @override
   void initState() {
