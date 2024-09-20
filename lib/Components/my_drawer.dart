@@ -74,6 +74,7 @@ class _MyDrawerState extends State<MyDrawer> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // Profile picture and email
                   UserAccountsDrawerHeader(
                     decoration: const BoxDecoration(
                       color: Colors.pink,
@@ -102,47 +103,12 @@ class _MyDrawerState extends State<MyDrawer> {
                       backgroundColor: Colors.white,
                     ),
                   ),
-                  // Dart Theme
-                  SwitchListTile(
-                    activeColor: Colors.pink,
-                    inactiveTrackColor: Colors.pink,
-                    inactiveThumbColor: Colors.white,
-                    activeTrackColor: Colors.white,
-                    title: Text(
-                      'Dark Mode',
-                      style: TextStyle(
-                        color: darkTheme ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    value: darkTheme,
-                    onChanged: (bool value) {
-                      setState(() {
-                        darkTheme = value;
-                      });
-                    },
-                    secondary: darkTheme
-                        ? const Icon(
-                            Icons.lightbulb_outline,
-                            color: Colors.white,
-                          )
-                        : const Icon(
-                            Icons.lightbulb_outline,
-                            color: Colors.black,
-                          ),
-                  ),
-
-                  /// Reload
+                  // Reload
                   MyListTile(
                     icon: const Icon(Icons.refresh),
                     tileTitle: 'Reload!',
                     onTap: navHomePage,
                   ),
-                  // Settings
-                  MyListTile(
-                      icon: const Icon(Icons.settings),
-                      tileTitle: 'Settings',
-                      onTap: navSettingsPage),
                   // Profile Screen
                   MyListTile(
                     icon: const Icon(Icons.person_2_outlined),
@@ -164,6 +130,11 @@ class _MyDrawerState extends State<MyDrawer> {
                       icon: const Icon(Icons.history),
                       tileTitle: 'Recurring Transactions',
                       onTap: navRecurringTransactionScreen),
+                  // Settings
+                  MyListTile(
+                      icon: const Icon(Icons.settings),
+                      tileTitle: 'Settings',
+                      onTap: navSettingsPage),
                 ],
               ),
             ),

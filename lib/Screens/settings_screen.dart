@@ -16,14 +16,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   FirebaseDB firebaseDB = FirebaseDB();
-  bool _isDarkTheme = darkTheme;
-
-  void _toggleTheme(bool value) {
-    setState(() {
-      _isDarkTheme = value;
-      darkTheme = value; // Update the global darkTheme variable
-    });
-  }
 
   @override
   void initState() {
@@ -34,7 +26,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkTheme ? Colors.black : Colors.white,
       appBar: AppBar(
         title: const Text('Settings'),
         backgroundColor: Colors.transparent,
@@ -43,16 +34,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 20.0),
-          // Dark Mode
-          SwitchListTile(
-            value: _isDarkTheme,
-            title: const Text('Dark Theme'),
-            tileColor: darkTheme ? Colors.grey : Colors.grey.shade200,
-            onChanged: _toggleTheme,
-            activeColor: Colors.black,
-          ),
-          const SizedBox(height: 20.0),
+         const SizedBox(height: 20.0),
           // Cards
           ListTile(
             title: const Text('My Cards'),

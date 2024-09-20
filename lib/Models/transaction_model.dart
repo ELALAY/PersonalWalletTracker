@@ -56,7 +56,7 @@ class TransactionModel {
       date: DateTime.parse(map['date']),
       description: map['description'],
       isExpense: map['isExpense'],
-      isRecurring: map['isRecurring']?? false,
+      isRecurring: map['isRecurring'] ?? false,
     );
   }
 }
