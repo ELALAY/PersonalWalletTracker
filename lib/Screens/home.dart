@@ -1,10 +1,12 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
+import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/new_transaction_screen.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_image_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
@@ -37,11 +39,14 @@ class _MyHomePageState extends State<MyHomePage> {
   //user and profile info
   User? user;
   Person? personProfile;
+  // uncreated recurring transactions
+  List<RecurringTransactionModel> uncreatedTransactions = [];
 
   @override
   void initState() {
     super.initState();
     fetchUserAndCards();
+    checkUncreatedRecurringTransactions();
     isLoading = false;
   }
 
@@ -57,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     });
+    checkUncreatedRecurringTransactions();
     debugPrint('reloaded');
     isLoading = false;
   }
@@ -93,6 +99,37 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void checkUncreatedRecurringTransactions() async {
+    if (user != null) {
+      List<RecurringTransactionModel> uncreatedTransactionstemp = [];
+      List<RecurringTransactionModel> recurringTransactions =
+          await firebaseDatabasehelper
+              .fetchUserRecurringTransactions(user!.uid);
+
+      DateTime now = DateTime.now(); // Get the current date
+      String currentMonthYear = DateFormat('yyyyMM')
+          .format(now); // To compare for monthly recurrences
+
+      for (var transaction in recurringTransactions) {
+        if (!transaction.isArchived) {
+          // Check if the transaction has already been created this month
+          if (DateFormat('yyyyMM').format(transaction.date) !=
+              currentMonthYear) {
+            // This means the transaction hasn't been created this month yet
+            // Handle recurring transaction for today (e.g., monthly)
+            uncreatedTransactionstemp.add(transaction);
+          }
+        }
+      }
+
+      setState(() {
+        uncreatedTransactions = uncreatedTransactionstemp;
+      });
+    } else {
+      debugPrint('No User Found!');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,10 +143,21 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: newCardScreen,
               icon: const Icon(Icons.add_circle_outline_outlined,
                   color: Colors.grey)),
+          uncreatedTransactions.isNotEmpty
+              ? IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.notifications_active))
+              : IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.notifications_outlined))
         ],
       ),
       drawer: user != null && personProfile != null
-          ? MyDrawer(user: user!, personProfile: personProfile!, myCards: myCards,)
+          ? MyDrawer(
+              user: user!,
+              personProfile: personProfile!,
+              myCards: myCards,
+            )
           : null,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

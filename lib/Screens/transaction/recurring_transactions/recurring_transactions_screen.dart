@@ -166,7 +166,7 @@ class _RecurringTransactionsScreenState
                         ],
                       ),
                       subtitle: Text(
-                          '${transaction.date.day} of the month - ${transaction.category}'),
+                          '${formatDate(transaction.date)} - ${transaction.category}'),
                       leading: SizedBox(
                           height: 35.0,
                           child: categoryIcon(transaction.category)),
@@ -209,12 +209,28 @@ class _RecurringTransactionsScreenState
         if (isCreated) {
           debugPrint(transaction.amount.toString());
           // isEpense ? negative amount : positive amount
-          double amount = transaction.isExpense ? -transaction.amount : transaction.amount;
+          double amount =
+              transaction.isExpense ? -transaction.amount : transaction.amount;
 
           // since isCreated=true => update card balance
           firebaseDB.updateCardBalance(
               selectedCard!.id, selectedCard!.balance + amount);
           debugPrint('updated card balance!');
+
+          // update recurring transaction for next date in another month
+          RecurringTransactionModel newRec = RecurringTransactionModel.withId(
+              id: transaction.id,
+              ownerId: transaction.ownerId,
+              amount: transaction.amount,
+              category: transaction.category,
+              date: addOneMonth(transaction.date),
+              description: transaction.description,
+              isExpense: transaction.isExpense);
+          await firebaseDB.updateRecurringTransaction(newRec);
+          
+          // then reload the recurring transactions
+          reload();
+
           showSuccessSnachBar('Transaction Created Successfully!');
         } else {
           showErrorSnachBar('Error Creating Transaction!');
@@ -226,6 +242,14 @@ class _RecurringTransactionsScreenState
       showErrorSnachBar('Error Creating Transaction!');
       debugPrint('Error Creating Transaction');
     }
+  }
+
+  DateTime addOneMonth(DateTime originalDate) {
+    return DateTime(
+      originalDate.year,
+      originalDate.month + 1, // Add 1 to the current month
+      originalDate.day,
+    );
   }
 
   void addRecurringTransactionDialog(RecurringTransactionModel transaction) {

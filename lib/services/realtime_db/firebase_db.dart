@@ -677,11 +677,12 @@ class FirebaseDB {
 //********  Recurring Transaction Functions**********/
 //--------------------------------------------------------------------------------------
   // Fetch recurring_transactions by ownerId
-  Future<List<RecurringTransactionModel>> fetchUserRecurringTransactions(String cardId) async {
+  Future<List<RecurringTransactionModel>> fetchUserRecurringTransactions(
+      String ownerId) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('recurring_transactions')
-          .where('ownerId', isEqualTo: cardId)
+          .where('ownerId', isEqualTo: ownerId)
           .get();
       return querySnapshot.docs
           .map((doc) => RecurringTransactionModel.fromMap(
@@ -692,7 +693,7 @@ class FirebaseDB {
       rethrow;
     }
   }
-  
+
   // Fetch all recurring_transactions
   Future<List<RecurringTransactionModel>> fetchRecurringTransactions() async {
     try {
@@ -707,11 +708,14 @@ class FirebaseDB {
       rethrow;
     }
   }
-  
+
   // Add a new recurring_transactions with auto-generated ID
-  Future<bool> addRecurringTransaction(RecurringTransactionModel transaction) async {
+  Future<bool> addRecurringTransaction(
+      RecurringTransactionModel transaction) async {
     try {
-      await _firestore.collection('recurring_transactions').add(transaction.toMap());
+      await _firestore
+          .collection('recurring_transactions')
+          .add(transaction.toMap());
       return true;
     } catch (e) {
       debugPrint('Error adding transaction: $e');
@@ -720,10 +724,14 @@ class FirebaseDB {
   }
 
   //delete recurring_transactions by ID
-  Future<bool> deleteRecurringTransaction(RecurringTransactionModel transaction) async {
+  Future<bool> deleteRecurringTransaction(
+      RecurringTransactionModel transaction) async {
     try {
       // Fetch transactions associated with the card
-      await _firestore.collection('recurring_transactions').doc(transaction.id).delete();
+      await _firestore
+          .collection('recurring_transactions')
+          .doc(transaction.id)
+          .delete();
       return true;
     } catch (e) {
       debugPrint('Error deleting recurring_transactions: $e');
@@ -732,7 +740,8 @@ class FirebaseDB {
   }
 
   // fetch transaction by ID
-  Future<RecurringTransactionModel> getRecurringTransactionById(String transactionId) async {
+  Future<RecurringTransactionModel> getRecurringTransactionById(
+      String transactionId) async {
     if (transactionId.isNotEmpty) {
       try {
         debugPrint('fetching recurring_transactions $transactionId');
@@ -755,7 +764,8 @@ class FirebaseDB {
   }
 
   // Update an existing recurring_transactions
-  Future<void> updateRecurringTransaction(RecurringTransactionModel transaction) async {
+  Future<void> updateRecurringTransaction(
+      RecurringTransactionModel transaction) async {
     try {
       debugPrint('Updating recurring_transactions');
       // Update transaction in Firestore
@@ -769,4 +779,5 @@ class FirebaseDB {
       debugPrint('Error updating recurring_transactions: ${e.toString()}');
     }
   }
+
 }
