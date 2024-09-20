@@ -7,6 +7,7 @@ import 'package:personalwallettracker/Components/my_textfields/my_numberfield.da
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
+import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
@@ -36,16 +37,12 @@ class AddRecurringTransactionScreenState
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _intervalController = TextEditingController();
   DateTime selectedDate = DateTime.now();
   List<CategoryModel> _categories = [];
   String? _selectedCategory;
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
   String selectedCardType = 'visa';
-  // recurring settings
-  String? _selectedRecurrenceType;
-  bool isRecurring = true;
   // card selection
   CardModel? selectedCard;
 
@@ -80,22 +77,23 @@ class AddRecurringTransactionScreenState
   Future<void> _addTransaction() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        TransactionModel transaction = TransactionModel(
-          cardId: widget.myCards[0].id,
-          cardName: widget.myCards[0].cardName,
-          amount: double.parse(_amountController.text),
-          category: _selectedCategory.toString(),
-          date: selectedDate,
-          description: _descriptionController.text,
-          isExpense: isExpense,
-        );
-        bool created = await _firebaseDB.addTransaction(transaction);
+        bool created = false;
+        if (selectedCard != null) {
+          RecurringTransactionModel transaction = RecurringTransactionModel(
+            cardId: selectedCard!.id,
+            ownerId: widget.user.uid,
+            amount: double.parse(_amountController.text),
+            category: _selectedCategory.toString(),
+            date: selectedDate,
+            description: _descriptionController.text,
+            isExpense: isExpense,
+          );
+          created = await _firebaseDB.addRecurringTransaction(transaction);
+        } else {
+          created = false;
+          showErrorSnachBar("Couldn't load card!");
+        }
         if (created) {
-          double amount = isExpense ? -transaction.amount : transaction.amount;
-          debugPrint(amount.toString());
-          _firebaseDB.updateCardBalance(
-              widget.myCards[0].id, widget.myCards[0].balance + amount);
-          debugPrint('updated card balance!');
           showSuccessSnachBar('Transaction Created!');
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
@@ -147,30 +145,14 @@ class AddRecurringTransactionScreenState
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         foregroundColor: Colors.grey,
-        actions: [
-          // isRecurring
-          Row(
-            children: [
-              Text('Recurring',
-                  style: TextStyle(
-                      color: isRecurring ? Colors.deepPurple : Colors.grey)),
-              Switch(
-                value: isRecurring,
-                onChanged: (value) {
-                  setState(() {
-                    isRecurring = value;
-                  });
-                },
-                activeColor: Colors.deepPurple,
-              ),
-            ],
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoadingCategories
-            ? const Center(child: CircularProgressIndicator(color: Colors.deepPurple,))
+            ? const Center(
+                child: CircularProgressIndicator(
+                color: Colors.deepPurple,
+              ))
             : SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -289,7 +271,6 @@ class AddRecurringTransactionScreenState
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16.0),
                           // Date Picker
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -352,68 +333,6 @@ class AddRecurringTransactionScreenState
                               ],
                             ),
                           ),
-                          // Recurrance Type
-                          if (isRecurring)
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: DropdownButtonFormField<String>(
-                                      value: _selectedRecurrenceType,
-                                      icon: const Icon(
-                                        Icons.type_specimen,
-                                        color: Colors.deepPurple,
-                                      ),
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          setState(() {
-                                            _selectedRecurrenceType = value;
-                                          });
-                                        }
-                                      },
-                                      decoration: const InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.deepPurple),
-                                        ),
-                                        labelText: 'Recurrence Type',
-                                        labelStyle:
-                                            TextStyle(color: Colors.deepPurple),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.deepPurple),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.deepPurple),
-                                        ),
-                                      ),
-                                      items: [
-                                        'None',
-                                        'Daily',
-                                        'Weekly',
-                                        'Monthly',
-                                        'Yearly'
-                                      ]
-                                          .map((type) => DropdownMenuItem(
-                                                value: type,
-                                                child: Text(
-                                                    type), //, style: const TextStyle(color: Colors.deepPurple),),
-                                              ))
-                                          .toList(),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: MyNumberField(
-                                      controller: _intervalController,
-                                      label: 'Interval',
-                                      color: Colors.deepPurple,
-                                      enabled: true),
-                                )
-                              ],
-                            ),
                           const SizedBox(
                             height: 20,
                           ),
@@ -429,12 +348,6 @@ class AddRecurringTransactionScreenState
               ),
       ),
     );
-  }
-
-  void createCategory() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const CreateCategory(); // replace with your settings screen
-    }));
   }
 
   void showErrorSnachBar(String message) {

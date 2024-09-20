@@ -5,6 +5,7 @@ import '../../Models/card_model.dart';
 import '../../Models/category_model.dart';
 import '../../Models/goal_model.dart';
 import '../../Models/person_model.dart';
+import '../../Models/recurring_transaction_model.dart';
 import '../../Models/transaction_model.dart';
 
 class FirebaseDB {
@@ -676,14 +677,14 @@ class FirebaseDB {
 //********  Recurring Transaction Functions**********/
 //--------------------------------------------------------------------------------------
   // Fetch recurring_transactions by ownerId
-  Future<List<TransactionModel>> fetchUserRecurringTransactions(String cardId) async {
+  Future<List<RecurringTransactionModel>> fetchUserRecurringTransactions(String cardId) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('recurring_transactions')
           .where('ownerId', isEqualTo: cardId)
           .get();
       return querySnapshot.docs
-          .map((doc) => TransactionModel.fromMap(
+          .map((doc) => RecurringTransactionModel.fromMap(
               doc.data() as Map<String, dynamic>, doc.id))
           .toList();
     } catch (e) {
@@ -693,12 +694,12 @@ class FirebaseDB {
   }
   
   // Fetch all recurring_transactions
-  Future<List<TransactionModel>> fetchRecurringTransactions() async {
+  Future<List<RecurringTransactionModel>> fetchRecurringTransactions() async {
     try {
       QuerySnapshot querySnapshot =
           await _firestore.collection('recurring_transactions').get();
       return querySnapshot.docs
-          .map((doc) => TransactionModel.fromMap(
+          .map((doc) => RecurringTransactionModel.fromMap(
               doc.data() as Map<String, dynamic>, doc.id))
           .toList();
     } catch (e) {
@@ -708,7 +709,7 @@ class FirebaseDB {
   }
   
   // Add a new recurring_transactions with auto-generated ID
-  Future<bool> addRecurringTransaction(TransactionModel transaction) async {
+  Future<bool> addRecurringTransaction(RecurringTransactionModel transaction) async {
     try {
       await _firestore.collection('recurring_transactions').add(transaction.toMap());
       return true;
@@ -719,7 +720,7 @@ class FirebaseDB {
   }
 
   //delete recurring_transactions by ID
-  Future<bool> deleteRecurringTransaction(TransactionModel transaction) async {
+  Future<bool> deleteRecurringTransaction(RecurringTransactionModel transaction) async {
     try {
       // Fetch transactions associated with the card
       await _firestore.collection('recurring_transactions').doc(transaction.id).delete();
@@ -731,7 +732,7 @@ class FirebaseDB {
   }
 
   // fetch transaction by ID
-  Future<TransactionModel> getRecurringTransactionById(String transactionId) async {
+  Future<RecurringTransactionModel> getRecurringTransactionById(String transactionId) async {
     if (transactionId.isNotEmpty) {
       try {
         debugPrint('fetching recurring_transactions $transactionId');
@@ -740,7 +741,7 @@ class FirebaseDB {
             .doc(transactionId)
             .get();
         if (doc.exists) {
-          return TransactionModel.fromMap(
+          return RecurringTransactionModel.fromMap(
               doc.data() as Map<String, dynamic>, doc.id);
         } else {
           throw Exception('recurring_transactions not found');
@@ -754,7 +755,7 @@ class FirebaseDB {
   }
 
   // Update an existing recurring_transactions
-  Future<void> updateRecurringTransaction(TransactionModel transaction) async {
+  Future<void> updateRecurringTransaction(RecurringTransactionModel transaction) async {
     try {
       debugPrint('Updating recurring_transactions');
       // Update transaction in Firestore
