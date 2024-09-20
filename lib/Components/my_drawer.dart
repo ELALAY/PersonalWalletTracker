@@ -8,7 +8,9 @@ import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
 import 'package:personalwallettracker/Screens/profile_screen.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
+import 'package:personalwallettracker/Screens/transaction/recurring_transactions_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import '../Models/card_model.dart';
 import '../services/auth/auth_service.dart';
 import '../services/auth/login_register_screen.dart';
 import '../Utils/globals.dart';
@@ -16,7 +18,12 @@ import '../Utils/globals.dart';
 class MyDrawer extends StatefulWidget {
   final User user;
   final Person personProfile;
-  const MyDrawer({super.key, required this.user, required this.personProfile});
+  final List<CardModel> myCards;
+  const MyDrawer(
+      {super.key,
+      required this.user,
+      required this.personProfile,
+      required this.myCards});
 
   @override
   State<MyDrawer> createState() => _MyDrawerState();
@@ -124,6 +131,7 @@ class _MyDrawerState extends State<MyDrawer> {
                             color: Colors.black,
                           ),
                   ),
+
                   /// Reload
                   MyListTile(
                     icon: const Icon(Icons.refresh),
@@ -151,12 +159,11 @@ class _MyDrawerState extends State<MyDrawer> {
                       icon: const Icon(Icons.payment_outlined),
                       tileTitle: 'My Cards',
                       onTap: navUserCardsScreen),
-                 /* // Onboarding screen
+                  // Recurring Transactions
                   MyListTile(
-                      icon: const Icon(Icons.start_outlined),
-                      tileTitle: 'Onboarding',
-                      onTap: navOnboardingScreen),
-                  */
+                      icon: const Icon(Icons.history),
+                      tileTitle: 'Recurring Transactions',
+                      onTap: navRecurringTransactionScreen),
                 ],
               ),
             ),
@@ -183,6 +190,16 @@ class _MyDrawerState extends State<MyDrawer> {
         ],
       ),
     );
+  }
+
+  void navRecurringTransactionScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return RecurringTransactionsScreen(
+        user: widget.user,
+        personProfile: widget.personProfile,
+        myCards: widget.myCards,
+      );
+    }));
   }
 
   void navProfile() {
@@ -214,7 +231,9 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void navUserCardsScreen() async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return  CardListScreen(currency: widget.personProfile.default_currency,);
+      return CardListScreen(
+        currency: widget.personProfile.default_currency,
+      );
     }));
   }
 

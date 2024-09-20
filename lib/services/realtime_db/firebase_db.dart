@@ -45,7 +45,7 @@ class FirebaseDB {
       debugPrint('Error fetching cards: $e');
       rethrow;
     }
-  } 
+  }
 
   // Fetch cards where ownerId matches the given user ID
   Future<List<CardModel>> getUserCards(String uid) async {
@@ -672,23 +672,100 @@ class FirebaseDB {
     await _firestore.collection('goals').doc(goal.id).delete();
   }
 
-  Future<void> addFieldToAllRecords() async {
+//--------------------------------------------------------------------------------------
+//********  Recurring Transaction Functions**********/
+//--------------------------------------------------------------------------------------
+  // Fetch recurring_transactions by ownerId
+  Future<List<TransactionModel>> fetchUserRecurringTransactions(String cardId) async {
     try {
-      // Fetch all documents in the collection
-      QuerySnapshot querySnapshot =
-          await _firestore.collection('cards').get();
-
-      // Iterate through each document
-      for (DocumentSnapshot docSnapshot in querySnapshot.docs) {
-        // Add the new field to each document
-        await _firestore.collection('cards').doc(docSnapshot.id).update({
-          'isArchived': false,
-        });
-      }
-
-      debugPrint("Field added successfully to all records.");
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('recurring_transactions')
+          .where('ownerId', isEqualTo: cardId)
+          .get();
+      return querySnapshot.docs
+          .map((doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
     } catch (e) {
-      debugPrint("Error updating documents: $e");
+      debugPrint('Error fetching recurring transactions by ownerId: $e');
+      rethrow;
+    }
+  }
+  
+  // Fetch all recurring_transactions
+  Future<List<TransactionModel>> fetchRecurringTransactions() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _firestore.collection('recurring_transactions').get();
+      return querySnapshot.docs
+          .map((doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching recurring transactions: $e');
+      rethrow;
+    }
+  }
+  
+  // Add a new recurring_transactions with auto-generated ID
+  Future<bool> addRecurringTransaction(TransactionModel transaction) async {
+    try {
+      await _firestore.collection('recurring_transactions').add(transaction.toMap());
+      return true;
+    } catch (e) {
+      debugPrint('Error adding transaction: $e');
+      return false;
+    }
+  }
+
+  //delete recurring_transactions by ID
+  Future<bool> deleteRecurringTransaction(TransactionModel transaction) async {
+    try {
+      // Fetch transactions associated with the card
+      await _firestore.collection('recurring_transactions').doc(transaction.id).delete();
+      return true;
+    } catch (e) {
+      debugPrint('Error deleting recurring_transactions: $e');
+      return false;
+    }
+  }
+
+  // fetch transaction by ID
+  Future<TransactionModel> getRecurringTransactionById(String transactionId) async {
+    if (transactionId.isNotEmpty) {
+      try {
+        debugPrint('fetching recurring_transactions $transactionId');
+        DocumentSnapshot doc = await _firestore
+            .collection('recurring_transactions')
+            .doc(transactionId)
+            .get();
+        if (doc.exists) {
+          return TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>, doc.id);
+        } else {
+          throw Exception('recurring_transactions not found');
+        }
+      } catch (e) {
+        throw Exception('Error fetching recurring_transactions: $e');
+      }
+    } else {
+      throw Exception('recurring_transactions ID cannot be empty');
+    }
+  }
+
+  // Update an existing recurring_transactions
+  Future<void> updateRecurringTransaction(TransactionModel transaction) async {
+    try {
+      debugPrint('Updating recurring_transactions');
+      // Update transaction in Firestore
+      await _firestore
+          .collection('recurring_transactions')
+          .doc(transaction.id)
+          .update(transaction.toMap());
+
+      debugPrint('recurring_transactions updated successfully');
+    } catch (e) {
+      debugPrint('Error updating recurring_transactions: ${e.toString()}');
     }
   }
 }

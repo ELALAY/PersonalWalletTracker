@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       drawer: user != null && personProfile != null
-          ? MyDrawer(user: user!, personProfile: personProfile!)
+          ? MyDrawer(user: user!, personProfile: personProfile!, myCards: myCards,)
           : null,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

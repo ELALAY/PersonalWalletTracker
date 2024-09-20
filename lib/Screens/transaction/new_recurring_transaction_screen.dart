@@ -1,4 +1,5 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
@@ -9,29 +10,44 @@ import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
+import '../../Models/person_model.dart';
 import '../../Utils/globals.dart';
 import '../categories/create_category_screen.dart';
 
-class AddTransactionScreen extends StatefulWidget {
-  final CardModel card;
-  const AddTransactionScreen({super.key, required this.card});
+class AddRecurringTransactionScreen extends StatefulWidget {
+  final List<CardModel> myCards;
+  final User user;
+  final Person personProfile;
+  const AddRecurringTransactionScreen(
+      {super.key,
+      required this.user,
+      required this.personProfile,
+      required this.myCards});
 
   @override
-  AddTransactionScreenState createState() => AddTransactionScreenState();
+  AddRecurringTransactionScreenState createState() =>
+      AddRecurringTransactionScreenState();
 }
 
-class AddTransactionScreenState extends State<AddTransactionScreen> {
+class AddRecurringTransactionScreenState
+    extends State<AddRecurringTransactionScreen> {
   final FirebaseDB _firebaseDB = FirebaseDB();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _intervalController = TextEditingController();
   DateTime selectedDate = DateTime.now();
   List<CategoryModel> _categories = [];
   String? _selectedCategory;
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
   String selectedCardType = 'visa';
+  // recurring settings
+  String? _selectedRecurrenceType;
+  bool isRecurring = true;
+  // card selection
+  CardModel? selectedCard;
 
   @override
   void initState() {
@@ -65,8 +81,8 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       try {
         TransactionModel transaction = TransactionModel(
-          cardId: widget.card.id,
-          cardName: widget.card.cardName,
+          cardId: widget.myCards[0].id,
+          cardName: widget.myCards[0].cardName,
           amount: double.parse(_amountController.text),
           category: _selectedCategory.toString(),
           date: selectedDate,
@@ -78,7 +94,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
           double amount = isExpense ? -transaction.amount : transaction.amount;
           debugPrint(amount.toString());
           _firebaseDB.updateCardBalance(
-              widget.card.id, widget.card.balance + amount);
+              widget.myCards[0].id, widget.myCards[0].balance + amount);
           debugPrint('updated card balance!');
           showSuccessSnachBar('Transaction Created!');
           // ignore: use_build_context_synchronously
@@ -131,38 +147,84 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         foregroundColor: Colors.grey,
+        actions: [
+          // isRecurring
+          Row(
+            children: [
+              Text('Recurring',
+                  style: TextStyle(
+                      color: isRecurring ? Colors.deepPurple : Colors.grey)),
+              Switch(
+                value: isRecurring,
+                onChanged: (value) {
+                  setState(() {
+                    isRecurring = value;
+                  });
+                },
+                activeColor: Colors.deepPurple,
+              ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoadingCategories
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator(color: Colors.deepPurple,))
             : SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Column(
-                      children: [
-                        Icon(
-                          Icons.money_rounded,
-                          size: 70,
-                          color: Color(widget.card.color),
-                        ),
-                        const SizedBox(
-                          height: 10.0,
-                        ),
-                        widget.card.cardName.isNotEmpty
-                            ? Text(widget.card.cardName)
-                            : const Text('Loading card information...'),
-                      ],
-                    ),
                     const SizedBox(
-                      height: 15.0,
+                      height: 50.0,
                     ),
                     Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Card Selector
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: DropdownButtonFormField<CardModel>(
+                              value: widget.myCards[0],
+                              icon: const Icon(
+                                Icons.payment_outlined,
+                                color: Colors.deepPurple,
+                              ),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    selectedCard = value;
+                                  });
+                                }
+                              },
+                              decoration: const InputDecoration(
+                                labelText: 'Card',
+                                labelStyle: TextStyle(color: Colors.deepPurple),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color:
+                                        Colors.deepPurple, // Deep Purple border
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    width: 1.0,
+                                    color: Colors
+                                        .deepPurple, // Deep Purple focused border
+                                  ),
+                                ),
+                              ),
+                              items: [
+                                ...widget.myCards
+                                    .map((card) => DropdownMenuItem<CardModel>(
+                                          value: card,
+                                          child: Text(card.cardName),
+                                        )),
+                              ],
+                            ),
+                          ),
                           // Amount
                           MyNumberField(
                               controller: _amountController,
@@ -290,7 +352,71 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 20,),
+                          // Recurrance Type
+                          if (isRecurring)
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: DropdownButtonFormField<String>(
+                                      value: _selectedRecurrenceType,
+                                      icon: const Icon(
+                                        Icons.type_specimen,
+                                        color: Colors.deepPurple,
+                                      ),
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          setState(() {
+                                            _selectedRecurrenceType = value;
+                                          });
+                                        }
+                                      },
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.deepPurple),
+                                        ),
+                                        labelText: 'Recurrence Type',
+                                        labelStyle:
+                                            TextStyle(color: Colors.deepPurple),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.deepPurple),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.deepPurple),
+                                        ),
+                                      ),
+                                      items: [
+                                        'None',
+                                        'Daily',
+                                        'Weekly',
+                                        'Monthly',
+                                        'Yearly'
+                                      ]
+                                          .map((type) => DropdownMenuItem(
+                                                value: type,
+                                                child: Text(
+                                                    type), //, style: const TextStyle(color: Colors.deepPurple),),
+                                              ))
+                                          .toList(),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: MyNumberField(
+                                      controller: _intervalController,
+                                      label: 'Interval',
+                                      color: Colors.deepPurple,
+                                      enabled: true),
+                                )
+                              ],
+                            ),
+                          const SizedBox(
+                            height: 20,
+                          ),
                           // save transaction
                           MyButton(
                               label: 'Save transaction',
