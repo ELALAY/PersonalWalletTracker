@@ -297,25 +297,35 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                   // Summary Section
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    'Total Income: ${totalIncome.toStringAsFixed(2)} ${widget.currency}',
+                                    style: const TextStyle(color: Colors.green)),
+                                const SizedBox(height: 4.0),
+                                Text(
+                                    'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ${widget.currency}',
+                                    style: const TextStyle(color: Colors.red)),
+                              ],
+                            ),
                             Text(
-                                'Total Income: ${totalIncome.toStringAsFixed(2)} ${widget.currency}',
-                                style: const TextStyle(color: Colors.green)),
-                            const SizedBox(height: 4.0),
-                            Text(
-                                'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ${widget.currency}',
-                                style: const TextStyle(color: Colors.red)),
-                          ],
+                                'Net Balance: ${(totalIncome - totalExpenses).toStringAsFixed(2)} ${widget.currency}',
+                                style:
+                                    const TextStyle(fontWeight: FontWeight.bold)),
+                          ],                          
                         ),
-                        Text(
-                            'Net Balance: ${(totalIncome - totalExpenses).toStringAsFixed(2)} ${widget.currency}',
+                        const SizedBox(height: 8.0,),
+                        const Text(
+                            '* isRecurring transaction',
                             style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
+                                TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -376,7 +386,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                             child: ListTile(
                               tileColor: Colors.grey.shade300,
                               title: Text(
-                                transaction.description,
+                                "${transaction.description} ${transaction.isRecurring ? '*' : ''}",
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),

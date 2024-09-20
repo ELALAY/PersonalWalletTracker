@@ -87,7 +87,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
 
         if (mounted) {
           showSuccessSnachBar('transaction Updated');
-          
+
           Navigator.pop(context); // Go back after adding transaction
         }
       } catch (e) {
@@ -319,7 +319,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                             ),
                           ),
                           const SizedBox(height: 16.0),
-                          //Income or Expense = isExpense`
+                          // isExpense ? Expense : Income
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -340,7 +340,26 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                                   style: TextStyle(color: Colors.deepPurple))
                             ],
                           ),
+                          // isRecurring ? Recurring : NotRecurring
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Text('isRecurring',
+                                  style: TextStyle(color: Colors.deepPurple)),
+                              const SizedBox(width: 20.0),
+                              Switch(
+                                value: widget.transaction.isRecurring,
+                                onChanged: (value) {
+                                  // setState(() {
+                                  //   isExpense = value;
+                                  // });
+                                },
+                                activeColor: Colors.deepPurple,
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 16.0),
+
                           Center(
                             child: ElevatedButton(
                               onPressed:
