@@ -13,7 +13,6 @@ import '../Models/card_model.dart';
 import '../Screens/transaction/recurring_transactions/recurring_transactions_screen.dart';
 import '../services/auth/auth_service.dart';
 import '../services/auth/login_register_screen.dart';
-import '../Utils/globals.dart';
 
 class MyDrawer extends StatefulWidget {
   final User user;
@@ -66,7 +65,6 @@ class _MyDrawerState extends State<MyDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: darkTheme ? Colors.grey.shade600 : Colors.grey.shade100,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -147,10 +145,10 @@ class _MyDrawerState extends State<MyDrawer> {
               ),
             ),
             child: ListTile(
-              title: Text(
+              title: const Text(
                 'Logout',
                 style: TextStyle(
-                  color: darkTheme ? Colors.white : Colors.black,
+                  color:  Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
               ),

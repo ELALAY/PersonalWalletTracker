@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:personalwallettracker/Utils/globals.dart';
 
 class MyCard extends StatefulWidget {
   final bool isArchived;
@@ -38,9 +37,8 @@ class _MyCardState extends State<MyCard> {
         decoration: BoxDecoration(
           color: widget.isArchived ? Colors.black : widget.color,
           borderRadius: BorderRadius.circular(16),
-          boxShadow:[ darkTheme ? 
-            const BoxShadow(color: Colors.black, spreadRadius: 2, blurRadius: 2):
-            const BoxShadow(color: Colors.grey, spreadRadius: 2, blurRadius: 2),
+          boxShadow: const [
+            BoxShadow(color: Colors.grey, spreadRadius: 2, blurRadius: 2),
           ],
         ),
         child: Column(
@@ -63,15 +61,22 @@ class _MyCardState extends State<MyCard> {
             const SizedBox(height: 10.0),
             Text(
               '${widget.balance.toStringAsFixed(2)} ${widget.currency}',
-              style:  TextStyle(fontSize: 30, color: Colors.white, decoration: widget.isArchived
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,),
+              style: TextStyle(
+                fontSize: 30,
+                color: Colors.white,
+                decoration: widget.isArchived
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none,
+              ),
             ),
             Text(
               widget.cardName,
-              style: TextStyle(color: Colors.white, decoration: widget.isArchived
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,),
+              style: TextStyle(
+                color: Colors.white,
+                decoration: widget.isArchived
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
             Row(

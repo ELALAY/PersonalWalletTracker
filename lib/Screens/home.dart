@@ -16,7 +16,6 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Components/my_card.dart';
 import '../services/realtime_db/firebase_db.dart';
-import '../Utils/globals.dart';
 import 'card/edit_card_screen.dart';
 import 'card/new_card_screen.dart';
 import 'goal/goals_screen.dart';
@@ -97,7 +96,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkTheme ? Colors.black : Colors.white,
       appBar: AppBar(
         title: const Text('My Cards'),
         backgroundColor: Colors.transparent,

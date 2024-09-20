@@ -30,20 +30,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text('Settings'),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        foregroundColor: darkTheme ? Colors.white : Colors.grey,
+        foregroundColor: Colors.grey,
       ),
       body: Column(
         children: [
-         const SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           // Cards
           ListTile(
             title: const Text('My Cards'),
             leading: const Icon(Icons.payment_outlined),
             trailing: const Icon(Icons.arrow_forward_ios),
-            tileColor: darkTheme ? Colors.grey : Colors.grey.shade200,
+            tileColor: Colors.grey.shade200,
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return CardListScreen(currency: widget.person.default_currency,);
+                return CardListScreen(
+                  currency: widget.person.default_currency,
+                );
               }));
             },
           ),
@@ -81,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void updateUserCurrency(){
+  void updateUserCurrency() {
     try {
       firebaseDB.updateUserCurrency(widget.person.id, selectedCurrency);
       showInfoSnachBar('You might need to RELOAD!');

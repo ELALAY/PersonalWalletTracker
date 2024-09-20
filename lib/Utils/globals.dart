@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-bool darkTheme = false;
-
 // globals.dart
 List<String> currencies = ['MAD', 'USD', 'EUR', 'GBP', 'JPY', 'CAD']; // Add your desired currencies
 String selectedCurrency = 'USD'; // Default currency
-
 
 //allowed colors
 final List<Color> colorOptions = [

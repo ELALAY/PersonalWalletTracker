@@ -10,7 +10,6 @@ import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
 import 'package:personalwallettracker/services/auth/register_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
-import '../../Utils/globals.dart';
 import 'auth_service.dart';
 
 class LoginOrRegister extends StatefulWidget {
@@ -127,7 +126,6 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      backgroundColor: darkTheme ? Colors.black : Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(
