@@ -1,15 +1,18 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
+import 'package:personalwallettracker/Components/my_tiles/my_list_tile.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/new_transaction_screen.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_image_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
+import 'package:personalwallettracker/Screens/transaction/recurring_transactions/recurring_transactions_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
 import 'package:personalwallettracker/Screens/transaction/transfer_money.dart';
@@ -17,6 +20,7 @@ import 'package:personalwallettracker/services/auth/auth_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Components/my_card.dart';
+import '../Utils/globals.dart';
 import '../services/realtime_db/firebase_db.dart';
 import 'card/edit_card_screen.dart';
 import 'card/new_card_screen.dart';
@@ -46,7 +50,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     fetchUserAndCards();
-    checkUncreatedRecurringTransactions();
     isLoading = false;
   }
 
@@ -62,7 +65,6 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     });
-    checkUncreatedRecurringTransactions();
     debugPrint('reloaded');
     isLoading = false;
   }
@@ -91,6 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
           myCards = cards;
           isLoading = false;
         });
+
+        checkUncreatedRecurringTransactions();
       } else {
         debugPrint('User not found');
       }
@@ -112,10 +116,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
       for (var transaction in recurringTransactions) {
         if (!transaction.isArchived) {
-          // Check if the transaction has already been created this month
-          if (DateFormat('yyyyMM').format(transaction.date) !=
+          // Check if the recurring transaction next month is today's month
+          if (DateFormat('yyyyMM').format(transaction.date) ==
               currentMonthYear) {
-            // This means the transaction hasn't been created this month yet
             // Handle recurring transaction for today (e.g., monthly)
             uncreatedTransactionstemp.add(transaction);
           }
@@ -124,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       setState(() {
         uncreatedTransactions = uncreatedTransactionstemp;
+        debugPrint('ucreated rec transactions: ${uncreatedTransactions.length.toString()}');
       });
     } else {
       debugPrint('No User Found!');
@@ -145,10 +149,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.grey)),
           uncreatedTransactions.isNotEmpty
               ? IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.notifications_active))
+                  onPressed: showUncreatedRecurringTransactions,
+                  icon: const Icon(
+                    Icons.notifications_active,
+                    color: Colors.deepOrange,
+                  ))
               : IconButton(
-                  onPressed: () {},
+                  onPressed: showUncreatedRecurringTransactions,
                   icon: const Icon(Icons.notifications_outlined))
         ],
       ),
@@ -339,6 +346,51 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void showUncreatedRecurringTransactions() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.deepOrange,
+          title: const Text(
+            'Notifications',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (uncreatedTransactions.isNotEmpty)
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.deepOrange.shade200,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: ListTile(
+                      leading: const Text(
+                        'Check Recurring Transactions',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 15),
+                      ),
+                      trailing: const Icon(
+                        Icons.history,
+                        color: Colors.white,
+                      ),
+                      onTap:
+                          newRecurringTransactionsScreen, // Here the function is being called
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void updateCardbalance(double newAmount) async {
     String cardId = myCards[pageIndex].id;
     CardModel card = await firebaseDatabasehelper.getCardById(cardId);
@@ -350,6 +402,16 @@ class _MyHomePageState extends State<MyHomePage> {
       return NewCardScreen(
         user: user!,
         personProfile: personProfile!,
+      );
+    }));
+  }
+
+  void newRecurringTransactionsScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return RecurringTransactionsScreen(
+        user: user!,
+        personProfile: personProfile!,
+        myCards: myCards,
       );
     }));
   }

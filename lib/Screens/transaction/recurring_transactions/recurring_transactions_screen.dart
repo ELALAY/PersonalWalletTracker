@@ -76,7 +76,6 @@ class _RecurringTransactionsScreenState
 
     setState(() {
       transactions = transactionstemp;
-      isLoading = false;
     });
   }
 
@@ -104,7 +103,6 @@ class _RecurringTransactionsScreenState
                       BoxDecoration(borderRadius: BorderRadius.circular(12)),
                   child: Slidable(
                     key: const ValueKey(0),
-
                     // The start action pane is the one at the left or the top side.
                     startActionPane: ActionPane(
                       // A motion is a widget used to control how the pane animates.
@@ -124,7 +122,6 @@ class _RecurringTransactionsScreenState
                         ),
                       ],
                     ),
-
                     // The start action pane is the one at the left or the top side.
                     endActionPane: ActionPane(
                       // A motion is a widget used to control how the pane animates.
@@ -227,7 +224,7 @@ class _RecurringTransactionsScreenState
               description: transaction.description,
               isExpense: transaction.isExpense);
           await firebaseDB.updateRecurringTransaction(newRec);
-          
+
           // then reload the recurring transactions
           reload();
 
