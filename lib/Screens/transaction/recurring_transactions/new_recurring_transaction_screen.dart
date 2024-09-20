@@ -8,12 +8,10 @@ import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
-import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
 
-import '../../Models/person_model.dart';
-import '../../Utils/globals.dart';
-import '../categories/create_category_screen.dart';
+import '../../../Models/person_model.dart';
+import '../../../Utils/globals.dart';
 
 class AddRecurringTransactionScreen extends StatefulWidget {
   final List<CardModel> myCards;
@@ -42,9 +40,6 @@ class AddRecurringTransactionScreenState
   String? _selectedCategory;
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
-  String selectedCardType = 'visa';
-  // card selection
-  CardModel? selectedCard;
 
   @override
   void initState() {
@@ -78,21 +73,16 @@ class AddRecurringTransactionScreenState
     if (_formKey.currentState?.validate() ?? false) {
       try {
         bool created = false;
-        if (selectedCard != null) {
-          RecurringTransactionModel transaction = RecurringTransactionModel(
-            cardId: selectedCard!.id,
-            ownerId: widget.user.uid,
-            amount: double.parse(_amountController.text),
-            category: _selectedCategory.toString(),
-            date: selectedDate,
-            description: _descriptionController.text,
-            isExpense: isExpense,
-          );
-          created = await _firebaseDB.addRecurringTransaction(transaction);
-        } else {
-          created = false;
-          showErrorSnachBar("Couldn't load card!");
-        }
+        RecurringTransactionModel transaction = RecurringTransactionModel(
+          ownerId: widget.user.uid,
+          amount: double.parse(_amountController.text),
+          category: _selectedCategory.toString(),
+          date: selectedDate,
+          description: _descriptionController.text,
+          isExpense: isExpense,
+        );
+        created = await _firebaseDB.addRecurringTransaction(transaction);
+
         if (created) {
           showSuccessSnachBar('Transaction Created!');
           // ignore: use_build_context_synchronously
@@ -165,48 +155,6 @@ class AddRecurringTransactionScreenState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Card Selector
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: DropdownButtonFormField<CardModel>(
-                              value: widget.myCards[0],
-                              icon: const Icon(
-                                Icons.payment_outlined,
-                                color: Colors.deepPurple,
-                              ),
-                              onChanged: (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    selectedCard = value;
-                                  });
-                                }
-                              },
-                              decoration: const InputDecoration(
-                                labelText: 'Card',
-                                labelStyle: TextStyle(color: Colors.deepPurple),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color:
-                                        Colors.deepPurple, // Deep Purple border
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    width: 1.0,
-                                    color: Colors
-                                        .deepPurple, // Deep Purple focused border
-                                  ),
-                                ),
-                              ),
-                              items: [
-                                ...widget.myCards
-                                    .map((card) => DropdownMenuItem<CardModel>(
-                                          value: card,
-                                          child: Text(card.cardName),
-                                        )),
-                              ],
-                            ),
-                          ),
                           // Amount
                           MyNumberField(
                               controller: _amountController,

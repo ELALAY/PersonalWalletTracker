@@ -1,7 +1,6 @@
 class RecurringTransactionModel {
   final String id;
   final String ownerId;
-  final String cardId;
   final double amount;
   final String description;
   final String category;
@@ -16,7 +15,6 @@ class RecurringTransactionModel {
 
   RecurringTransactionModel({
     required this.ownerId,
-    required this.cardId,
     required this.amount,
     required this.category,
     required this.date,
@@ -28,7 +26,6 @@ class RecurringTransactionModel {
   RecurringTransactionModel.withId({
     required this.id,
     required this.ownerId,
-    required this.cardId,
     required this.amount,
     required this.category,
     required this.date,
@@ -40,7 +37,6 @@ class RecurringTransactionModel {
   Map<String, dynamic> toMap() {
     return {
       'ownerId': ownerId,
-      'cardId': cardId,
       'amount': amount,
       'category': category,
       'date': date.toIso8601String(),
@@ -54,7 +50,6 @@ class RecurringTransactionModel {
     return RecurringTransactionModel.withId(
       id: id,
       ownerId: map['ownerId'],
-      cardId: map['cardId'],
       amount: map['amount'],
       category: map['category'],
       date: DateTime.parse(map['date']),
