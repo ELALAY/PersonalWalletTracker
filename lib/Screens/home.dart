@@ -1,11 +1,9 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
-import 'package:personalwallettracker/Components/my_tiles/my_list_tile.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
@@ -20,7 +18,6 @@ import 'package:personalwallettracker/services/auth/auth_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../Components/my_card.dart';
-import '../Utils/globals.dart';
 import '../services/realtime_db/firebase_db.dart';
 import 'card/edit_card_screen.dart';
 import 'card/new_card_screen.dart';
@@ -391,6 +388,16 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void newRecurringTransactionsScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return RecurringTransactionsScreen(
+        user: user!,
+        personProfile: personProfile!,
+        myCards: myCards,
+      );
+    }));
+  }
+  
   void updateCardbalance(double newAmount) async {
     String cardId = myCards[pageIndex].id;
     CardModel card = await firebaseDatabasehelper.getCardById(cardId);
@@ -402,16 +409,6 @@ class _MyHomePageState extends State<MyHomePage> {
       return NewCardScreen(
         user: user!,
         personProfile: personProfile!,
-      );
-    }));
-  }
-
-  void newRecurringTransactionsScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return RecurringTransactionsScreen(
-        user: user!,
-        personProfile: personProfile!,
-        myCards: myCards,
       );
     }));
   }

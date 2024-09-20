@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
@@ -79,6 +80,49 @@ class _RecurringTransactionsScreenState
     });
   }
 
+  void showUncreatedRecurringTransactions() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.deepOrange,
+          title: const Text(
+            'Notifications',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (transactions.isNotEmpty)
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.deepOrange.shade200,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: ListTile(
+                        leading: const Text(
+                          'Check Recurring Transactions',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 15),
+                        ),
+                        trailing: const Icon(
+                          Icons.history,
+                          color: Colors.white,
+                        ),
+                        onTap: () {}),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,97 +131,121 @@ class _RecurringTransactionsScreenState
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
         elevation: 0.0,
+        actions: [
+          transactions.isNotEmpty
+              ? IconButton(
+                  onPressed: showUncreatedRecurringTransactions,
+                  icon: const Icon(
+                    Icons.notifications_active,
+                    color: Colors.deepOrange,
+                  ))
+              : IconButton(
+                  onPressed: showUncreatedRecurringTransactions,
+                  icon: const Icon(Icons.notifications_outlined))
+        ],
       ),
       body: isLoading
           ? const Center(
               child: CircularProgressIndicator(color: Colors.deepPurple),
             )
-          : ListView.builder(
-              itemCount: transactions.length,
-              itemBuilder: (context, index) {
-                final transaction = transactions[index];
-                // return MyTransactionTile(transaction: transaction);
-                return Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(12)),
-                  child: Slidable(
-                    key: const ValueKey(0),
-                    // The start action pane is the one at the left or the top side.
-                    startActionPane: ActionPane(
-                      // A motion is a widget used to control how the pane animates.
-                      motion: const StretchMotion(),
+          : LiquidPullToRefresh(
+              onRefresh: () async {
+                debugPrint('reloading...');
+                reload();
+                debugPrint('reloaded!');
+              },
+              backgroundColor: Colors.deepPurple.shade200,
+              showChildOpacityTransition: false,
+              color: Colors.deepPurple,
+              height: 100.0,
+              animSpeedFactor: 1,
+              child: ListView.builder(
+                itemCount: transactions.length,
+                itemBuilder: (context, index) {
+                  final transaction = transactions[index];
+                  // return MyTransactionTile(transaction: transaction);
+                  return Container(
+                    padding: const EdgeInsets.all(8.0),
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                    child: Slidable(
+                      key: const ValueKey(0),
+                      // The start action pane is the one at the left or the top side.
+                      startActionPane: ActionPane(
+                        // A motion is a widget used to control how the pane animates.
+                        motion: const StretchMotion(),
 
-                      // All actions are defined in the children parameter.
-                      children: [
-                        // A SlidableAction can have an icon and/or a label.
-                        SlidableAction(
-                          onPressed: (context) {
-                            deleteTransaction(transaction);
-                          },
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          icon: Icons.delete_forever_outlined,
-                          label: 'Delete',
-                        ),
-                      ],
-                    ),
-                    // The start action pane is the one at the left or the top side.
-                    endActionPane: ActionPane(
-                      // A motion is a widget used to control how the pane animates.
-                      motion: const StretchMotion(),
-
-                      // All actions are defined in the children parameter.
-                      children: [
-                        // A SlidableAction can have an icon and/or a label.
-                        SlidableAction(
-                          onPressed: (context) {
-                            editRecurringTransaction(transaction);
-                          },
-                          backgroundColor:
-                              const Color.fromARGB(255, 192, 174, 174),
-                          foregroundColor: Colors.white,
-                          icon: Icons.edit,
-                          label: 'Edit',
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      tileColor: Colors.grey.shade300,
-                      title: Row(
+                        // All actions are defined in the children parameter.
                         children: [
-                          Text(
-                            transaction.description,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            '    ${transaction.isExpense ? '-' : '+'} ${transaction.amount.abs().toStringAsFixed(2)} ${widget.personProfile.default_currency}',
-                            style: TextStyle(
-                                color: transaction.isExpense
-                                    ? Colors.red
-                                    : Colors.green,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15),
+                          // A SlidableAction can have an icon and/or a label.
+                          SlidableAction(
+                            onPressed: (context) {
+                              deleteTransaction(transaction);
+                            },
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete_forever_outlined,
+                            label: 'Delete',
                           ),
                         ],
                       ),
-                      subtitle: Text(
-                          '${formatDate(transaction.date)} - ${transaction.category}'),
-                      leading: SizedBox(
-                          height: 35.0,
-                          child: categoryIcon(transaction.category)),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.add_outlined,
-                            color: Colors.deepPurple),
-                        onPressed: () {
-                          addRecurringTransactionDialog(transaction);
-                        },
+                      // The start action pane is the one at the left or the top side.
+                      endActionPane: ActionPane(
+                        // A motion is a widget used to control how the pane animates.
+                        motion: const StretchMotion(),
+
+                        // All actions are defined in the children parameter.
+                        children: [
+                          // A SlidableAction can have an icon and/or a label.
+                          SlidableAction(
+                            onPressed: (context) {
+                              editRecurringTransaction(transaction);
+                            },
+                            backgroundColor:
+                                const Color.fromARGB(255, 192, 174, 174),
+                            foregroundColor: Colors.white,
+                            icon: Icons.edit,
+                            label: 'Edit',
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        tileColor: Colors.grey.shade300,
+                        title: Row(
+                          children: [
+                            Text(
+                              transaction.description,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '    ${transaction.isExpense ? '-' : '+'} ${transaction.amount.abs().toStringAsFixed(2)} ${widget.personProfile.default_currency}',
+                              style: TextStyle(
+                                  color: transaction.isExpense
+                                      ? Colors.red
+                                      : Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15),
+                            ),
+                          ],
+                        ),
+                        subtitle: Text(
+                            '${formatDate(transaction.date)} - ${transaction.category}'),
+                        leading: SizedBox(
+                            height: 35.0,
+                            child: categoryIcon(transaction.category)),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.add_outlined,
+                              color: Colors.deepPurple),
+                          onPressed: () {
+                            addRecurringTransactionDialog(transaction);
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
