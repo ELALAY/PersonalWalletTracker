@@ -24,8 +24,7 @@ class _EditCategoryState extends State<EditCategory> {
   void initState() {
     super.initState();
     // Initialize with existing card details
-    newCategoryController =
-        TextEditingController(text: widget.category.name);
+    newCategoryController = TextEditingController(text: widget.category.name);
     _selectedIcon = widget.category.iconName;
   }
 
@@ -93,18 +92,50 @@ class _EditCategoryState extends State<EditCategory> {
               },
             ),
           ),
-          MyButton(label: 'save', onTap: saveCategory),
+          MyButton(label: 'save', onTap: _showAlertDialogue),
         ],
       ),
+    );
+  }
+
+  void _showAlertDialogue() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Warning!'),
+          content: const Text('Updating a category may affect transactions!'),
+          actions: [
+            Row(
+              children: [
+                MyButton(
+                    label: 'Cancel',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    }),
+                MyButton(
+                    label: 'Submit',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      saveCategory();
+                    }),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
   Future<void> saveCategory() async {
     try {
       if (newCategoryController.text.isNotEmpty) {
-        CategoryModel category =
-            CategoryModel.withId(id: widget.category.id,name: newCategoryController.text, iconName: _selectedIcon);
-        await firebaseDatabasehelper.updateCategory(category);
+        CategoryModel category = CategoryModel.withId(
+            id: widget.category.id,
+            name: newCategoryController.text,
+            iconName: _selectedIcon);
+        await firebaseDatabasehelper.updateCategory(
+            widget.category.name, category);
         showSuccessSnachBar('Category updated successfully!');
         // ignore: use_build_context_synchronously
         Navigator.pop(context);

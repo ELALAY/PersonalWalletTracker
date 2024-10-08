@@ -500,13 +500,28 @@ class FirebaseDB {
   }
 
   //update category
-  Future<void> updateCategory(CategoryModel category) async {
+  Future<void> updateCategory(
+      String oldCategory, CategoryModel newCategory) async {
     try {
+      // Update transactions of category to new category
+      debugPrint('old: $oldCategory, New: ${newCategory.name}');
+      List<TransactionModel> transactions =
+          await fetchTransactionsByCategory(oldCategory);
+      debugPrint('transactions: ${transactions.length}');
+
+      if (transactions.isNotEmpty) {
+        for (TransactionModel transaction in transactions) {
+          debugPrint('${transaction.category} to ${newCategory.name}');
+          _firestore.collection('transactions').doc(transaction.id).update({
+            'category': newCategory.name,
+          });
+        }
+      }
       // Update transaction in Firestore
       await _firestore
           .collection('categories')
-          .doc(category.id)
-          .update(category.toMap());
+          .doc(newCategory.id)
+          .update(newCategory.toMap());
     } catch (e) {
       debugPrint('error updating category');
     }
@@ -516,12 +531,14 @@ class FirebaseDB {
   Future<void> deleteCategory(CategoryModel category) async {
     try {
       debugPrint('fetching transactions for ${category.name}');
-      //delete transactions of this categories
+      //update transactions of this category to 'other'
       List<TransactionModel> transactions =
           await fetchTransactionsByCategory(category.name);
       if (transactions.isNotEmpty) {
         for (TransactionModel transaction in transactions) {
-          await deleteTransaction(transaction);
+          _firestore.collection('transactions').doc(transaction.id).update({
+            'category': 'Other',
+          });
         }
       }
       //delete category
@@ -779,5 +796,4 @@ class FirebaseDB {
       debugPrint('Error updating recurring_transactions: ${e.toString()}');
     }
   }
-
 }
