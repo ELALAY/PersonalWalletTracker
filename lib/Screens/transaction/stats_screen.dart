@@ -110,6 +110,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       setState(() {
         _categoryTotals = totals;
         _spendingData = spendingData;
+        _isLoading = false;
       });
     } catch (e) {
       if (mounted) {
