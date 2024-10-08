@@ -13,8 +13,11 @@ class CategoryTransactions extends StatefulWidget {
   final String category;
   final CardModel card;
   final String currency;
+  final DateTime startDate;
+  final DateTime endDate;
   const CategoryTransactions(
-      {super.key, required this.category, required this.card, required this.currency});
+      {super.key, required this.category, required this.card, required this.currency,
+      required this.startDate, required this.endDate});
 
   @override
   State<CategoryTransactions> createState() => _CategoryTransactionsState();
@@ -33,8 +36,9 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
   @override
   void initState() {
     super.initState();
+    _startDate = widget.startDate;
+    _endDate = widget.endDate;
     fetchTransactions();
-
     _isLoading = false;
   }
 

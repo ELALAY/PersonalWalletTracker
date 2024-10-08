@@ -205,6 +205,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           card: card,
           category: category,
           currency: widget.currency,
+          startDate: _startDate!,
+          endDate: _endDate!,
         ); // replace with your settings screen
       }));
     } else {
