@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/edit_transaction_screen.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
@@ -45,6 +46,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   bool isLoading = true;
   //sorting choice: true => date, false => category
   bool _isSortedByNewest = true; // Default sorting by date
+  Map<String, CategoryModel> categories = {};
 
   String formatDate(DateTime date) {
     return DateFormat('dd/MM/yy').format(date);
@@ -105,12 +107,21 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     // Sort transactions from newest to oldest
     transactionstemp = _sortTransactions(transactionstemp);
 
+    Map<String, CategoryModel> catsMap = {};
+    List<CategoryModel> catslist = await firebaseDB.getCategories();
+
+    for (CategoryModel c in catslist) {
+      catsMap[c.name] = c;
+    }
+    debugPrint(catsMap.length.toString());
+
     if (mounted) {
       setState(() {
         transactions = transactionstemp;
         totalIncome = totalIncometemp;
         totalExpenses = totalExpensestemp;
         isLoading = false;
+        categories = catsMap;
       });
     }
   }
@@ -396,7 +407,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                                   '${formatDate(transaction.date)} - ${transaction.category}'),
                               leading: SizedBox(
                                   height: 35.0,
-                                  child: categoryIcon(transaction.category)),
+                                  child: categoryIcon(categories[transaction.category]?.iconName ?? 'other')),
                               trailing: Text(
                                 '${transaction.isExpense ? '-' : '+'} ${transaction.amount.abs().toStringAsFixed(2)} ${widget.currency}',
                                 style: TextStyle(

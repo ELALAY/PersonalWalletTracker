@@ -64,7 +64,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         final category = categories[index];
                         return Slidable(
                             key: const ValueKey(0),
-
+                            
                             // The start action pane is the one at the left or the top side.
                             startActionPane: ActionPane(
                               // A motion is a widget used to control how the pane animates.
@@ -117,11 +117,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 ),
               ],
             ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _createCategory,
-      //   backgroundColor: Colors.deepPurple,
-      //   child: const Icon(Icons.add),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _createCategory,
+        backgroundColor: Colors.deepPurple,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 

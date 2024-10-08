@@ -113,16 +113,6 @@ class _MyDrawerState extends State<MyDrawer> {
                     tileTitle: 'Profile',
                     onTap: navProfile,
                   ),
-                  // Categories Screen
-                  MyListTile(
-                      icon: const Icon(Icons.category_outlined),
-                      tileTitle: 'Categories',
-                      onTap: navCategoriesScreen),
-                  // Cards List Sreen
-                  MyListTile(
-                      icon: const Icon(Icons.payment_outlined),
-                      tileTitle: 'My Cards',
-                      onTap: navUserCardsScreen),
                   // Recurring Transactions
                   MyListTile(
                       icon: const Icon(Icons.history),

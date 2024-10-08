@@ -2,9 +2,9 @@ import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
-
 import '../Models/person_model.dart';
 import 'card/user_cards_screen.dart';
+import 'categories/catogories_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Person person;
@@ -35,21 +35,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Column(
         children: [
           const SizedBox(height: 20.0),
-          // Cards
-          ListTile(
-            title: const Text('My Cards'),
-            leading: const Icon(Icons.payment_outlined),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            tileColor: Colors.grey.shade200,
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return CardListScreen(
-                  currency: widget.person.default_currency,
-                );
-              }));
-            },
-          ),
-          const SizedBox(height: 20.0),
           // Currency Dropdown
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -78,9 +63,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 20.0),
+          // Cards
+          ListTile(
+            title: const Text('My Cards'),
+            leading: const Icon(Icons.payment_outlined),
+            trailing: const Icon(Icons.payment_outlined),
+            tileColor: Colors.grey.shade200,
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return CardListScreen(
+                  currency: widget.person.default_currency,
+                );
+              }));
+            },
+          ),
+          const SizedBox(height: 20.0),
+          // Categories
+          ListTile(
+            title: const Text('Categories'),
+            leading: const Icon(Icons.payment_outlined),
+            trailing: const Icon(Icons.category_outlined),
+            tileColor: Colors.grey.shade200,
+            onTap: navCategoriesScreen,
+          ),
+          const SizedBox(height: 20.0),
         ],
       ),
     );
+  }
+
+  void navCategoriesScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return const CategoriesScreen();
+    }));
   }
 
   void updateUserCurrency() {
