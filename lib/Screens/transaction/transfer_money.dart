@@ -11,7 +11,8 @@ import '../../services/realtime_db/firebase_db.dart';
 class TransferMoney extends StatefulWidget {
   final List<CardModel> myCards;
   final String currency;
-  const TransferMoney({super.key, required this.myCards, required this.currency});
+  const TransferMoney(
+      {super.key, required this.myCards, required this.currency});
 
   @override
   State<TransferMoney> createState() => _TransferMoneyState();
@@ -171,7 +172,10 @@ class _TransferMoneyState extends State<TransferMoney> {
                             showErrorSnachBar('Enter an amount!');
                           }
                         },
-                        sliderButtonIcon: const Icon(Icons.monetization_on_sharp, color: Colors.pink,),
+                        sliderButtonIcon: const Icon(
+                          Icons.monetization_on_sharp,
+                          color: Colors.pink,
+                        ),
                         borderRadius: 12.0,
                         text: '    Slide to transfer',
                         innerColor: Colors.white,
@@ -190,7 +194,10 @@ class _TransferMoneyState extends State<TransferMoney> {
       if (amount > 0 && sendCard.balance >= amount) {
         firebaseDatabasehelper.transferMoney(
             fromCard: sendCard, toCard: receiveCard, amount: amount);
-        showSuccessSnachBar('Transfer "${sendCard.cardName}" to "${receiveCard.cardName}" Completed!');
+        showSuccessSnachBar(
+            'Transfer "${sendCard.cardName}" to "${receiveCard.cardName}" Completed!');
+
+        Navigator.pop(context);
         return true;
       } else {
         showErrorSnachBar('Not enough funds on card!');
