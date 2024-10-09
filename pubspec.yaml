@@ -49,6 +49,7 @@ dependencies:
   slide_to_act: ^2.0.2
   google_sign_in: ^6.1.6
   liquid_pull_to_refresh: ^3.0.1
+  toggle_switch: ^2.3.0
 
 dev_dependencies:
   flutter_test:

@@ -9,6 +9,7 @@ import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
 import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../Models/person_model.dart';
 import '../../../Utils/globals.dart';
@@ -39,7 +40,8 @@ class AddRecurringTransactionScreenState
   List<CategoryModel> _categories = [];
   String? _selectedCategory;
   bool _isLoadingCategories = true;
-  bool isExpense = true; // Default to 'Transaction'
+  bool isExpense = true; // Default to 'Expense'
+  int recurranceType = 0; // 0=Monthly, 1=Weekly, 2=By-weekly,
 
   @override
   void initState() {
@@ -72,23 +74,28 @@ class AddRecurringTransactionScreenState
   Future<void> _addTransaction() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        bool created = false;
-        RecurringTransactionModel transaction = RecurringTransactionModel(
-          ownerId: widget.user.uid,
-          amount: double.parse(_amountController.text),
-          category: _selectedCategory.toString(),
-          date: selectedDate,
-          description: _descriptionController.text,
-          isExpense: isExpense,
-        );
-        created = await _firebaseDB.addRecurringTransaction(transaction);
+        if (_descriptionController.text.length > 15) {
+          bool created = false;
+          RecurringTransactionModel transaction = RecurringTransactionModel(
+            ownerId: widget.user.uid,
+            amount: double.parse(_amountController.text),
+            category: _selectedCategory.toString(),
+            date: selectedDate,
+            description: _descriptionController.text,
+            isExpense: isExpense,
+            recurrenceType: recurranceType,
+          );
+          created = await _firebaseDB.addRecurringTransaction(transaction);
 
-        if (created) {
-          showSuccessSnachBar('Transaction Created!');
-          // ignore: use_build_context_synchronously
-          Navigator.pop(context);
+          if (created) {
+            showSuccessSnachBar('Transaction Created!');
+            // ignore: use_build_context_synchronously
+            Navigator.pop(context);
+          } else {
+            showErrorSnachBar('Error Creating Transaction!');
+          }
         } else {
-          showErrorSnachBar('Error Creating Transaction!');
+          showErrorSnachBar("Description shouldn't exceed 15 characters");
         }
       } catch (e) {
         if (mounted) {
@@ -279,6 +286,19 @@ class AddRecurringTransactionScreenState
                                             ? Colors.deepPurple
                                             : Colors.grey))
                               ],
+                            ),
+                          ),
+                          // Recurrance Type
+                          Center(
+                            child: ToggleSwitch(
+                              initialLabelIndex: 0,
+                              labels: const ['Monthly', 'Weekly', 'By-weekly'],
+                              activeBgColor: const [Colors.deepPurple],
+                              activeFgColor: Colors.white,
+                              inactiveBgColor: Colors.grey.shade300,
+                              onToggle: (index) {
+                                recurranceType = index!;
+                              },
                             ),
                           ),
                           const SizedBox(

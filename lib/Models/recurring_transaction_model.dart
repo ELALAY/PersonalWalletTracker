@@ -9,7 +9,7 @@ class RecurringTransactionModel {
   // Recurrence fields
   final bool isArchived;
   //  final bool isReccuring;
-  // final String recurrenceType; // daily, weekly, monthly, yearly
+  final int recurrenceType; // Monthly, Weekly, Bi-weekly
   // final int recurrenceInterval; // Interval between occurrences (e.g., every 2 days)
   // final DateTime? endRecurrenceDate; // Optional end date for recurrence
 
@@ -21,6 +21,7 @@ class RecurringTransactionModel {
     required this.description,
     required this.isExpense,
     this.isArchived = false,
+    required this.recurrenceType,
   }) : id = '';
 
   RecurringTransactionModel.withId({
@@ -32,6 +33,7 @@ class RecurringTransactionModel {
     required this.description,
     required this.isExpense,
     this.isArchived = false,
+    required this.recurrenceType,
   });
 
   Map<String, dynamic> toMap() {
@@ -43,6 +45,7 @@ class RecurringTransactionModel {
       'description': description,
       'isExpense': isExpense,
       'isArchived': isArchived,
+      'recurrenceType': recurrenceType,
     };
   }
 
@@ -56,6 +59,7 @@ class RecurringTransactionModel {
       description: map['description'],
       isExpense: map['isExpense'],
       isArchived: map['isArchived'] ?? false,
+      recurrenceType: map['recurrenceType'],
     );
   }
 }

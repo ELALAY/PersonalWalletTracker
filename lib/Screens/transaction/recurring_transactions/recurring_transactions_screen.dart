@@ -210,11 +210,13 @@ class _RecurringTransactionsScreenState
                         ],
                       ),
                       child: ListTile(
-                        tileColor: Colors.grey.shade300,
+                        tileColor: transaction.isArchived
+                            ? Colors.grey.shade600
+                            : Colors.grey.shade300,
                         title: Row(
                           children: [
                             Text(
-                              transaction.description,
+                              "${transaction.description} ${transaction.recurrenceType}",
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
@@ -235,10 +237,17 @@ class _RecurringTransactionsScreenState
                             height: 35.0,
                             child: categoryIcon(transaction.category)),
                         trailing: IconButton(
-                          icon: const Icon(Icons.add_outlined,
-                              color: Colors.deepPurple),
+                          icon: transaction.isArchived
+                              ? const Icon(Icons.unarchive_rounded,
+                                  color: Colors.deepPurple)
+                              : const Icon(Icons.add_outlined,
+                                  color: Colors.deepPurple),
                           onPressed: () {
-                            addRecurringTransactionDialog(transaction);
+                            if (transaction.isArchived) {
+                              unarchiveRecurringTransaction(transaction);
+                            } else {
+                              addRecurringTransactionDialog(transaction);
+                            }
                           },
                         ),
                       ),
@@ -257,10 +266,30 @@ class _RecurringTransactionsScreenState
     );
   }
 
+  void unarchiveRecurringTransaction(
+      RecurringTransactionModel transaction) async {
+    RecurringTransactionModel rec = RecurringTransactionModel.withId(
+        id: transaction.id,
+        ownerId: transaction.ownerId,
+        amount: transaction.amount,
+        category: transaction.category,
+        date: transaction.date,
+        description: transaction.description,
+        isExpense: transaction.isExpense,
+        isArchived: false,
+        recurrenceType: transaction.recurrenceType);
+
+    await firebaseDB.updateRecurringTransaction(rec);
+
+    showSuccessSnachBar('Recurring Transaction unarchived Sucessfully!');
+    reload();
+  }
+
   void addRecurringTransaction(RecurringTransactionModel transaction) async {
     try {
       bool isCreated = false;
       if (selectedCard != null) {
+        // Create new transaction
         TransactionModel newTransaction = TransactionModel(
             cardId: selectedCard!.id,
             cardName: selectedCard!.cardName,
@@ -270,7 +299,9 @@ class _RecurringTransactionsScreenState
             description: transaction.description,
             isExpense: transaction.isExpense,
             isRecurring: true);
+        // Add transaction
         isCreated = await firebaseDB.addTransaction(newTransaction);
+
         if (isCreated) {
           debugPrint(transaction.amount.toString());
           // isEpense ? negative amount : positive amount
@@ -288,9 +319,11 @@ class _RecurringTransactionsScreenState
               ownerId: transaction.ownerId,
               amount: transaction.amount,
               category: transaction.category,
-              date: addOneMonth(transaction.date),
+              date:
+                  updateNextDate(transaction.date, transaction.recurrenceType),
               description: transaction.description,
-              isExpense: transaction.isExpense);
+              isExpense: transaction.isExpense,
+              recurrenceType: transaction.recurrenceType);
           await firebaseDB.updateRecurringTransaction(newRec);
 
           // then reload the recurring transactions
@@ -309,12 +342,27 @@ class _RecurringTransactionsScreenState
     }
   }
 
-  DateTime addOneMonth(DateTime originalDate) {
-    return DateTime(
-      originalDate.year,
-      originalDate.month + 1, // Add 1 to the current month
-      originalDate.day,
-    );
+  DateTime updateNextDate(DateTime date, int recurrenceType) {
+
+    if (recurrenceType == 0) {
+      return DateTime(
+        date.year,
+        date.month + 1, // Add 1 month to the current month
+        date.day,
+      );
+    } else if (recurrenceType == 1) {
+      return DateTime(
+        date.year,
+        date.month, 
+        date.day + 8, // Add 1 week to the current month
+      );
+    } else {
+      return DateTime(
+        date.year,
+        date.month,
+        date.day + 15, // Add two weeks to the current month
+      );
+    }
   }
 
   void addRecurringTransactionDialog(RecurringTransactionModel transaction) {

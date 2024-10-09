@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../../Components/my_buttons/my_button.dart';
 import '../../../Components/my_textfields/my_numberfield.dart';
@@ -33,6 +34,7 @@ class EditReccuringTransactionScreen extends StatefulWidget {
 class _EditReccuringTransactionScreenState
     extends State<EditReccuringTransactionScreen> {
   final FirebaseDB _firebaseDB = FirebaseDB();
+
   final _formKey = GlobalKey<FormState>();
   TextEditingController _amountController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
@@ -42,11 +44,14 @@ class _EditReccuringTransactionScreenState
   String? _selectedCategory;
   bool isLoading = true;
   bool isExpense = true; // Default to 'Transaction'
+  bool isArchived = false;
+  int recurranceType = 0; // 0=Monthly, 1=Weekly, 2=By-weekly,
 
   @override
   void initState() {
     super.initState();
     _loadCategories();
+    debugPrint(widget.transaction.recurrenceType.toString());
     _amountController =
         TextEditingController(text: widget.transaction.amount.toString());
     _descriptionController =
@@ -56,6 +61,8 @@ class _EditReccuringTransactionScreenState
     _selectedCategory = widget.transaction.category;
     isExpense = widget.transaction.isExpense;
     selectedDate = widget.transaction.date;
+    isArchived = widget.transaction.isArchived;
+    recurranceType = widget.transaction.recurrenceType;
     isLoading = false;
   }
 
@@ -83,21 +90,21 @@ class _EditReccuringTransactionScreenState
   Future<void> _editransaction() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-          RecurringTransactionModel transaction =
-              RecurringTransactionModel.withId(
-            id: widget.transaction.id,
-            ownerId: widget.transaction.ownerId,
-            amount: double.parse(_amountController.text),
-            category: _selectedCategory.toString(),
-            date: selectedDate,
-            description: _descriptionController.text,
-            isExpense: isExpense,
-          );
-          await _firebaseDB.updateRecurringTransaction(transaction);
-          showSuccessSnachBar('Transaction Created!');
-          // ignore: use_build_context_synchronously
-          Navigator.pop(context);
-        
+        RecurringTransactionModel transaction =
+            RecurringTransactionModel.withId(
+          id: widget.transaction.id,
+          ownerId: widget.transaction.ownerId,
+          amount: double.parse(_amountController.text),
+          category: _selectedCategory.toString(),
+          date: selectedDate,
+          description: _descriptionController.text,
+          isExpense: isExpense,
+          recurrenceType: recurranceType,
+        );
+        await _firebaseDB.updateRecurringTransaction(transaction);
+        showSuccessSnachBar('Transaction Created!');
+        // ignore: use_build_context_synchronously
+        Navigator.pop(context);
       } catch (e) {
         if (mounted) {
           showErrorSnachBar('Error creating transaction: $e');
@@ -135,6 +142,68 @@ class _EditReccuringTransactionScreenState
     }
   }
 
+  void showDeleteConfirmationDialog(RecurringTransactionModel transaction) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Are you sure you want to delete this transaction'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                deleteTransaction(transaction);
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.deepPurple),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> toggleArchiveRecurringTransaction() async {
+    RecurringTransactionModel rec = RecurringTransactionModel.withId(
+        id: widget.transaction.id,
+        ownerId: widget.transaction.ownerId,
+        amount: widget.transaction.amount,
+        category: widget.transaction.category,
+        date: widget.transaction.date,
+        description: widget.transaction.description,
+        isExpense: widget.transaction.isExpense,
+        isArchived: !widget.transaction.isArchived,
+        recurrenceType: widget.transaction.recurrenceType);
+
+    _firebaseDB.updateRecurringTransaction(rec);
+    showSuccessSnachBar('Recurring Transaction Archived toggled!');
+    setState(() {
+      isArchived = rec.isArchived;
+    });
+  }
+
+  void deleteTransaction(RecurringTransactionModel transaction) async {
+    bool deleted = await _firebaseDB.deleteRecurringTransaction(transaction);
+    if (deleted) {
+      showSuccessSnachBar('Recurring Transaction deleted Sucessfully!');
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pop();
+    } else {
+      showErrorSnachBar('Error deleting Recurring Transaction!');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,6 +212,26 @@ class _EditReccuringTransactionScreenState
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
         elevation: 0.0,
+        actions: [
+          IconButton(
+              onPressed: () {
+                toggleArchiveRecurringTransaction();
+                setState(() {
+                  isArchived = !widget.transaction.isArchived;
+                });
+              },
+              icon: isArchived
+                  ? const Icon(Icons.unarchive)
+                  : const Icon(Icons.unarchive)),
+          IconButton(
+              onPressed: () {
+                showDeleteConfirmationDialog(widget.transaction);
+              },
+              icon: const Icon(
+                Icons.delete_forever,
+                color: Colors.red,
+              )),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -287,6 +376,22 @@ class _EditReccuringTransactionScreenState
                                             ? Colors.deepPurple
                                             : Colors.grey))
                               ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          // Recurrance Type
+                          Center(
+                            child: ToggleSwitch(
+                              initialLabelIndex: recurranceType,
+                              labels: const ['Monthly', 'Weekly', 'By-weekly'],
+                              activeBgColor: const [Colors.deepPurple],
+                              activeFgColor: Colors.white,
+                              inactiveBgColor: Colors.grey.shade300,
+                              onToggle: (index) {
+                                recurranceType = index!;
+                              },
                             ),
                           ),
                           const SizedBox(
