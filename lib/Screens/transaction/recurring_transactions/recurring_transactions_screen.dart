@@ -216,7 +216,7 @@ class _RecurringTransactionsScreenState
                         title: Row(
                           children: [
                             Text(
-                              "${transaction.description} ${transaction.recurrenceType}",
+                              transaction.description,
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
