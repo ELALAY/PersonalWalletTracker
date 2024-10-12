@@ -114,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var transaction in recurringTransactions) {
         if (!transaction.isArchived) {
           // Check if the recurring transaction next month is today's month
-          if (DateFormat('yyyyMM').format(transaction.date) ==
+          if (transaction.recurrenceType == 0 && DateFormat('yyyyMM').format(transaction.date) ==
               currentMonthYear) {
             // Handle recurring transaction for today (e.g., monthly)
             uncreatedTransactionstemp.add(transaction);
@@ -377,7 +377,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.white,
                       ),
                       onTap:
-                          newRecurringTransactionsScreen, // Here the function is being called
+                          recurringTransactionsScreen, // Here the function is being called
                     ),
                   ),
                 ),
@@ -388,7 +388,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void newRecurringTransactionsScreen() {
+  void recurringTransactionsScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return RecurringTransactionsScreen(
         user: user!,

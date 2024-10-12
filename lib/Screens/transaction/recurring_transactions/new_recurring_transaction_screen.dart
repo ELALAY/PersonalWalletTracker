@@ -74,7 +74,7 @@ class AddRecurringTransactionScreenState
   Future<void> _addTransaction() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        if (_descriptionController.text.length > 15) {
+        if (_descriptionController.text.length <= 10) {
           bool created = false;
           RecurringTransactionModel transaction = RecurringTransactionModel(
             ownerId: widget.user.uid,

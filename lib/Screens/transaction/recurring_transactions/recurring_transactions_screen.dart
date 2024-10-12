@@ -131,18 +131,6 @@ class _RecurringTransactionsScreenState
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
         elevation: 0.0,
-        actions: [
-          transactions.isNotEmpty
-              ? IconButton(
-                  onPressed: showUncreatedRecurringTransactions,
-                  icon: const Icon(
-                    Icons.notifications_active,
-                    color: Colors.deepOrange,
-                  ))
-              : IconButton(
-                  onPressed: showUncreatedRecurringTransactions,
-                  icon: const Icon(Icons.notifications_outlined))
-        ],
       ),
       body: isLoading
           ? const Center(
@@ -343,7 +331,6 @@ class _RecurringTransactionsScreenState
   }
 
   DateTime updateNextDate(DateTime date, int recurrenceType) {
-
     if (recurrenceType == 0) {
       return DateTime(
         date.year,
@@ -353,7 +340,7 @@ class _RecurringTransactionsScreenState
     } else if (recurrenceType == 1) {
       return DateTime(
         date.year,
-        date.month, 
+        date.month,
         date.day + 8, // Add 1 week to the current month
       );
     } else {
