@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
+import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -22,6 +23,7 @@ class _TransferMoneyState extends State<TransferMoney> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
   bool isLoading = false;
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final PageController pageSendController = PageController();
   final PageController pageReceiveController = PageController();
   // Card indices for sending and receiving
@@ -100,7 +102,7 @@ class _TransferMoneyState extends State<TransferMoney> {
                               ],
                       ),
                     ),
-                    const SizedBox(height: 15.0),
+                    const SizedBox(height: 10.0),
                     widget.myCards.isNotEmpty
                         ? SmoothPageIndicator(
                             controller: pageSendController,
@@ -109,14 +111,19 @@ class _TransferMoneyState extends State<TransferMoney> {
                                 activeDotColor: Colors.deepPurple),
                           )
                         : Container(),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     //amount to transfer
                     MyNumberField(
                         controller: _amountController,
                         label: 'Amount',
                         color: Colors.pink,
                         enabled: true),
-                    const SizedBox(height: 20),
+                    MyTextField(
+                        controller: _descriptionController,
+                        label: 'Desctription',
+                        color: Colors.pink,
+                        enabled: true),
+                    const SizedBox(height: 10),
                     //Card to receive
                     SizedBox(
                       height: 200.0,
@@ -148,7 +155,7 @@ class _TransferMoneyState extends State<TransferMoney> {
                               ],
                       ),
                     ),
-                    const SizedBox(height: 15.0),
+                    const SizedBox(height: 10.0),
                     widget.myCards.isNotEmpty
                         ? SmoothPageIndicator(
                             controller: pageReceiveController,
@@ -157,7 +164,7 @@ class _TransferMoneyState extends State<TransferMoney> {
                                 activeDotColor: Colors.deepPurple),
                           )
                         : Container(),
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 15),
                     Center(
                         child: Padding(
                       padding: const EdgeInsets.all(20.0),
@@ -167,7 +174,8 @@ class _TransferMoneyState extends State<TransferMoney> {
                             return transferMoney(
                                 widget.myCards[pageSendIndex],
                                 widget.myCards[pageReceiveIndex],
-                                double.parse(_amountController.text));
+                                double.parse(_amountController.text),
+                                _descriptionController.text);
                           } else {
                             showErrorSnachBar('Enter an amount!');
                           }
@@ -189,11 +197,11 @@ class _TransferMoneyState extends State<TransferMoney> {
     );
   }
 
-  bool transferMoney(CardModel sendCard, CardModel receiveCard, double amount) {
+  bool transferMoney(CardModel sendCard, CardModel receiveCard, double amount, String description) {
     if (sendCard != receiveCard) {
       if (amount > 0 && sendCard.balance >= amount) {
         firebaseDatabasehelper.transferMoney(
-            fromCard: sendCard, toCard: receiveCard, amount: amount);
+            fromCard: sendCard, toCard: receiveCard, amount: amount, description: description);
         showSuccessSnachBar(
             'Transfer "${sendCard.cardName}" to "${receiveCard.cardName}" Completed!');
 
@@ -207,55 +215,6 @@ class _TransferMoneyState extends State<TransferMoney> {
     }
 
     return false;
-  }
-
-  void transferDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Transfer Money'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                // leading: Icon(transaction['categoryIcon']),
-                title: Text(widget.myCards[pageSendIndex].cardName),
-                subtitle: Text(widget.myCards[pageReceiveIndex].cardName),
-              ),
-              const SizedBox(height: 16.0),
-              Text('Amount: ${_amountController.text}'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Close',
-                style: TextStyle(color: Colors.deepPurple),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                if (_amountController.text.isNotEmpty) {
-                  transferMoney(
-                      widget.myCards[pageSendIndex],
-                      widget.myCards[pageReceiveIndex],
-                      double.parse(_amountController.text));
-                }
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Add',
-                style: TextStyle(color: Colors.deepPurple),
-              ),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void showErrorSnachBar(String message) {

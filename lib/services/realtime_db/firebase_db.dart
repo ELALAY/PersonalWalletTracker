@@ -383,6 +383,7 @@ class FirebaseDB {
     required CardModel fromCard,
     required CardModel toCard,
     required double amount,
+    required String description,
   }) async {
     try {
       // Fetch the cards from Firebase
@@ -416,7 +417,7 @@ class FirebaseDB {
               amount: amount,
               category: 'Transfer',
               date: DateTime.now(),
-              description: 'Money Transfer',
+              description: 'Money Transfer ($description)',
               isExpense: true);
           TransactionModel receiverTransaction = TransactionModel(
               cardId: toCard.id,
@@ -424,7 +425,7 @@ class FirebaseDB {
               amount: amount,
               category: 'Transfer',
               date: DateTime.now(),
-              description: 'Money Transfer',
+              description: 'Money Transfer ($description)',
               isExpense: false);
 
           // Optionally, (Sender) record the transaction in a transactions collection
