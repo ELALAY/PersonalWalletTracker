@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class MyCard extends StatefulWidget {
   final bool isArchived;
@@ -27,6 +28,14 @@ class MyCard extends StatefulWidget {
 }
 
 class _MyCardState extends State<MyCard> {
+  bool obscure = true;
+
+  void toggleObscure() {
+    setState(() {
+      obscure = !obscure;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -58,9 +67,8 @@ class _MyCardState extends State<MyCard> {
                   ),
               ],
             ),
-            const SizedBox(height: 10.0),
             Text(
-              '${widget.balance.toStringAsFixed(2)} ${widget.currency}',
+              obscure ? '*****' : '${widget.balance.toStringAsFixed(2)} ${widget.currency}',
               style: TextStyle(
                 fontSize: 30,
                 color: Colors.white,
@@ -91,9 +99,25 @@ class _MyCardState extends State<MyCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                IconButton(
-                  onPressed: widget.onTap, //edit card
-                  icon: const Icon(Icons.edit, color: Colors.white),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: widget.onTap, //edit card
+                      icon: const Icon(Icons.edit, color: Colors.white),
+                    ),
+                    IconButton(
+                        onPressed: toggleObscure,
+                        icon: obscure
+                            ? const Icon(
+                                CupertinoIcons.eye_solid,
+                                color: Colors.white,
+                              )
+                            : const Icon(
+                                CupertinoIcons.eye_slash_fill,
+                                color: Colors.white,
+                                
+                              )),
+                  ],
                 ),
               ],
             ),

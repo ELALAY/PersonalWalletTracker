@@ -114,8 +114,9 @@ class _MyHomePageState extends State<MyHomePage> {
       for (var transaction in recurringTransactions) {
         if (!transaction.isArchived) {
           // Check if the recurring transaction next month is today's month
-          if (transaction.recurrenceType == 0 && DateFormat('yyyyMM').format(transaction.date) ==
-              currentMonthYear) {
+          if (transaction.recurrenceType == 0 &&
+              DateFormat('yyyyMM').format(transaction.date) ==
+                  currentMonthYear) {
             // Handle recurring transaction for today (e.g., monthly)
             uncreatedTransactionstemp.add(transaction);
           }
@@ -124,7 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       setState(() {
         uncreatedTransactions = uncreatedTransactionstemp;
-        debugPrint('ucreated rec transactions: ${uncreatedTransactions.length.toString()}');
+        debugPrint(
+            'ucreated rec transactions: ${uncreatedTransactions.length.toString()}');
       });
     } else {
       debugPrint('No User Found!');
@@ -397,7 +399,7 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }));
   }
-  
+
   void updateCardbalance(double newAmount) async {
     String cardId = myCards[pageIndex].id;
     CardModel card = await firebaseDatabasehelper.getCardById(cardId);
