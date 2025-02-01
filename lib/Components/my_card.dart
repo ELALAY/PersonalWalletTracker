@@ -109,11 +109,11 @@ class _MyCardState extends State<MyCard> {
                         onPressed: toggleObscure,
                         icon: obscure
                             ? const Icon(
-                                CupertinoIcons.eye_solid,
+                                CupertinoIcons.eye_slash_fill,
                                 color: Colors.white,
                               )
                             : const Icon(
-                                CupertinoIcons.eye_slash_fill,
+                                CupertinoIcons.eye_solid,
                                 color: Colors.white,
                                 
                               )),
