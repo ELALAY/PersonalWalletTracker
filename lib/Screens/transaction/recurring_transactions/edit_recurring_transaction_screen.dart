@@ -1,5 +1,4 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
@@ -16,7 +15,7 @@ import '../../../services/realtime_db/firebase_db.dart';
 
 class EditReccuringTransactionScreen extends StatefulWidget {
   final RecurringTransactionModel transaction;
-  final User user;
+  final String user;
   final Person personProfile;
   final List<CardModel> myCards;
   const EditReccuringTransactionScreen(
@@ -68,7 +67,7 @@ class _EditReccuringTransactionScreenState
 
   Future<void> _loadCategories() async {
     try {
-      final categories = await _firebaseDB.getCategories();
+      final categories = await _firebaseDB.getCategories(widget.user);
       if (mounted) {
         setState(() {
           _categories = categories;

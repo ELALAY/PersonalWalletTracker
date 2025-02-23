@@ -16,11 +16,13 @@ class TransactionHistoryScreen extends StatefulWidget {
   final String currency;
   final CardModel card;
   final List<CardModel> myCards;
+  final String user;
   const TransactionHistoryScreen(
       {super.key,
       required this.card,
       required this.myCards,
-      required this.currency});
+      required this.currency,
+      required this.user});
 
   @override
   TransactionHistoryScreenState createState() =>
@@ -108,7 +110,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     transactionstemp = _sortTransactions(transactionstemp);
 
     Map<String, CategoryModel> catsMap = {};
-    List<CategoryModel> catslist = await firebaseDB.getCategories();
+    List<CategoryModel> catslist = await firebaseDB.getCategories(widget.user);
 
     for (CategoryModel c in catslist) {
       catsMap[c.name] = c;
@@ -480,6 +482,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         return EditTransactionScreen(
           card: cardTemp,
           transaction: transaction,
+          user: widget.user,
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {
@@ -536,6 +539,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return AddTransactionScreen(
           card: cardTemp,
+          user: widget.user
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {

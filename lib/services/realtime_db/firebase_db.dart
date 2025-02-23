@@ -454,7 +454,7 @@ class FirebaseDB {
 //--------------------------------------------------------------------------------------
 
   // Fetch all categories
-  Future<List<CategoryModel>> getCategories() async {
+  Future<List<CategoryModel>> getAllCategories() async {
     try {
       final snapshot = await _firestore.collection('categories').get();
       return snapshot.docs
@@ -464,6 +464,37 @@ class FirebaseDB {
       throw Exception('Failed to fetch categories: $e');
     }
   }
+
+  // Fetch User categories
+  Future<List<CategoryModel>> getCategories(String user) async {
+  try {
+    // Query categories where ownerId is the user
+    final userCategoriesSnapshot = await _firestore
+        .collection('categories')
+        .where('ownerId', isEqualTo: user)
+        .get();
+
+    // Query categories where ownerId is empty
+    final publicCategoriesSnapshot = await _firestore
+        .collection('categories')
+        .where('ownerId', isEqualTo: '')
+        .get();
+
+    // Convert both snapshots to lists
+    final userCategories = userCategoriesSnapshot.docs
+        .map((doc) => CategoryModel.fromDocument(doc))
+        .toList();
+
+    final publicCategories = publicCategoriesSnapshot.docs
+        .map((doc) => CategoryModel.fromDocument(doc))
+        .toList();
+
+    // Merge the two lists
+    return [...userCategories, ...publicCategories];
+  } catch (e) {
+    throw Exception('Failed to fetch categories: $e');
+  }
+}
 
   //fetch category
   Future<CategoryModel> fetchCategory(String category) async {

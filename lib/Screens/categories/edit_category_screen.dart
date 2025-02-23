@@ -9,7 +9,8 @@ import '../../services/realtime_db/firebase_db.dart';
 
 class EditCategory extends StatefulWidget {
   final CategoryModel category;
-  const EditCategory({super.key, required this.category});
+  final String user;
+  const EditCategory({super.key, required this.category, required this.user});
 
   @override
   State<EditCategory> createState() => _EditCategoryState();
@@ -133,7 +134,8 @@ class _EditCategoryState extends State<EditCategory> {
         CategoryModel category = CategoryModel.withId(
             id: widget.category.id,
             name: newCategoryController.text,
-            iconName: _selectedIcon);
+            iconName: _selectedIcon,
+            ownerId: widget.user);
         await firebaseDatabasehelper.updateCategory(
             widget.category.name, category);
         showSuccessSnachBar('Category updated successfully!');

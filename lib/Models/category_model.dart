@@ -4,9 +4,10 @@ class CategoryModel {
   final String id;
   final String name;
   final String iconName;
+  final String ownerId;
 
-  CategoryModel({required this.name, required this.iconName}): id = '';
-  CategoryModel.withId({required this.id, required this.name, required this.iconName});
+  CategoryModel({required this.name, required this.iconName, required this.ownerId}): id = '';
+  CategoryModel.withId({required this.id, required this.name, required this.iconName, required this.ownerId});
 
 
   factory CategoryModel.fromDocument(DocumentSnapshot doc) {
@@ -15,6 +16,7 @@ class CategoryModel {
       id: doc.id,
       name: data['name'] ?? '',
       iconName: data['iconName'] ?? 'app_icon',
+      ownerId: data['ownerId'] ?? '',
     );
   }
 
@@ -22,6 +24,7 @@ class CategoryModel {
     return {
       'name': name,
       'iconName': iconName,
+      'ownerId': ownerId,
     };
   }
 
@@ -30,6 +33,7 @@ class CategoryModel {
       id: id,
       name: map['name'],
       iconName: map['iconName'],
+      ownerId: map['ownerId'],
     );
   }
 }

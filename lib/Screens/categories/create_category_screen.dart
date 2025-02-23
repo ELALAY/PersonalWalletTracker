@@ -8,7 +8,8 @@ import '../../Utils/globals.dart';
 import '../../services/realtime_db/firebase_db.dart';
 
 class CreateCategory extends StatefulWidget {
-  const CreateCategory({super.key});
+  final String user;
+  const CreateCategory({super.key, required this.user});
 
   @override
   State<CreateCategory> createState() => _CreateCategoryState();
@@ -93,7 +94,7 @@ class _CreateCategoryState extends State<CreateCategory> {
     try {
       if (newCategoryController.text.isNotEmpty) {
         CategoryModel category =
-            CategoryModel(name: newCategoryController.text, iconName: _selectedIcon);
+            CategoryModel(name: newCategoryController.text, iconName: _selectedIcon, ownerId: widget.user);
         await firebaseDatabasehelper.createCategory(category);
         // ignore: use_build_context_synchronously
         Navigator.pop(context);

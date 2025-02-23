@@ -14,8 +14,9 @@ import '../categories/create_category_screen.dart';
 class EditTransactionScreen extends StatefulWidget {
   final TransactionModel transaction;
   final CardModel card;
+  final String user;
   const EditTransactionScreen(
-      {super.key, required this.card, required this.transaction});
+      {super.key, required this.card, required this.transaction, required this.user});
 
   @override
   EditTransactionScreenState createState() => EditTransactionScreenState();
@@ -53,7 +54,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
 
   Future<void> _loadCategories() async {
     try {
-      final categories = await _firebaseDB.getCategories();
+      final categories = await _firebaseDB.getCategories(widget.user);
       if (mounted) {
         setState(() {
           _categories = categories;
@@ -366,7 +367,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
 
   void createCaegory() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const CreateCategory(); // replace with your settings screen
+      return CreateCategory(user: widget.user,); // replace with your settings screen
     }));
   }
 

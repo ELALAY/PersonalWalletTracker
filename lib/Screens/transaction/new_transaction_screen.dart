@@ -14,7 +14,8 @@ import '../categories/create_category_screen.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final CardModel card;
-  const AddTransactionScreen({super.key, required this.card});
+  final String user;
+  const AddTransactionScreen({super.key, required this.card, required this.user});
 
   @override
   AddTransactionScreenState createState() => AddTransactionScreenState();
@@ -41,7 +42,8 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
 
   Future<void> _loadCategories() async {
     try {
-      final categories = await _firebaseDB.getCategories();
+      final categories = await _firebaseDB.getCategories(widget.user);
+      debugPrint(categories.length as String?);
       if (mounted) {
         setState(() {
           _categories = categories;
@@ -307,7 +309,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
 
   void createCategory() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const CreateCategory(); // replace with your settings screen
+      return CreateCategory(user: widget.user,); // replace with your settings screen
     }));
   }
 

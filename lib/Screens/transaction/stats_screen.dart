@@ -14,7 +14,8 @@ import '../../Models/category_spending.dart';
 class StatisticsScreen extends StatefulWidget {
   final String currency;
   List<CardModel> myCards = [];
-  StatisticsScreen({super.key, required this.myCards, required this.currency});
+  final String user;
+  StatisticsScreen({super.key, required this.myCards, required this.currency, required this.user});
 
   @override
   StatisticsScreenState createState() => StatisticsScreenState();
@@ -207,6 +208,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           currency: widget.currency,
           startDate: _startDate!,
           endDate: _endDate!,
+          user: widget.user,
         ); // replace with your settings screen
       }));
     } else {

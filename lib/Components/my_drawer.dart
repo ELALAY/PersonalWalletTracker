@@ -154,7 +154,7 @@ class _MyDrawerState extends State<MyDrawer> {
   void navRecurringTransactionScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return RecurringTransactionsScreen(
-        user: widget.user,
+        user: widget.user.uid,
         personProfile: widget.personProfile,
         myCards: widget.myCards,
       );
@@ -172,7 +172,7 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void navSettingsPage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SettingsScreen(person: widget.personProfile);
+      return SettingsScreen(person: widget.personProfile, user: widget.user.uid);
     }));
   }
 
@@ -184,7 +184,7 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void navCategoriesScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const CategoriesScreen();
+      return CategoriesScreen(user: widget.user.uid,);
     }));
   }
 

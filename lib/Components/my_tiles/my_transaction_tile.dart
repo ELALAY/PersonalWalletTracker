@@ -9,9 +9,11 @@ import '../../Utils/globals.dart';
 
 class MyTransactionTile extends StatefulWidget {
   final TransactionModel transaction;
+  final String user;
   const MyTransactionTile({
     super.key,
     required this.transaction,
+    required this.user,
   });
 
   @override
@@ -104,6 +106,7 @@ class _MyTransactionTileState extends State<MyTransactionTile> {
         return EditTransactionScreen(
           card: cardTemp,
           transaction: transaction,
+          user: widget.user,
         ); // replace with your settings screen
       }));
     

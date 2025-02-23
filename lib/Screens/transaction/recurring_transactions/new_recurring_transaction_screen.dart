@@ -1,5 +1,4 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
@@ -16,7 +15,7 @@ import '../../../Utils/globals.dart';
 
 class AddRecurringTransactionScreen extends StatefulWidget {
   final List<CardModel> myCards;
-  final User user;
+  final String user;
   final Person personProfile;
   const AddRecurringTransactionScreen(
       {super.key,
@@ -51,7 +50,7 @@ class AddRecurringTransactionScreenState
 
   Future<void> _loadCategories() async {
     try {
-      final categories = await _firebaseDB.getCategories();
+      final categories = await _firebaseDB.getCategories(widget.user);
       if (mounted) {
         setState(() {
           _categories = categories;
@@ -77,7 +76,7 @@ class AddRecurringTransactionScreenState
         if (_descriptionController.text.length <= 10) {
           bool created = false;
           RecurringTransactionModel transaction = RecurringTransactionModel(
-            ownerId: widget.user.uid,
+            ownerId: widget.user,
             amount: double.parse(_amountController.text),
             category: _selectedCategory.toString(),
             date: selectedDate,

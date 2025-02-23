@@ -10,7 +10,8 @@ import '../../services/realtime_db/firebase_db.dart';
 import 'edit_category_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
-  const CategoriesScreen({super.key});
+  final String user;
+  const CategoriesScreen({super.key, required this.user});
 
   @override
   State<CategoriesScreen> createState() => _CategoriesScreenState();
@@ -35,7 +36,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   void fetchCategories() async {
-    List<CategoryModel> temp = await firebaseDatabasehelper.getCategories();
+    List<CategoryModel> temp = await firebaseDatabasehelper.getCategories(widget.user);
     setState(() {
       categories = temp;
     });
@@ -152,13 +153,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   void editcategory(CategoryModel catergory) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return EditCategory(category: catergory,); // replace with your settings screen
+      return EditCategory(category: catergory, user: widget.user,); // replace with your settings screen
     })).then((value) => reload());
   }
 
   void _createCategory() async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const CreateCategory(); // replace with your settings screen
+      return CreateCategory(user: widget.user,); // replace with your settings screen
     })).then((value) => reload());
   }
 

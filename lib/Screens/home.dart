@@ -393,7 +393,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void recurringTransactionsScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return RecurringTransactionsScreen(
-        user: user!,
+        user: user!.uid,
         personProfile: personProfile!,
         myCards: myCards,
       );
@@ -419,6 +419,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return SettingsScreen(
         person: personProfile!,
+        user: user!.uid
       ); // replace with your settings screen
     })).then((value) => reload());
   }
@@ -426,7 +427,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void newTransactionScreen() {
     if (myCards.isNotEmpty) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return AddTransactionScreen(card: myCards[pageIndex]);
+        return AddTransactionScreen(card: myCards[pageIndex], user: user!.uid,);
       })).then((value) => reload());
     } else {
       showInfoSnachBar('No card selected!');
@@ -440,6 +441,7 @@ class _MyHomePageState extends State<MyHomePage> {
           card: myCards[pageIndex],
           myCards: myCards,
           currency: personProfile!.default_currency,
+          user: user!.uid
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {
@@ -453,6 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return StatisticsScreen(
           myCards: myCards,
           currency: personProfile!.default_currency,
+          user: user!.uid
         ); // replace with your settings screen
       })).then((value) => reload());
     } else {

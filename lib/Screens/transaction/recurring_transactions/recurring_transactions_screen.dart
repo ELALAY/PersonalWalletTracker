@@ -1,5 +1,4 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
@@ -16,7 +15,7 @@ import 'edit_recurring_transaction_screen.dart';
 
 class RecurringTransactionsScreen extends StatefulWidget {
   final List<CardModel> myCards;
-  final User user;
+  final String user;
   final Person personProfile;
   const RecurringTransactionsScreen(
       {super.key,
@@ -69,7 +68,7 @@ class _RecurringTransactionsScreenState
 
   void fetchAllTransactions() async {
     List<RecurringTransactionModel> transactionstemp =
-        await firebaseDB.fetchUserRecurringTransactions(widget.user.uid);
+        await firebaseDB.fetchUserRecurringTransactions(widget.user);
     debugPrint(transactionstemp.length.toString());
 
     // Sort transactions from newest to oldest

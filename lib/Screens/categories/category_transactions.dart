@@ -15,9 +15,10 @@ class CategoryTransactions extends StatefulWidget {
   final String currency;
   final DateTime startDate;
   final DateTime endDate;
+  final String user;
   const CategoryTransactions(
       {super.key, required this.category, required this.card, required this.currency,
-      required this.startDate, required this.endDate});
+      required this.startDate, required this.endDate, required this.user});
 
   @override
   State<CategoryTransactions> createState() => _CategoryTransactionsState();
@@ -31,7 +32,7 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
   DateTime? _startDate;
   DateTime? _endDate;
   CategoryModel currentCategory =
-      CategoryModel(name: 'null', iconName: 'app_icon');
+      CategoryModel(name: 'null', iconName: 'app_icon', ownerId: '');
 
   @override
   void initState() {
@@ -167,6 +168,7 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
         return EditTransactionScreen(
           card: cardTemp,
           transaction: transaction,
+          user: widget.user,
         ); // replace with your settings screen
       }));
     } else {

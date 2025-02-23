@@ -8,7 +8,8 @@ import 'categories/catogories_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Person person;
-  const SettingsScreen({super.key, required this.person});
+  final String user;
+  const SettingsScreen({super.key, required this.person, required this.user});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -95,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void navCategoriesScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const CategoriesScreen();
+      return  CategoriesScreen(user: widget.user,);
     }));
   }
 
