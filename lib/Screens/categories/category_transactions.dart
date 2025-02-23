@@ -31,8 +31,6 @@ class _CategoryTransactionsState extends State<CategoryTransactions> {
   //Dates for the filters
   DateTime? _startDate;
   DateTime? _endDate;
-  CategoryModel currentCategory =
-      CategoryModel(name: 'null', iconName: 'app_icon', ownerId: '');
 
   @override
   void initState() {

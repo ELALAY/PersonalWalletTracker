@@ -135,7 +135,7 @@ class _EditCategoryState extends State<EditCategory> {
             id: widget.category.id,
             name: newCategoryController.text,
             iconName: _selectedIcon,
-            ownerId: widget.user);
+            ownerId: widget.category.ownerId);
         await firebaseDatabasehelper.updateCategory(
             widget.category.name, category);
         showSuccessSnachBar('Category updated successfully!');

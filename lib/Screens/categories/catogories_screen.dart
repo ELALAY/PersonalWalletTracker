@@ -113,6 +113,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               leading: SizedBox(
                                   height: 35.0,
                                   child: categoryIcon(category.iconName)),
+                              trailing: category.ownerId == widget.user ? const Icon(Icons.person_2_outlined) : const SizedBox(),
                             ));
                       }),
                 ),
