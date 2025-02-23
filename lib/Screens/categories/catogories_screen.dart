@@ -36,7 +36,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   void fetchCategories() async {
-    List<CategoryModel> temp = await firebaseDatabasehelper.getCategories(widget.user);
+    List<CategoryModel> temp =
+        await firebaseDatabasehelper.getCategories(widget.user);
     setState(() {
       categories = temp;
     });
@@ -65,7 +66,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         final category = categories[index];
                         return Slidable(
                             key: const ValueKey(0),
-                            
+
                             // The start action pane is the one at the left or the top side.
                             startActionPane: ActionPane(
                               // A motion is a widget used to control how the pane animates.
@@ -76,10 +77,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 // A SlidableAction can have an icon and/or a label.
                                 SlidableAction(
                                   onPressed: (context) {
-                                    editcategory(category);
+                                    if (category.ownerId == widget.user) {
+                                      editcategory(category);
+                                    } else {
+                                      _showAlertPublicCategoryDialog(category);
+                                    }
                                     fetchCategories();
                                   },
-                                  backgroundColor: const Color.fromARGB(255, 192, 174, 174),
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 192, 174, 174),
                                   foregroundColor: Colors.white,
                                   icon: Icons.edit,
                                   label: 'Update',
@@ -87,7 +93,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               ],
                             ),
 
-                            // The start action pane is the one at the left or the top side.
+                            // The end action pane is the one at the right or the top side.
                             endActionPane: ActionPane(
                               // A motion is a widget used to control how the pane animates.
                               motion: const StretchMotion(),
@@ -97,11 +103,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 // A SlidableAction can have an icon and/or a label.
                                 SlidableAction(
                                   onPressed: (context) {
-                                    _showDeleteCategoryDialog(category);
+                                    if (category.ownerId == widget.user) {
+                                      _showDeleteCategoryDialog(category);
+                                    } else {
+                                      _showAlertPublicCategoryDialog(category);
+                                    }
                                     fetchCategories();
                                   },
-                                  backgroundColor:
-                                      Colors.red,
+                                  backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
                                   icon: Icons.delete_forever_outlined,
                                   label: 'Delete',
@@ -113,7 +122,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               leading: SizedBox(
                                   height: 35.0,
                                   child: categoryIcon(category.iconName)),
-                              trailing: category.ownerId == widget.user ? const Icon(Icons.person_2_outlined) : const SizedBox(),
+                              trailing: category.ownerId == widget.user
+                                  ? const Icon(Icons.person_2_outlined)
+                                  : const SizedBox(),
                             ));
                       }),
                 ),
@@ -127,7 +138,26 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  // ignore: unused_element
+  void _showAlertPublicCategoryDialog(CategoryModel category) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('This is a Public Category'),
+          content: Text(
+              "${category.name} cannot be deleted/updated! \n Public categories cannot be deleted/updated!"),
+          actions: [
+            MyButton(
+                label: 'ok',
+                onTap: () {
+                  Navigator.of(context).pop();
+                }),
+          ],
+        );
+      },
+    );
+  }
+
   void _showDeleteCategoryDialog(CategoryModel category) {
     showDialog(
       context: context,
@@ -154,13 +184,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   void editcategory(CategoryModel catergory) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return EditCategory(category: catergory, user: widget.user,); // replace with your settings screen
+      return EditCategory(
+        category: catergory,
+        user: widget.user,
+      ); // replace with your settings screen
     })).then((value) => reload());
   }
 
   void _createCategory() async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CreateCategory(user: widget.user,); // replace with your settings screen
+      return CreateCategory(
+        user: widget.user,
+      ); // replace with your settings screen
     })).then((value) => reload());
   }
 

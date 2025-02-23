@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
-import 'package:personalwallettracker/Models/category_model.dart';
-
 import '../../Models/transaction_model.dart';
 import '../../services/realtime_db/firebase_db.dart';
 import '../transaction/edit_transaction_screen.dart';
