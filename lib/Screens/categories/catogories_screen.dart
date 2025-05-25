@@ -2,6 +2,7 @@ import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
+import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/categories/create_category_screen.dart';
 
 import '../../Models/category_model.dart';
@@ -80,7 +81,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     if (category.ownerId == widget.user) {
                                       editcategory(category);
                                     } else {
-                                      _showAlertPublicCategoryDialog(category);
+                                      showWarningSnachBar(
+                                          "Cannot Update Public Categories");
                                     }
                                     fetchCategories();
                                   },
@@ -102,11 +104,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               children: [
                                 // A SlidableAction can have an icon and/or a label.
                                 SlidableAction(
-                                  onPressed: (context) {
+                                  onPressed: (context) async {
                                     if (category.ownerId == widget.user) {
-                                      _showDeleteCategoryDialog(category);
+                                      List<TransactionModel> trans =
+                                          await firebaseDatabasehelper
+                                              .fetchTransactionsByCategory(
+                                                  category.name);
+                                      _showDeleteCategoryDialog(
+                                          category, trans);
                                     } else {
-                                      _showAlertPublicCategoryDialog(category);
+                                      showWarningSnachBar(
+                                          "Cannot Update Public Categories");
                                     }
                                     fetchCategories();
                                   },
@@ -138,33 +146,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  void _showAlertPublicCategoryDialog(CategoryModel category) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('This is a Public Category'),
-          content: Text(
-              "${category.name} cannot be deleted/updated! \n Public categories cannot be deleted/updated!"),
-          actions: [
-            MyButton(
-                label: 'ok',
-                onTap: () {
-                  Navigator.of(context).pop();
-                }),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showDeleteCategoryDialog(CategoryModel category) {
+  void _showDeleteCategoryDialog(
+      CategoryModel category, List<TransactionModel> trans) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Delete Category'),
-          content: Text(category.name),
+          content: Text("${category.name} has ${trans.length} transactions and will be deleted!"),
           actions: [
             MyButton(
                 label: 'delete',
@@ -209,6 +198,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     } catch (e) {
       showErrorSnachBar('Error deleting category!');
     }
+  }
+
+  void showWarningSnachBar(String message) {
+    awesomeTopSnackbar(context, message,
+        iconWithDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white),
+            color: Colors.amber.shade400),
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.warning_amber,
+          color: Colors.white,
+        ));
   }
 
   void showErrorSnachBar(String message) {

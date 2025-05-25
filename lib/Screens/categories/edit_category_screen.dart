@@ -1,8 +1,10 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
+import 'package:personalwallettracker/Models/transaction_model.dart';
 
 import '../../Components/my_textfields/my_textfield.dart';
+import '../../Models/card_model.dart';
 import '../../Models/category_model.dart';
 import '../../Utils/globals.dart';
 import '../../services/realtime_db/firebase_db.dart';
@@ -20,13 +22,35 @@ class _EditCategoryState extends State<EditCategory> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
   TextEditingController newCategoryController = TextEditingController();
   String _selectedIcon = 'app_icon';
+  int transactions = 0;
+  List<CardModel> cards = [];
 
   @override
   void initState() {
     super.initState();
     // Initialize with existing card details
+    fetchCards();
     newCategoryController = TextEditingController(text: widget.category.name);
     _selectedIcon = widget.category.iconName;
+  }
+
+  void fetchCards() async {
+    List<TransactionModel> trans = [];
+    List<CardModel> cards =
+        await firebaseDatabasehelper.getUserCards(widget.user);
+    debugPrint("${cards.length}");
+    
+    if (cards.isNotEmpty) {
+      List<String> cardsIds = cards.map((card) => card.id).toList();
+      debugPrint("${cardsIds.length}");
+      
+      trans = await firebaseDatabasehelper
+          .fetchTransactionsByCategoryAndCards(widget.category.name, cardsIds);
+      debugPrint("${trans.length}");
+    }
+    setState(() {
+      transactions = trans.length;
+    });
   }
 
   @override
@@ -37,9 +61,12 @@ class _EditCategoryState extends State<EditCategory> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         foregroundColor: Colors.grey,
+        actions: [
+          TextButton(onPressed: () {}, child: Text("$transactions")),
+        ],
       ),
       body: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           SizedBox(
             width: 365.0,

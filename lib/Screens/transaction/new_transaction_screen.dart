@@ -43,7 +43,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   Future<void> _loadCategories() async {
     try {
       final categories = await _firebaseDB.getCategories(widget.user);
-      debugPrint(categories.length as String?);
       if (mounted) {
         setState(() {
           _categories = categories;
