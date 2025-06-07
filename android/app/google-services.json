@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "869443867613",
+    "project_id": "personalwallet-9bd09",
+    "storage_bucket": "personalwallet-9bd09.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:869443867613:android:896caa9f2161b410201c34",
+        "android_client_info": {
+          "package_name": "com.example.personalwallettracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "869443867613-i9qjt814fn1kka5a7p1hcn7doj27lae6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.personalwallettracker",
+            "certificate_hash": "744a0dfc855a431a555902c801b5622cb8d1ab4c"
+          }
+        },
+        {
+          "client_id": "869443867613-ikmp1aibscev14mqbf0vclo7uv455fqj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwu0uCFIxNBb3mjpuR-iCa-IkYkgTRBK8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "869443867613-ikmp1aibscev14mqbf0vclo7uv455fqj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "869443867613-968a65bisuji2hst1qiblqmmn6c8rrgs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.personalwallettracker"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
