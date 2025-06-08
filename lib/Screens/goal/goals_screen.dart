@@ -7,7 +7,7 @@ import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/goal_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'edit_goal_screen.dart';
 import 'new_goal_screen.dart';
 

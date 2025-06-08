@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
-import 'package:personalwallettracker/services/auth/auth_service.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/auth/auth_service.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 
 import 'edit_card_screen.dart';

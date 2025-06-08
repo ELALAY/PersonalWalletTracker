@@ -4,7 +4,7 @@ import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 
 
 

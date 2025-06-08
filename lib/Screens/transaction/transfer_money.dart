@@ -3,7 +3,7 @@ import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';

@@ -9,7 +9,7 @@ import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class AddRecurringTransactionScreen extends StatefulWidget {

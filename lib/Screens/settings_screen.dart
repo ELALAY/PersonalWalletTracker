@@ -2,7 +2,7 @@ import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'card/user_cards_screen.dart';
 import 'categories/catogories_screen.dart';
 

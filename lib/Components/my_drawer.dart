@@ -8,11 +8,11 @@ import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
 import 'package:personalwallettracker/Screens/profile_screen.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import '../Models/card_model.dart';
 import '../Screens/transaction/recurring_transactions/recurring_transactions_screen.dart';
-import '../services/auth/auth_service.dart';
-import '../services/auth/login_register_screen.dart';
+import '../services/firebase/auth/auth_service.dart';
+import '../services/firebase/auth/login_register_screen.dart';
 
 class MyDrawer extends StatefulWidget {
   final User user;

@@ -50,6 +50,7 @@ dependencies:
   liquid_pull_to_refresh: ^3.0.1
   toggle_switch: ^2.3.0
   flutter_local_notifications: ^19.2.1
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:

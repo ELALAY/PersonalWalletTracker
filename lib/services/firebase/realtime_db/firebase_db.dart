@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import '../../Models/card_model.dart';
-import '../../Models/category_model.dart';
-import '../../Models/goal_model.dart';
-import '../../Models/person_model.dart';
-import '../../Models/recurring_transaction_model.dart';
-import '../../Models/transaction_model.dart';
+import '../../../Models/card_model.dart';
+import '../../../Models/category_model.dart';
+import '../../../Models/goal_model.dart';
+import '../../../Models/person_model.dart';
+import '../../../Models/recurring_transaction_model.dart';
+import '../../../Models/transaction_model.dart';
 
 class FirebaseDB {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

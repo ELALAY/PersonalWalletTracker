@@ -8,8 +8,8 @@ import 'package:personalwallettracker/Components/my_textfields/my_pwdfield.dart'
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
-import 'package:personalwallettracker/services/auth/register_screen.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/auth/register_screen.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'auth_service.dart';
 
 class LoginOrRegister extends StatefulWidget {

@@ -9,7 +9,7 @@ import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/recurring_transactions/new_recurring_transaction_screen.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 
 import 'edit_recurring_transaction_screen.dart';
 

@@ -8,7 +8,7 @@ import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/edit_transaction_screen.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 
 import 'new_transaction_screen.dart';
 

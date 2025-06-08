@@ -15,8 +15,8 @@ import 'package:personalwallettracker/Screens/transaction/recurring_transactions
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
 import 'package:personalwallettracker/Screens/transaction/transfer_money.dart';
-import 'package:personalwallettracker/services/auth/auth_service.dart';
-import 'package:personalwallettracker/services/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/firebase/auth/auth_service.dart';
+import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'card/edit_card_screen.dart';
