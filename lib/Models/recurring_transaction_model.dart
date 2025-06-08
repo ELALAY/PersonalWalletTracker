@@ -1,6 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
-
 class RecurringTransactionModel {
   final String id;
   final String ownerId;

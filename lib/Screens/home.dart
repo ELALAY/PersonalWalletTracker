@@ -1,7 +1,6 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:personalwallettracker/Components/my_card.dart';
 import 'package:personalwallettracker/Components/my_drawer.dart';
@@ -15,7 +14,6 @@ import 'package:personalwallettracker/Screens/transaction/recurring_transactions
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
 import 'package:personalwallettracker/Screens/transaction/transfer_money.dart';
-import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/firebase/auth/auth_service.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -105,25 +103,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void checkUncreatedRecurringTransactions() async {
     if (user != null) {
+      DateTime now = DateTime.now();
+      
       List<RecurringTransactionModel> dueTransactions = [];
-
       List<RecurringTransactionModel> recurringTransactions =
           await firebaseDatabasehelper.fetchUserRecurringTransactions(
             user!.uid,
           );
 
-      DateTime now = DateTime.now();
-
       for (var transaction in recurringTransactions) {
         if (transaction.isArchived) continue;
 
-        DateTime transDate = transaction.date;
-
         // Check if the transaction is due today
         bool isDue = false;
+        DateTime transDate = transaction.date;
 
         isDue = transDate.isBefore(now) ? true : false;
-
         if (isDue) {
           dueTransactions.add(transaction);
         }

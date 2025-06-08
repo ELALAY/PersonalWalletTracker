@@ -11,7 +11,7 @@ class LocalNotificationService {
     // Initialize timezone data
     initializeTimeZones();
     // Optionally set default local timezone (usually auto-detected)
-    final String timeZoneName = await local.name;
+    final String timeZoneName = local.name;
     setLocalLocation(getLocation(timeZoneName));
 
     const AndroidInitializationSettings initializationSettingsAndroid =
