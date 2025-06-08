@@ -9,13 +9,18 @@ import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/notifications/notification.dart';
 
 import '../categories/create_category_screen.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final CardModel card;
   final String user;
-  const AddTransactionScreen({super.key, required this.card, required this.user});
+  const AddTransactionScreen({
+    super.key,
+    required this.card,
+    required this.user,
+  });
 
   @override
   AddTransactionScreenState createState() => AddTransactionScreenState();
@@ -51,9 +56,9 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading categories: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading categories: $e')));
       }
     }
   }
@@ -79,9 +84,15 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
           double amount = isExpense ? -transaction.amount : transaction.amount;
           debugPrint(amount.toString());
           _firebaseDB.updateCardBalance(
-              widget.card.id, widget.card.balance + amount);
+            widget.card.id,
+            widget.card.balance + amount,
+          );
           debugPrint('updated card balance!');
           showSuccessSnachBar('Transaction Created!');
+          LocalNotificationService().showNotification(
+            title: 'new Transation - ${transaction.description}',
+            body: '${transaction.amount} -> ${transaction.cardName}',
+          );
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
         } else {
@@ -108,7 +119,10 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
               primary: Colors.deepPurple, // Header background color
               onPrimary: Colors.white, // Header text color
               onSurface: Colors.deepPurple, // Body text color
-            ), dialogTheme: const DialogThemeData(backgroundColor: Colors.white), // Background color of the dialog
+            ),
+            dialogTheme: const DialogThemeData(
+              backgroundColor: Colors.white,
+            ), // Background color of the dialog
           ),
           child: child!,
         );
@@ -146,17 +160,13 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                           size: 70,
                           color: Color(widget.card.color),
                         ),
-                        const SizedBox(
-                          height: 10.0,
-                        ),
+                        const SizedBox(height: 10.0),
                         widget.card.cardName.isNotEmpty
                             ? Text(widget.card.cardName)
                             : const Text('Loading card information...'),
                       ],
                     ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
+                    const SizedBox(height: 15.0),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -164,16 +174,18 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                         children: [
                           // Amount
                           MyNumberField(
-                              controller: _amountController,
-                              label: 'Amount',
-                              color: Colors.deepPurple,
-                              enabled: true),
+                            controller: _amountController,
+                            label: 'Amount',
+                            color: Colors.deepPurple,
+                            enabled: true,
+                          ),
                           // Description
                           MyTextField(
-                              controller: _descriptionController,
-                              label: 'Description',
-                              color: Colors.deepPurple,
-                              enabled: true),
+                            controller: _descriptionController,
+                            label: 'Description',
+                            color: Colors.deepPurple,
+                            enabled: true,
+                          ),
                           // Category
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -192,37 +204,41 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                               },
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 labelText: 'Category',
                                 labelStyle: TextStyle(color: Colors.deepPurple),
                                 enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                               ),
                               items: [
-                                ..._categories
-                                    .map((category) => DropdownMenuItem<String>(
-                                          value: category.name,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                  height: 35.0,
-                                                  child: categoryIcon(
-                                                      category.iconName)),
-                                              const SizedBox(
-                                                width: 12.0,
-                                              ),
-                                              Text(category.name),
-                                            ],
+                                ..._categories.map(
+                                  (category) => DropdownMenuItem<String>(
+                                    value: category.name,
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          height: 35.0,
+                                          child: categoryIcon(
+                                            category.iconName,
                                           ),
-                                        )),
+                                        ),
+                                        const SizedBox(width: 12.0),
+                                        Text(category.name),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -234,24 +250,29 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                               controller: _dateController,
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 labelText: formatDate(selectedDate),
-                                labelStyle:
-                                    const TextStyle(color: Colors.deepPurple),
+                                labelStyle: const TextStyle(
+                                  color: Colors.deepPurple,
+                                ),
                                 enabledBorder: const OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 focusedBorder: const OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 suffixIcon: IconButton(
                                   icon: const Icon(
-                                      Icons.calendar_month_outlined,
-                                      color: Colors.deepPurple),
+                                    Icons.calendar_month_outlined,
+                                    color: Colors.deepPurple,
+                                  ),
                                   onPressed: () => _selectDate(context),
                                 ),
                               ),
@@ -265,11 +286,14 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Text('Income',
-                                    style: TextStyle(
-                                        color: isExpense
-                                            ? Colors.grey
-                                            : Colors.deepPurple)),
+                                Text(
+                                  'Income',
+                                  style: TextStyle(
+                                    color: isExpense
+                                        ? Colors.grey
+                                        : Colors.deepPurple,
+                                  ),
+                                ),
                                 const SizedBox(width: 30.0),
                                 Switch(
                                   value: isExpense,
@@ -281,19 +305,23 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                                   activeColor: Colors.deepPurple,
                                 ),
                                 const SizedBox(width: 20.0),
-                                Text('Expense`',
-                                    style: TextStyle(
-                                        color: isExpense
-                                            ? Colors.deepPurple
-                                            : Colors.grey))
+                                Text(
+                                  'Expense`',
+                                  style: TextStyle(
+                                    color: isExpense
+                                        ? Colors.deepPurple
+                                        : Colors.grey,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 20,),
+                          const SizedBox(height: 20),
                           // save transaction
                           MyButton(
-                              label: 'Save transaction',
-                              onTap: _addTransaction),
+                            label: 'Save transaction',
+                            onTap: _addTransaction,
+                          ),
                         ],
                       ),
                     ),
@@ -305,47 +333,57 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   void createCategory() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CreateCategory(user: widget.user,); // replace with your settings screen
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return CreateCategory(
+            user: widget.user,
+          ); // replace with your settings screen
+        },
+      ),
+    );
   }
 
   void showErrorSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.amber.shade400),
-        backgroundColor: Colors.amber,
-        icon: const Icon(
-          Icons.close,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.amber.shade400,
+      ),
+      backgroundColor: Colors.amber,
+      icon: const Icon(Icons.close, color: Colors.white),
+    );
   }
 
   void showInfoSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.lightBlueAccent.shade400),
-        backgroundColor: Colors.lightBlueAccent,
-        icon: const Icon(
-          Icons.info_outline,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.lightBlueAccent.shade400,
+      ),
+      backgroundColor: Colors.lightBlueAccent,
+      icon: const Icon(Icons.info_outline, color: Colors.white),
+    );
   }
 
   void showSuccessSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.green.shade400),
-        backgroundColor: Colors.green,
-        icon: const Icon(
-          Icons.check,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.green.shade400,
+      ),
+      backgroundColor: Colors.green,
+      icon: const Icon(Icons.check, color: Colors.white),
+    );
   }
 }

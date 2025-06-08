@@ -17,11 +17,12 @@ class RecurringTransactionsScreen extends StatefulWidget {
   final List<CardModel> myCards;
   final String user;
   final Person personProfile;
-  const RecurringTransactionsScreen(
-      {super.key,
-      required this.user,
-      required this.personProfile,
-      required this.myCards});
+  const RecurringTransactionsScreen({
+    super.key,
+    required this.user,
+    required this.personProfile,
+    required this.myCards,
+  });
 
   @override
   State<RecurringTransactionsScreen> createState() =>
@@ -31,9 +32,8 @@ class RecurringTransactionsScreen extends StatefulWidget {
 class _RecurringTransactionsScreenState
     extends State<RecurringTransactionsScreen> {
   FirebaseDB firebaseDB = FirebaseDB();
-
+  bool _isSortedByNewest = true; // Default sorting by date
   bool isLoading = true;
-  bool isSortedByNewest = true;
   List<RecurringTransactionModel> transactions = [];
   CardModel? selectedCard;
 
@@ -55,8 +55,9 @@ class _RecurringTransactionsScreenState
   }
 
   List<RecurringTransactionModel> _sortTransactions(
-      List<RecurringTransactionModel> transactions) {
-    if (isSortedByNewest) {
+    List<RecurringTransactionModel> transactions,
+  ) {
+    if (_isSortedByNewest) {
       // Sort by date
       transactions.sort((a, b) => b.date.compareTo(a.date)); // Newest first
     } else {
@@ -67,8 +68,8 @@ class _RecurringTransactionsScreenState
   }
 
   void fetchAllTransactions() async {
-    List<RecurringTransactionModel> transactionstemp =
-        await firebaseDB.fetchUserRecurringTransactions(widget.user);
+    List<RecurringTransactionModel> transactionstemp = await firebaseDB
+        .fetchUserRecurringTransactions(widget.user);
     debugPrint(transactionstemp.length.toString());
 
     // Sort transactions from newest to oldest
@@ -101,18 +102,17 @@ class _RecurringTransactionsScreenState
                   child: Padding(
                     padding: const EdgeInsets.all(2.0),
                     child: ListTile(
-                        leading: const Text(
-                          'Check Recurring Transactions',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 15),
-                        ),
-                        trailing: const Icon(
-                          Icons.history,
+                      leading: const Text(
+                        'Check Recurring Transactions',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          fontSize: 15,
                         ),
-                        onTap: () {}),
+                      ),
+                      trailing: const Icon(Icons.history, color: Colors.white),
+                      onTap: () {},
+                    ),
                   ),
                 ),
             ],
@@ -130,6 +130,39 @@ class _RecurringTransactionsScreenState
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.grey,
         elevation: 0.0,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (String value) {
+              setState(() {
+                _isSortedByNewest = value == 'Newsest';
+              });
+              _sortTransactions(transactions);
+            },
+            icon: const Icon(Icons.sort),
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'Oldest',
+                  child: Row(
+                    children: [
+                      Text('Sort by Oldest'),
+                      Icon(Icons.arrow_upward),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Newsest',
+                  child: Row(
+                    children: [
+                      Text('Sort by Newsest'),
+                      Icon(Icons.arrow_downward),
+                    ],
+                  ),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       body: isLoading
           ? const Center(
@@ -153,8 +186,9 @@ class _RecurringTransactionsScreenState
                   // return MyTransactionTile(transaction: transaction);
                   return Container(
                     padding: const EdgeInsets.all(8.0),
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Slidable(
                       key: const ValueKey(0),
                       // The start action pane is the one at the left or the top side.
@@ -188,8 +222,12 @@ class _RecurringTransactionsScreenState
                             onPressed: (context) {
                               editRecurringTransaction(transaction);
                             },
-                            backgroundColor:
-                                const Color.fromARGB(255, 192, 174, 174),
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              192,
+                              174,
+                              174,
+                            ),
                             foregroundColor: Colors.white,
                             icon: Icons.edit,
                             label: 'Edit',
@@ -205,30 +243,39 @@ class _RecurringTransactionsScreenState
                             Text(
                               transaction.description,
                               style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Text(
                               '    ${transaction.isExpense ? '-' : '+'} ${transaction.amount.abs().toStringAsFixed(2)} ${widget.personProfile.default_currency}',
                               style: TextStyle(
-                                  color: transaction.isExpense
-                                      ? Colors.red
-                                      : Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15),
+                                color: transaction.isExpense
+                                    ? Colors.red
+                                    : Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
                             ),
                           ],
                         ),
                         subtitle: Text(
-                            '${formatDate(transaction.date)} - ${transaction.category}'),
+                          '${formatDate(transaction.date)} - ${transaction.category}',
+                        ),
                         leading: SizedBox(
-                            height: 35.0,
-                            child: categoryIcon(transaction.category)),
+                          height: 35.0,
+                          child: categoryIcon(transaction.category),
+                        ),
                         trailing: IconButton(
                           icon: transaction.isArchived
-                              ? const Icon(Icons.unarchive_rounded,
-                                  color: Colors.deepPurple)
-                              : const Icon(Icons.add_outlined,
-                                  color: Colors.deepPurple),
+                              ? const Icon(
+                                  Icons.unarchive_rounded,
+                                  color: Colors.deepPurple,
+                                )
+                              : const Icon(
+                                  Icons.add_outlined,
+                                  color: Colors.deepPurple,
+                                ),
                           onPressed: () {
                             if (transaction.isArchived) {
                               unarchiveRecurringTransaction(transaction);
@@ -246,25 +293,25 @@ class _RecurringTransactionsScreenState
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
         onPressed: navNewRecurringTransactionScreen,
-        child: const Icon(
-          Icons.add,
-        ),
+        child: const Icon(Icons.add),
       ),
     );
   }
 
   void unarchiveRecurringTransaction(
-      RecurringTransactionModel transaction) async {
+    RecurringTransactionModel transaction,
+  ) async {
     RecurringTransactionModel rec = RecurringTransactionModel.withId(
-        id: transaction.id,
-        ownerId: transaction.ownerId,
-        amount: transaction.amount,
-        category: transaction.category,
-        date: transaction.date,
-        description: transaction.description,
-        isExpense: transaction.isExpense,
-        isArchived: false,
-        recurrenceType: transaction.recurrenceType);
+      id: transaction.id,
+      ownerId: transaction.ownerId,
+      amount: transaction.amount,
+      category: transaction.category,
+      date: transaction.date,
+      description: transaction.description,
+      isExpense: transaction.isExpense,
+      isArchived: false,
+      recurrenceType: transaction.recurrenceType,
+    );
 
     await firebaseDB.updateRecurringTransaction(rec);
 
@@ -278,39 +325,43 @@ class _RecurringTransactionsScreenState
       if (selectedCard != null) {
         // Create new transaction
         TransactionModel newTransaction = TransactionModel(
-            cardId: selectedCard!.id,
-            cardName: selectedCard!.cardName,
-            amount: transaction.amount,
-            category: transaction.category,
-            date: DateTime.now(),
-            description: transaction.description,
-            isExpense: transaction.isExpense,
-            isRecurring: true);
+          cardId: selectedCard!.id,
+          cardName: selectedCard!.cardName,
+          amount: transaction.amount,
+          category: transaction.category,
+          date: DateTime.now(),
+          description: transaction.description,
+          isExpense: transaction.isExpense,
+          isRecurring: true,
+        );
         // Add transaction
         isCreated = await firebaseDB.addTransaction(newTransaction);
 
         if (isCreated) {
           debugPrint(transaction.amount.toString());
           // isEpense ? negative amount : positive amount
-          double amount =
-              transaction.isExpense ? -transaction.amount : transaction.amount;
+          double amount = transaction.isExpense
+              ? -transaction.amount
+              : transaction.amount;
 
           // since isCreated=true => update card balance
           firebaseDB.updateCardBalance(
-              selectedCard!.id, selectedCard!.balance + amount);
+            selectedCard!.id,
+            selectedCard!.balance + amount,
+          );
           debugPrint('updated card balance!');
 
           // update recurring transaction for next date in another month
           RecurringTransactionModel newRec = RecurringTransactionModel.withId(
-              id: transaction.id,
-              ownerId: transaction.ownerId,
-              amount: transaction.amount,
-              category: transaction.category,
-              date:
-                  updateNextDate(transaction.date, transaction.recurrenceType),
-              description: transaction.description,
-              isExpense: transaction.isExpense,
-              recurrenceType: transaction.recurrenceType);
+            id: transaction.id,
+            ownerId: transaction.ownerId,
+            amount: transaction.amount,
+            category: transaction.category,
+            date: updateNextDate(transaction.date, transaction.recurrenceType),
+            description: transaction.description,
+            isExpense: transaction.isExpense,
+            recurrenceType: transaction.recurrenceType,
+          );
           await firebaseDB.updateRecurringTransaction(newRec);
 
           // then reload the recurring transactions
@@ -390,10 +441,12 @@ class _RecurringTransactionsScreenState
                     ),
                   ),
                   items: [
-                    ...widget.myCards.map((card) => DropdownMenuItem<CardModel>(
-                          value: card,
-                          child: Text(card.cardName),
-                        )),
+                    ...widget.myCards.map(
+                      (card) => DropdownMenuItem<CardModel>(
+                        value: card,
+                        child: Text(card.cardName),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -426,14 +479,19 @@ class _RecurringTransactionsScreenState
   }
 
   void editRecurringTransaction(RecurringTransactionModel transaction) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return EditReccuringTransactionScreen(
-        transaction: transaction,
-        user: widget.user,
-        personProfile: widget.personProfile,
-        myCards: widget.myCards,
-      );
-    })).then((value) => reload());
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return EditReccuringTransactionScreen(
+            transaction: transaction,
+            user: widget.user,
+            personProfile: widget.personProfile,
+            myCards: widget.myCards,
+          );
+        },
+      ),
+    ).then((value) => reload());
   }
 
   void deleteTransaction(RecurringTransactionModel transaction) async {
@@ -447,51 +505,59 @@ class _RecurringTransactionsScreenState
   }
 
   void showErrorSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.amber.shade400),
-        backgroundColor: Colors.amber,
-        icon: const Icon(
-          Icons.close,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.amber.shade400,
+      ),
+      backgroundColor: Colors.amber,
+      icon: const Icon(Icons.close, color: Colors.white),
+    );
   }
 
   void showInfoSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.lightBlueAccent.shade400),
-        backgroundColor: Colors.lightBlueAccent,
-        icon: const Icon(
-          Icons.info_outline,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.lightBlueAccent.shade400,
+      ),
+      backgroundColor: Colors.lightBlueAccent,
+      icon: const Icon(Icons.info_outline, color: Colors.white),
+    );
   }
 
   void showSuccessSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.green.shade400),
-        backgroundColor: Colors.green,
-        icon: const Icon(
-          Icons.check,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.green.shade400,
+      ),
+      backgroundColor: Colors.green,
+      icon: const Icon(Icons.check, color: Colors.white),
+    );
   }
 
   void navNewRecurringTransactionScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return AddRecurringTransactionScreen(
-        user: widget.user,
-        personProfile: widget.personProfile,
-        myCards: widget.myCards,
-      );
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return AddRecurringTransactionScreen(
+            user: widget.user,
+            personProfile: widget.personProfile,
+            myCards: widget.myCards,
+          );
+        },
+      ),
+    );
   }
 }

@@ -1,3 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+
 class RecurringTransactionModel {
   final String id;
   final String ownerId;
@@ -49,7 +52,10 @@ class RecurringTransactionModel {
     };
   }
 
-  factory RecurringTransactionModel.fromMap(Map<String, dynamic> map, String id) {
+  factory RecurringTransactionModel.fromMap(
+    Map<String, dynamic> map,
+    String id,
+  ) {
     return RecurringTransactionModel.withId(
       id: id,
       ownerId: map['ownerId'],

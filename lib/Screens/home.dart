@@ -15,6 +15,7 @@ import 'package:personalwallettracker/Screens/transaction/recurring_transactions
 import 'package:personalwallettracker/Screens/transaction/stats_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/transaction_history.dart';
 import 'package:personalwallettracker/Screens/transaction/transfer_money.dart';
+import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/firebase/auth/auth_service.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -47,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     fetchUserAndCards();
+    checkUncreatedRecurringTransactions();
     isLoading = false;
   }
 
@@ -73,8 +75,8 @@ class _MyHomePageState extends State<MyHomePage> {
       if (userTemp != null) {
         debugPrint('got user: ${userTemp.email}');
         // Fetch user profile
-        Person? personProfileTemp =
-            await firebaseDatabasehelper.getPersonProfile(userTemp.uid);
+        Person? personProfileTemp = await firebaseDatabasehelper
+            .getPersonProfile(userTemp.uid);
         personProfileTemp != null
             ? debugPrint('got user: ${personProfileTemp.email}')
             : debugPrint('no user profile');
@@ -84,14 +86,15 @@ class _MyHomePageState extends State<MyHomePage> {
         });
 
         // Fetch cards only after user and personProfile are set
-        List<CardModel> cards =
-            await firebaseDatabasehelper.getUserActiveCards(userTemp.uid);
+        List<CardModel> cards = await firebaseDatabasehelper.getUserActiveCards(
+          userTemp.uid,
+        );
+
+        checkUncreatedRecurringTransactions();
         setState(() {
           myCards = cards;
           isLoading = false;
         });
-
-        checkUncreatedRecurringTransactions();
       } else {
         debugPrint('User not found');
       }
@@ -102,36 +105,73 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void checkUncreatedRecurringTransactions() async {
     if (user != null) {
-      List<RecurringTransactionModel> uncreatedTransactionstemp = [];
-      List<RecurringTransactionModel> recurringTransactions =
-          await firebaseDatabasehelper
-              .fetchUserRecurringTransactions(user!.uid);
+      List<RecurringTransactionModel> dueTransactions = [];
 
-      DateTime now = DateTime.now(); // Get the current date
-      String currentMonthYear = DateFormat('yyyyMM')
-          .format(now); // To compare for monthly recurrences
+      List<RecurringTransactionModel> recurringTransactions =
+          await firebaseDatabasehelper.fetchUserRecurringTransactions(
+            user!.uid,
+          );
+
+      DateTime now = DateTime.now();
 
       for (var transaction in recurringTransactions) {
-        if (!transaction.isArchived) {
-          // Check if the recurring transaction next month is today's month
-          if (transaction.recurrenceType == 0 &&
-              DateFormat('yyyyMM').format(transaction.date) ==
-                  currentMonthYear) {
-            // Handle recurring transaction for today (e.g., monthly)
-            uncreatedTransactionstemp.add(transaction);
-          }
+        if (transaction.isArchived) continue;
+
+        DateTime transDate = transaction.date;
+
+        // Check if the transaction is due today
+        bool isDue = false;
+
+        isDue = transDate.isBefore(now) ? true : false;
+
+        if (isDue) {
+          dueTransactions.add(transaction);
         }
       }
 
       setState(() {
-        uncreatedTransactions = uncreatedTransactionstemp;
+        uncreatedTransactions = dueTransactions;
         debugPrint(
-            'ucreated rec transactions: ${uncreatedTransactions.length.toString()}');
+          'Due recurring transactions: ${uncreatedTransactions.length}',
+        );
       });
     } else {
       debugPrint('No User Found!');
     }
   }
+
+  // void checkUncreatedRecurringTransactions() async {
+  //   if (user != null) {
+  //     List<RecurringTransactionModel> uncreatedTransactionstemp = [];
+  //     List<RecurringTransactionModel> recurringTransactions =
+  //         await firebaseDatabasehelper
+  //             .fetchUserRecurringTransactions(user!.uid);
+
+  //     DateTime now = DateTime.now(); // Get the current date
+  //     String currentMonthYear = DateFormat('yyyyMM')
+  //         .format(now); // To compare for monthly recurrences
+
+  //     for (var transaction in recurringTransactions) {
+  //       if (!transaction.isArchived) {
+  //         // Check if the recurring transaction next month is today's month
+  //         if (transaction.recurrenceType == 0 &&
+  //             DateFormat('yyyyMM').format(transaction.date) ==
+  //                 currentMonthYear) {
+  //           // Handle recurring transaction for today (e.g., monthly)
+  //           uncreatedTransactionstemp.add(transaction);
+  //         }
+  //       }
+  //     }
+
+  //     setState(() {
+  //       uncreatedTransactions = uncreatedTransactionstemp;
+  //       debugPrint(
+  //           'ucreated rec transactions: ${uncreatedTransactions.length.toString()}');
+  //     });
+  //   } else {
+  //     debugPrint('No User Found!');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -143,19 +183,24 @@ class _MyHomePageState extends State<MyHomePage> {
         foregroundColor: Colors.grey,
         actions: [
           IconButton(
-              onPressed: newCardScreen,
-              icon: const Icon(Icons.add_circle_outline_outlined,
-                  color: Colors.grey)),
+            onPressed: newCardScreen,
+            icon: const Icon(
+              Icons.add_circle_outline_outlined,
+              color: Colors.grey,
+            ),
+          ),
           uncreatedTransactions.isNotEmpty
               ? IconButton(
                   onPressed: showUncreatedRecurringTransactions,
                   icon: const Icon(
                     Icons.notifications_active,
                     color: Colors.deepOrange,
-                  ))
+                  ),
+                )
               : IconButton(
                   onPressed: showUncreatedRecurringTransactions,
-                  icon: const Icon(Icons.notifications_outlined))
+                  icon: const Icon(Icons.notifications_outlined),
+                ),
         ],
       ),
       drawer: user != null && personProfile != null
@@ -179,9 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    const SizedBox(
-                      height: 20.0,
-                    ),
+                    const SizedBox(height: 20.0),
                     //cards
                     SizedBox(
                       height: 200.0,
@@ -190,7 +233,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         scrollDirection: Axis.horizontal,
                         children: myCards.isNotEmpty
                             ? myCards
-                                .map((card) => MyCard(
+                                  .map(
+                                    (card) => MyCard(
                                       cardHolder: card.cardHolderName,
                                       balance: card.balance,
                                       cardName: card.cardName,
@@ -198,35 +242,34 @@ class _MyHomePageState extends State<MyHomePage> {
                                       color: Color(card.color),
                                       onTap: navUpdateCard,
                                       currency: personProfile!.default_currency,
-                                    ))
-                                .toList()
+                                    ),
+                                  )
+                                  .toList()
                             : [
                                 const Center(
                                   child: Text(
                                     'No Cards Found! Create a Card!',
                                     style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w200),
+                                      color: Colors.grey,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w200,
+                                    ),
                                   ),
-                                )
+                                ),
                               ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
+                    const SizedBox(height: 15.0),
                     myCards.isNotEmpty
                         ? SmoothPageIndicator(
                             controller: pageController,
                             count: myCards.length,
                             effect: const ExpandingDotsEffect(
-                                activeDotColor: Colors.deepPurple),
+                              activeDotColor: Colors.deepPurple,
+                            ),
                           )
                         : Container(),
-                    const SizedBox(
-                      height: 25.0,
-                    ),
+                    const SizedBox(height: 25.0),
                     //buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -257,17 +300,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 25.0,
-                    ),
+                    const SizedBox(height: 25.0),
                     const Text(
                       'Insights',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
                     ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
+                    const SizedBox(height: 15.0),
                     //tiles of stats & transactions
                     Column(
                       children: [
@@ -295,16 +336,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           subtitle: const Text(
                             'payments & incomes',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                           onTap: statsScreen,
                         ),
-                        const SizedBox(
-                          height: 15.0,
-                        ),
+                        const SizedBox(height: 15.0),
                         //history tile
                         ListTile(
                           tileColor: Colors.deepOrange,
@@ -329,10 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           subtitle: const Text(
                             'Transactions history',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                           onTap: transactionhistoryScreen,
                         ),
@@ -370,14 +403,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       leading: const Text(
                         'Check Recurring Transactions',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 15),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
                       ),
-                      trailing: const Icon(
-                        Icons.history,
-                        color: Colors.white,
-                      ),
+                      trailing: const Icon(Icons.history, color: Colors.white),
                       onTap:
                           recurringTransactionsScreen, // Here the function is being called
                     ),
@@ -391,13 +422,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void recurringTransactionsScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return RecurringTransactionsScreen(
-        user: user!.uid,
-        personProfile: personProfile!,
-        myCards: myCards,
-      );
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return RecurringTransactionsScreen(
+            user: user!.uid,
+            personProfile: personProfile!,
+            myCards: myCards,
+          );
+        },
+      ),
+    );
   }
 
   void updateCardbalance(double newAmount) async {
@@ -407,28 +443,43 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void newCardScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return NewCardScreen(
-        user: user!,
-        personProfile: personProfile!,
-      );
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return NewCardScreen(user: user!, personProfile: personProfile!);
+        },
+      ),
+    );
   }
 
   void navSettingScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SettingsScreen(
-        person: personProfile!,
-        user: user!.uid
-      ); // replace with your settings screen
-    })).then((value) => reload());
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return SettingsScreen(
+            person: personProfile!,
+            user: user!.uid,
+          ); // replace with your settings screen
+        },
+      ),
+    ).then((value) => reload());
   }
 
   void newTransactionScreen() {
     if (myCards.isNotEmpty) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return AddTransactionScreen(card: myCards[pageIndex], user: user!.uid,);
-      })).then((value) => reload());
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return AddTransactionScreen(
+              card: myCards[pageIndex],
+              user: user!.uid,
+            );
+          },
+        ),
+      ).then((value) => reload());
     } else {
       showInfoSnachBar('No card selected!');
     }
@@ -436,14 +487,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void transactionhistoryScreen() {
     if (myCards.isNotEmpty) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return TransactionHistoryScreen(
-          card: myCards[pageIndex],
-          myCards: myCards,
-          currency: personProfile!.default_currency,
-          user: user!.uid
-        ); // replace with your settings screen
-      })).then((value) => reload());
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return TransactionHistoryScreen(
+              card: myCards[pageIndex],
+              myCards: myCards,
+              currency: personProfile!.default_currency,
+              user: user!.uid,
+            ); // replace with your settings screen
+          },
+        ),
+      ).then((value) => reload());
     } else {
       showInfoSnachBar('No card selected!');
     }
@@ -451,13 +507,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void statsScreen() {
     if (myCards.isNotEmpty) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return StatisticsScreen(
-          myCards: myCards,
-          currency: personProfile!.default_currency,
-          user: user!.uid
-        ); // replace with your settings screen
-      })).then((value) => reload());
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return StatisticsScreen(
+              myCards: myCards,
+              currency: personProfile!.default_currency,
+              user: user!.uid,
+            ); // replace with your settings screen
+          },
+        ),
+      ).then((value) => reload());
     } else {
       showInfoSnachBar('No card selected!');
     }
@@ -465,27 +526,37 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void navUpdateCard() {
     if (myCards.isNotEmpty) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return EditCardScreen(
-          card: myCards[pageIndex],
-          currency: personProfile!.default_currency,
-        ); // replace with your settings screen
-      })).then((value) => reload());
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return EditCardScreen(
+              card: myCards[pageIndex],
+              currency: personProfile!.default_currency,
+            ); // replace with your settings screen
+          },
+        ),
+      ).then((value) => reload());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No card selected')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No card selected')));
     }
   }
 
   void navTransferMoney() {
     if (myCards.length > 1) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return TransferMoney(
-          myCards: myCards,
-          currency: personProfile!.default_currency,
-        ); // replace with your settings screen
-      })).then((value) => reload());
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return TransferMoney(
+              myCards: myCards,
+              currency: personProfile!.default_currency,
+            ); // replace with your settings screen
+          },
+        ),
+      ).then((value) => reload());
     } else {
       showInfoSnachBar('Not enough cards!!');
     }
@@ -493,68 +564,77 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void navGoalScreen() {
     if (user != null) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return GoalsOverviewScreen(
-          user: user!,
-          myCards: myCards,
-        ); // replace with your settings screen
-      })).then((value) => reload());
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return GoalsOverviewScreen(
+              user: user!,
+              myCards: myCards,
+            ); // replace with your settings screen
+          },
+        ),
+      ).then((value) => reload());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No user is found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No user is found')));
     }
   }
 
   void showErrorSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.red.shade400),
-        backgroundColor: Colors.red,
-        icon: const Icon(
-          Icons.close,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.red.shade400,
+      ),
+      backgroundColor: Colors.red,
+      icon: const Icon(Icons.close, color: Colors.white),
+    );
   }
 
   void showWarningSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.amber.shade400),
-        backgroundColor: Colors.amber,
-        icon: const Icon(
-          Icons.warning_amber,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.amber.shade400,
+      ),
+      backgroundColor: Colors.amber,
+      icon: const Icon(Icons.warning_amber, color: Colors.white),
+    );
   }
 
   void showInfoSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.lightBlueAccent.shade400),
-        backgroundColor: Colors.lightBlueAccent,
-        icon: const Icon(
-          Icons.info_outline,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.lightBlueAccent.shade400,
+      ),
+      backgroundColor: Colors.lightBlueAccent,
+      icon: const Icon(Icons.info_outline, color: Colors.white),
+    );
   }
 
   void showSuccessSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.green.shade400),
-        backgroundColor: Colors.green,
-        icon: const Icon(
-          Icons.check,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.green.shade400,
+      ),
+      backgroundColor: Colors.green,
+      icon: const Icon(Icons.check, color: Colors.white),
+    );
   }
 }

@@ -9,6 +9,7 @@ import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Screens/transaction/edit_transaction_screen.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/notifications/notification.dart';
 
 import 'new_transaction_screen.dart';
 
@@ -17,12 +18,13 @@ class TransactionHistoryScreen extends StatefulWidget {
   final CardModel card;
   final List<CardModel> myCards;
   final String user;
-  const TransactionHistoryScreen(
-      {super.key,
-      required this.card,
-      required this.myCards,
-      required this.currency,
-      required this.user});
+  const TransactionHistoryScreen({
+    super.key,
+    required this.card,
+    required this.myCards,
+    required this.currency,
+    required this.user,
+  });
 
   @override
   TransactionHistoryScreenState createState() =>
@@ -55,7 +57,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   }
 
   List<TransactionModel> _sortTransactions(
-      List<TransactionModel> transactions) {
+    List<TransactionModel> transactions,
+  ) {
     if (_isSortedByNewest) {
       // Sort by date
       transactions.sort((a, b) => b.date.compareTo(a.date)); // Newest first
@@ -84,8 +87,9 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       }
     } else {
       debugPrint(selectedCard);
-      transactionstemp =
-          await firebaseDB.fetchTransactionsByCardId(selectedCard);
+      transactionstemp = await firebaseDB.fetchTransactionsByCardId(
+        selectedCard,
+      );
       debugPrint(transactionstemp.length.toString());
     }
     double totalIncometemp = 0.0;
@@ -144,11 +148,14 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     return DateTime(now.year, now.month, 1); // First day of the current month
   }
 
-// Get the end of the current month
+  // Get the end of the current month
   DateTime getEndOfMonth() {
     DateTime now = DateTime.now();
     return DateTime(
-        now.year, now.month + 1, 0); // Last day of the current month
+      now.year,
+      now.month + 1,
+      0,
+    ); // Last day of the current month
   }
 
   void reload() async {
@@ -181,7 +188,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                   child: Row(
                     children: [
                       Text('Sort by Oldest'),
-                      Icon(Icons.arrow_upward)
+                      Icon(Icons.arrow_upward),
                     ],
                   ),
                 ),
@@ -190,7 +197,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                   child: Row(
                     children: [
                       Text('Sort by Newsest'),
-                      Icon(Icons.arrow_downward)
+                      Icon(Icons.arrow_downward),
                     ],
                   ),
                 ),
@@ -200,9 +207,7 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         ],
       ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : LiquidPullToRefresh(
               onRefresh: () async {
                 debugPrint('reloading...');
@@ -222,8 +227,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     child: DropdownButtonFormField<String>(
                       value:
                           widget.myCards.any((card) => card.id == selectedCard)
-                              ? selectedCard
-                              : 'All',
+                          ? selectedCard
+                          : 'All',
                       icon: const Icon(
                         Icons.arrow_downward,
                         color: Colors.deepPurple,
@@ -252,11 +257,12 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                         ),
                       ),
                       items: [
-                        ...widget.myCards
-                            .map((card) => DropdownMenuItem<String>(
-                                  value: card.id,
-                                  child: Text(card.cardName),
-                                )),
+                        ...widget.myCards.map(
+                          (card) => DropdownMenuItem<String>(
+                            value: card.id,
+                            child: Text(card.cardName),
+                          ),
+                        ),
                         const DropdownMenuItem<String>(
                           value: 'All',
                           child: Text('All'),
@@ -277,21 +283,23 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                             const Text(
                               'Date Range',
                               style: TextStyle(
-                                  fontSize: 16.0, fontWeight: FontWeight.bold),
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Row(
                               children: [
-                                Text(_startDate != null
-                                    ? formatDate(_startDate!)
-                                    : ''),
-                                const SizedBox(
-                                  width: 8.0,
+                                Text(
+                                  _startDate != null
+                                      ? formatDate(_startDate!)
+                                      : '',
                                 ),
-                                Text(_endDate != null
-                                    ? formatDate(_endDate!)
-                                    : '')
+                                const SizedBox(width: 8.0),
+                                Text(
+                                  _endDate != null ? formatDate(_endDate!) : '',
+                                ),
                               ],
-                            )
+                            ),
                           ],
                         ),
                         //select date range
@@ -320,27 +328,32 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                    'Total Income: ${totalIncome.toStringAsFixed(2)} ${widget.currency}',
-                                    style:
-                                        const TextStyle(color: Colors.green)),
+                                  'Total Income: ${totalIncome.toStringAsFixed(2)} ${widget.currency}',
+                                  style: const TextStyle(color: Colors.green),
+                                ),
                                 const SizedBox(height: 4.0),
                                 Text(
-                                    'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ${widget.currency}',
-                                    style: const TextStyle(color: Colors.red)),
+                                  'Total Expenses: ${totalExpenses.toStringAsFixed(2)} ${widget.currency}',
+                                  style: const TextStyle(color: Colors.red),
+                                ),
                               ],
                             ),
                             Text(
-                                'Net Balance: ${(totalIncome - totalExpenses).toStringAsFixed(2)} ${widget.currency}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
+                              'Net Balance: ${(totalIncome - totalExpenses).toStringAsFixed(2)} ${widget.currency}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
-                        const SizedBox(
-                          height: 8.0,
+                        const SizedBox(height: 8.0),
+                        const Text(
+                          '* isRecurring transaction',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
-                        const Text('* isRecurring transaction',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -354,7 +367,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                         return Container(
                           padding: const EdgeInsets.all(8.0),
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: Slidable(
                             key: const ValueKey(0),
 
@@ -390,8 +404,12 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                                   onPressed: (context) {
                                     editTransaction(transaction);
                                   },
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 192, 174, 174),
+                                  backgroundColor: const Color.fromARGB(
+                                    255,
+                                    192,
+                                    174,
+                                    174,
+                                  ),
                                   foregroundColor: Colors.white,
                                   icon: Icons.edit,
                                   label: 'Edit',
@@ -403,21 +421,29 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                               title: Text(
                                 "${transaction.description} ${transaction.isRecurring ? '*' : ''}",
                                 style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               subtitle: Text(
-                                  '${formatDate(transaction.date)} - ${transaction.category}'),
+                                '${formatDate(transaction.date)} - ${transaction.category}',
+                              ),
                               leading: SizedBox(
-                                  height: 35.0,
-                                  child: categoryIcon(categories[transaction.category]?.iconName ?? 'other')),
+                                height: 35.0,
+                                child: categoryIcon(
+                                  categories[transaction.category]?.iconName ??
+                                      'other',
+                                ),
+                              ),
                               trailing: Text(
                                 '${transaction.isExpense ? '-' : '+'} ${transaction.amount.abs().toStringAsFixed(2)} ${widget.currency}',
                                 style: TextStyle(
-                                    color: transaction.isExpense
-                                        ? Colors.red
-                                        : Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15),
+                                  color: transaction.isExpense
+                                      ? Colors.red
+                                      : Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
                               ),
                               onTap: () {
                                 // Show transaction details
@@ -455,7 +481,10 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               primary: Colors.deepPurple, // Header background color
               onPrimary: Colors.white, // Header text color
               onSurface: Colors.deepPurple, // Body text color
-            ), dialogTheme: const DialogThemeData(backgroundColor: Colors.white), // Background color of the dialog
+            ),
+            dialogTheme: const DialogThemeData(
+              backgroundColor: Colors.white,
+            ), // Background color of the dialog
           ),
           child: child!,
         );
@@ -476,13 +505,18 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     if (selectedCard.isNotEmpty && selectedCard != 'All') {
       CardModel cardTemp = await firebaseDB.getCardById(selectedCard);
       // ignore: use_build_context_synchronously
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return EditTransactionScreen(
-          card: cardTemp,
-          transaction: transaction,
-          user: widget.user,
-        ); // replace with your settings screen
-      })).then((value) => reload());
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return EditTransactionScreen(
+              card: cardTemp,
+              transaction: transaction,
+              user: widget.user,
+            ); // replace with your settings screen
+          },
+        ),
+      ).then((value) => reload());
     } else {
       showInfoSnachBar('Choose a Card!');
     }
@@ -492,6 +526,10 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     bool deleted = await firebaseDB.deleteTransaction(transaction);
     if (deleted) {
       showSuccessSnachBar('Transaction deleted Sucessfully!');
+      LocalNotificationService().showNotification(
+        title: 'Delete Transaction - ${transaction.cardName}',
+        body: '${transaction.amount} -> ${transaction.cardName}',
+      );
       reload();
     } else {
       showErrorSnachBar('Error deleting Transaction!');
@@ -510,7 +548,8 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               ListTile(
                 // leading: Icon(transaction['categoryIcon']),
                 title: Text(
-                    'Amount: ${transaction.amount.toStringAsFixed(2)} ${widget.currency}'),
+                  'Amount: ${transaction.amount.toStringAsFixed(2)} ${widget.currency}',
+                ),
                 subtitle: Text('Date: ${formatDate(transaction.date)}'),
               ),
               const SizedBox(height: 16.0),
@@ -534,55 +573,63 @@ class TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     if (selectedCard.isNotEmpty && selectedCard != 'All') {
       CardModel cardTemp = await firebaseDB.getCardById(selectedCard);
       // ignore: use_build_context_synchronously
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return AddTransactionScreen(
-          card: cardTemp,
-          user: widget.user
-        ); // replace with your settings screen
-      })).then((value) => reload());
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return AddTransactionScreen(
+              card: cardTemp,
+              user: widget.user,
+            ); // replace with your settings screen
+          },
+        ),
+      ).then((value) => reload());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No card selected')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No card selected')));
     }
   }
 
   void showErrorSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.amber.shade400),
-        backgroundColor: Colors.amber,
-        icon: const Icon(
-          Icons.close,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.amber.shade400,
+      ),
+      backgroundColor: Colors.amber,
+      icon: const Icon(Icons.close, color: Colors.white),
+    );
   }
 
   void showInfoSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.lightBlueAccent.shade400),
-        backgroundColor: Colors.lightBlueAccent,
-        icon: const Icon(
-          Icons.info_outline,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.lightBlueAccent.shade400,
+      ),
+      backgroundColor: Colors.lightBlueAccent,
+      icon: const Icon(Icons.info_outline, color: Colors.white),
+    );
   }
 
   void showSuccessSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.green.shade400),
-        backgroundColor: Colors.green,
-        icon: const Icon(
-          Icons.check,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.green.shade400,
+      ),
+      backgroundColor: Colors.green,
+      icon: const Icon(Icons.check, color: Colors.white),
+    );
   }
 }
