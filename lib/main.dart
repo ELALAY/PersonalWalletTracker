@@ -13,6 +13,8 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await LocalNotificationService.initialize();
+
+  //LocalNotificationService.scheduleDailyReminderAtFourPM(id: 4444, title:'title', body:'test body');
   
   runApp(const MyApp());
 }

@@ -108,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void navNotificationScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return  NotificationSettingsScreen(person: widget.person,user: widget.user);
+      return  NotificationSettingsScreen(user: widget.user);
     }));
   }
 

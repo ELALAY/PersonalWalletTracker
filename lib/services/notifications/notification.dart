@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
@@ -9,7 +10,6 @@ class LocalNotificationService {
 
   /// Initialize notifications and timezone data
   static Future<void> initialize() async {
-    
     // Initialize timezone data
     initializeTimeZones();
     // Optionally set default local timezone (usually auto-detected)
@@ -87,7 +87,7 @@ class LocalNotificationService {
       body,
       scheduledDate,
       notificationDetails(),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexact,
       matchDateTimeComponents: DateTimeComponents.time,
       payload: 'your_payload',
     );
@@ -99,4 +99,45 @@ class LocalNotificationService {
   Future<void> cancelAllNotifications() async {
     await _notificationsPlugin.cancelAll();
   }
+
+  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    return await _notificationsPlugin.pendingNotificationRequests();
+  }
+
+  static Future<void> scheduleDailyReminderAtFourPM({
+  required int id,
+  required String title,
+  required String body,
+}) async {
+  final now = tz.TZDateTime.now(tz.local);
+
+  // Schedule for today at 4 PM
+  tz.TZDateTime scheduledDate = tz.TZDateTime(
+    tz.local,
+    now.year,
+    now.month,
+    now.day,
+    14,
+    40,
+  );
+
+  // If 4 PM has already passed today, schedule for tomorrow
+  if (scheduledDate.isBefore(now)) {
+    scheduledDate = scheduledDate.add(const Duration(days: 1));
+  }
+
+  await _notificationsPlugin.zonedSchedule(
+    id,
+    title,
+    body,
+    scheduledDate,
+    notificationDetails(),
+    androidScheduleMode: AndroidScheduleMode.inexact, // or exactAllowWhileIdle if permission is granted
+    matchDateTimeComponents: DateTimeComponents.time, // <- daily at same time
+    payload: 'daily_reminder',
+  );
+
+  debugPrint('Daily notification scheduled for: $scheduledDate');
+}
+
 }
