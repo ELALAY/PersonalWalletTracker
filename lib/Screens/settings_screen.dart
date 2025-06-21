@@ -1,6 +1,6 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:personalwallettracker/Models/person_model.dart';
+import 'package:personalwallettracker/Models/person_model.dart' as ps;
 import 'package:personalwallettracker/Screens/friends/my_friends_screen.dart';
 import 'package:personalwallettracker/Screens/notifications_screen.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
@@ -9,7 +9,7 @@ import 'card/user_cards_screen.dart';
 import 'categories/catogories_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final Person person;
+  final ps.Person person;
   final String user;
   const SettingsScreen({super.key, required this.person, required this.user});
 
@@ -24,6 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     selectedCurrency = widget.person.default_currency;
+    
   }
 
   @override
@@ -123,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void navNotificationScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return  NotificationSettingsScreen(user: widget.user);
+      return  NotificationSettingsScreen(person: widget.person);
     }));
   }
 

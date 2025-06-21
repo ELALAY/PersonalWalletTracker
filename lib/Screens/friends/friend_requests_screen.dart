@@ -87,6 +87,9 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Friend Requests'),
+          actions: [
+            IconButton(onPressed: _loadRequests, icon: Icon(Icons.refresh)),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Incoming'),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' as notif;
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 class LocalNotificationService {
-  static final FlutterLocalNotificationsPlugin _notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  static final notif.FlutterLocalNotificationsPlugin _notificationsPlugin =
+      notif.FlutterLocalNotificationsPlugin();
 
   /// Initialize notifications and timezone data
   static Future<void> initialize() async {
@@ -16,18 +16,18 @@ class LocalNotificationService {
     final String timeZoneName = local.name;
     setLocalLocation(getLocation(timeZoneName));
 
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const notif.AndroidInitializationSettings initializationSettingsAndroid =
+        notif.AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
+    const notif.DarwinInitializationSettings initializationSettingsIOS =
+        notif.DarwinInitializationSettings(
           requestAlertPermission: true,
           requestBadgePermission: true,
           requestSoundPermission: true,
         );
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(
+    const notif.InitializationSettings initializationSettings =
+        notif.InitializationSettings(
           android: initializationSettingsAndroid,
           iOS: initializationSettingsIOS,
         );
@@ -36,16 +36,16 @@ class LocalNotificationService {
   }
 
   /// Notification Details Setup
-  static NotificationDetails notificationDetails() {
-    return const NotificationDetails(
-      android: AndroidNotificationDetails(
+  static notif.NotificationDetails notificationDetails() {
+    return const notif.NotificationDetails(
+      android: notif.AndroidNotificationDetails(
         'daily_transaction_channel_id',
         'Daily Transaction Reminder',
         channelDescription: 'Reminds user to add daily transactions',
-        importance: Importance.max,
-        priority: Priority.high,
+        importance: notif.Importance.max,
+        priority: notif.Priority.high,
       ),
-      iOS: DarwinNotificationDetails(),
+      iOS: notif.DarwinNotificationDetails(),
     );
   }
 
@@ -87,8 +87,8 @@ class LocalNotificationService {
       body,
       scheduledDate,
       notificationDetails(),
-      androidScheduleMode: AndroidScheduleMode.inexact,
-      matchDateTimeComponents: DateTimeComponents.time,
+      androidScheduleMode: notif.AndroidScheduleMode.inexact,
+      matchDateTimeComponents: notif.DateTimeComponents.time,
       payload: 'your_payload',
     );
 
@@ -100,7 +100,7 @@ class LocalNotificationService {
     await _notificationsPlugin.cancelAll();
   }
 
-  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+  Future<List<notif.PendingNotificationRequest>> getPendingNotifications() async {
     return await _notificationsPlugin.pendingNotificationRequests();
   }
 
@@ -132,9 +132,9 @@ class LocalNotificationService {
       body,
       scheduledDate,
       notificationDetails(),
-      androidScheduleMode: AndroidScheduleMode
+      androidScheduleMode: notif.AndroidScheduleMode
           .inexact, // or exactAllowWhileIdle if permission is granted
-      matchDateTimeComponents: DateTimeComponents.time, // <- daily at same time
+      matchDateTimeComponents: notif.DateTimeComponents.time, // <- daily at same time
       payload: 'daily_reminder',
     );
 

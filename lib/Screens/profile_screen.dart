@@ -271,13 +271,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       label: 'Email',
                       color: Colors.deepPurple,
                     ),
-                    // //Password Field
-                    // MyPwdField(
-                    //     controller: _passwordController,
-                    //     label: 'Password',
-                    //     color: Colors.deepPurple,
-                    //     enabled: enabledEditkeyInfo),
-                    // const SizedBox(height: 20),
                     enabledEditkeyInfo
                         ? Center(
                             child: ElevatedButton(

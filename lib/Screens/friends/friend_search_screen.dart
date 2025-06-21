@@ -13,10 +13,18 @@ class FriendSearchScreen extends StatefulWidget {
 }
 
 class _FriendSearchScreenState extends State<FriendSearchScreen> {
+  FirebaseDB firebaseDB = FirebaseDB();
   final TextEditingController _searchController = TextEditingController();
+  String scannedQrCode = '';
+
   List<Person> _searchResults = [];
   bool _isLoading = false;
   final FirebaseDB _firebaseDB = FirebaseDB();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<void> _searchUsers() async {
     setState(() {
@@ -68,7 +76,9 @@ class _FriendSearchScreenState extends State<FriendSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Friend')),
+      appBar: AppBar(
+        title: const Text('Add Friend'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -1,5 +1,4 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -8,7 +7,7 @@ import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
-import 'package:personalwallettracker/Screens/friends/friend_search_screen.dart';
+import 'package:personalwallettracker/Screens/friends/friend_requests_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/new_transaction_screen.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_image_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
@@ -18,7 +17,6 @@ import 'package:personalwallettracker/Screens/transaction/transaction_history.da
 import 'package:personalwallettracker/Screens/transaction/transfer_money.dart';
 import 'package:personalwallettracker/services/firebase/auth/auth_service.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
-import 'package:personalwallettracker/services/notifications/notification.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'card/edit_card_screen.dart';
@@ -54,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     fetchUserAndCards();
-    checkUncreatedRecurringTransactions();
+    // checknotifications();
     notifications =
         (uncreatedTransactions.isNotEmpty || friendRequests.isNotEmpty)
         ? true
@@ -74,6 +72,11 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     });
+    // checknotifications();
+    notifications =
+        (uncreatedTransactions.isNotEmpty || friendRequests.isNotEmpty)
+        ? true
+        : false;
     debugPrint('reloaded');
     isLoading = false;
   }
@@ -88,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Person? personProfileTemp = await firebaseDatabasehelper
             .getPersonProfile(userTemp.uid);
         personProfileTemp != null
-            ? debugPrint('got profile: ${personProfileTemp.email}')
+            ? debugPrint('got profile: ${personProfileTemp.toMap()}')
             : debugPrint('no profile');
         setState(() {
           user = userTemp;
@@ -101,6 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
 
         checkUncreatedRecurringTransactions();
+        checkPendingFriendRequests();
         setState(() {
           myCards = cards;
           isLoading = false;
@@ -153,11 +157,15 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void checknotifications() async {
-    List<Map<String, dynamic>> friendRequeststemp = await firebaseDatabasehelper
-        .getIncomingRequests(user!.uid);
+  void checkPendingFriendRequests() async {
+    List<Map<String, dynamic>> friendRequeststemp = [];
+    if (user != null) {
+       friendRequeststemp =
+          await firebaseDatabasehelper.getIncomingRequests(user!.uid);
+    }
     setState(() {
       friendRequests = friendRequeststemp;
+      debugPrint('friendRequests: ${friendRequests.length}');
     });
   }
 
@@ -177,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.grey,
             ),
           ),
-          notifications
+          (uncreatedTransactions.isNotEmpty || friendRequests.isNotEmpty)
               ? IconButton(
                   onPressed: showNotificationDialog,
                   icon: const Icon(
@@ -398,7 +406,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       trailing: const Icon(Icons.history, color: Colors.white),
                       onTap:
-                          recurringTransactionsScreen, // Here the function is being called
+                          navFriendRequestsScreen, // Here the function is being called
                     ),
                   ),
                 ),
@@ -429,6 +437,19 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       },
+    );
+  }
+
+  void navFriendRequestsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return FriendRequestsScreen(
+            currentUser: personProfile!,
+          );
+        },
+      ),
     );
   }
 
@@ -648,5 +669,4 @@ class _MyHomePageState extends State<MyHomePage> {
       icon: const Icon(Icons.check, color: Colors.white),
     );
   }
-
 }

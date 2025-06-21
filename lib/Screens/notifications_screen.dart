@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as notif;
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
-import 'package:personalwallettracker/services/firebase/claoud_storage_db/firebase_storage.dart';
+import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'package:personalwallettracker/services/notifications/notification.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
-  final String user;
-  const NotificationSettingsScreen({super.key, required this.user});
+  final Person person;
+  const NotificationSettingsScreen({super.key, required this.person});
 
   @override
   State<NotificationSettingsScreen> createState() =>
@@ -17,8 +18,6 @@ class NotificationSettingsScreen extends StatefulWidget {
 class _NotificationSettingsScreenState
     extends State<NotificationSettingsScreen> {
   final FirebaseDB _firebaseDB = FirebaseDB();
-  final FirebaseCloudStorageHelper firebaseCloudHelper =
-      FirebaseCloudStorageHelper();
   final LocalNotificationService _localNotificationService =
       LocalNotificationService();
 
@@ -28,11 +27,16 @@ class _NotificationSettingsScreenState
   bool goalProgressApdates = true;
   bool sharedActivitiesActivities = true;
 
-  List<PendingNotificationRequest> _pendingNotifications = [];
+  List<notif.PendingNotificationRequest> _pendingNotifications = [];
 
   @override
   void initState() {
     super.initState();
+    enableNotifications = widget.person.enableNotifications;
+    transactionsAlert = widget.person.transactionsAlert;
+    budgetLimitAlert = widget.person.budgetLimitAlert;
+    goalProgressApdates = widget.person.goalProgressApdates;
+    sharedActivitiesActivities = widget.person.sharedActivitiesActivities;
     _loadScheduledNotifications();
   }
 
@@ -114,7 +118,9 @@ class _NotificationSettingsScreenState
                   ),
                 ),
                 const SizedBox(height: 10),
-                Expanded(child: MyButton(label: 'Save Settings', onTap: _saveSettings)),
+                Expanded(
+                  child: MyButton(label: 'Save Settings', onTap: _saveSettings),
+                ),
               ],
             ),
 
@@ -232,7 +238,9 @@ class _NotificationSettingsScreenState
                         hour: selectedDateTime!.hour,
                         minute: selectedDateTime!.minute,
                       );
-                      debugPrint('scheduled: ${titleController.text} ${selectedDateTime!.hour} ${selectedDateTime!.minute}');
+                      debugPrint(
+                        'scheduled: ${titleController.text} ${selectedDateTime!.hour} ${selectedDateTime!.minute}',
+                      );
                       Navigator.of(context).pop();
                       _loadScheduledNotifications(); // Refresh list
                     }
@@ -261,7 +269,7 @@ class _NotificationSettingsScreenState
 
   void _saveSettings() async {
     await _firebaseDB.updateUserNotificationSettings(
-      widget.user,
+      widget.person.id,
       enableNotifications,
       transactionsAlert,
       budgetLimitAlert,

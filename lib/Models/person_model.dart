@@ -59,11 +59,11 @@ class Person {
       map['email'],
       map['profile_picture'],
       map['default_currency'] ?? 'MAD',
-      map['enableNotifications'] ?? true,
-      map['transactionsAlert'] ?? true,
-      map['budgetLimitAlert'] ?? true,
-      map['goalProgressApdates'] ?? true,
-      map['sharedActivitiesActivities'] ?? true,
+      map['enableNotifications'],
+      map['transactionsAlert'],
+      map['budgetLimitAlert'],
+      map['goalProgressApdates'],
+      map['sharedActivitiesActivities'],
     );
   }
 }

@@ -128,7 +128,7 @@ class _MyFriendsScreenState extends State<MyFriendsScreen> {
                                     : null,
                               ),
                               title: Text(friend.username),
-                              subtitle: Text('id ${friend.id}'),
+                              subtitle: Text('id: ${friend.id}'),
                             ),
                           ),
                         );
