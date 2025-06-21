@@ -9,6 +9,7 @@ class CardModel {
   final String cardType;
   final int color;
   final bool isArchived;
+  final List<String> sharedWith;
 
   CardModel({
     required this.cardName,
@@ -18,6 +19,7 @@ class CardModel {
     required this.cardType,
     required this.color,
     this.isArchived = false,
+    this.sharedWith = const [],
   }) : id = '';
 
   CardModel.withId({
@@ -29,6 +31,7 @@ class CardModel {
     required this.cardType,
     required this.color,
     this.isArchived = false,
+    this.sharedWith = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -40,6 +43,7 @@ class CardModel {
       'cardType': cardType,
       'color': color,
       'isArchived': isArchived,
+      'sharedWith': sharedWith,
     };
   }
 
@@ -47,16 +51,16 @@ class CardModel {
     return CardModel.withId(
       id: id,
       cardName: map['cardName'],
-      balance: map['balance'],
+      balance: (map['balance'] as num).toDouble(),
       cardHolderName: map['cardHolderName'],
       ownerId: map['ownerId'],
       cardType: map['cardType'],
-      color: map['color'] ?? Colors.deepPurple, // Default color
+      color: map['color'] ?? Colors.deepPurple,
       isArchived: map['isArchived'] ?? false,
+      sharedWith: List<String>.from(map['sharedWith'] ?? []),
     );
   }
 
-  // Method to toggle the isArchived field
   CardModel toggleArchive() {
     return CardModel.withId(
       id: id,
@@ -66,7 +70,24 @@ class CardModel {
       ownerId: ownerId,
       cardType: cardType,
       color: color,
-      isArchived: !isArchived, // Toggle the isArchived value
+      isArchived: !isArchived,
+      sharedWith: sharedWith,
+    );
+  }
+
+  // Optional: Add method to share the card with a new user
+  CardModel addSharedUser(String userId) {
+    final updatedSharedWith = List<String>.from(sharedWith)..add(userId);
+    return CardModel.withId(
+      id: id,
+      cardName: cardName,
+      balance: balance,
+      cardHolderName: cardHolderName,
+      ownerId: ownerId,
+      cardType: cardType,
+      color: color,
+      isArchived: isArchived,
+      sharedWith: updatedSharedWith,
     );
   }
 }

@@ -28,8 +28,12 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
   Future<void> _loadRequests() async {
     setState(() => isLoading = true);
 
-    final incoming = await _firebaseDB.getIncomingRequests(widget.currentUser.id);
-    final outgoing = await _firebaseDB.getOutgoingRequests(widget.currentUser.id);
+    final incoming = await _firebaseDB.getIncomingRequests(
+      widget.currentUser.id,
+    );
+    final outgoing = await _firebaseDB.getOutgoingRequests(
+      widget.currentUser.id,
+    );
 
     setState(() {
       incomingRequests = incoming;
@@ -153,7 +157,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
       itemCount: outgoingRequests.length,
       itemBuilder: (context, index) {
         final request = outgoingRequests[index];
-        final toUserId = request['toUsername'] as String;         
+        final toUserId = request['toUsername'] as String;
 
         return ListTile(
           leading: const Icon(Icons.person),
