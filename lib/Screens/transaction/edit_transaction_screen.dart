@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
@@ -46,10 +42,6 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   bool isExpense = true; // Default to 'Transaction'
   //disable key info edit
   bool enabledEditkeyInfo = false;
-  // receipt data
-  String existingImagePath = '';
-  XFile? _receiptImage;
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -68,7 +60,6 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
     _selectedCategory = widget.transaction.category;
     isExpense = widget.transaction.isExpense;
     selectedDate = widget.transaction.date;
-    existingImagePath = widget.transaction.receiptUrl ?? '';
   }
 
   Future<void> _loadCategories() async {

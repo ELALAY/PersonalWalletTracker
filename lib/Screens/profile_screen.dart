@@ -11,12 +11,14 @@ import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/services/firebase/auth/auth_service.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 
-
 class MyProfileScreen extends StatefulWidget {
   final User user;
   final Person personProfile;
-  const MyProfileScreen(
-      {super.key, required this.user, required this.personProfile});
+  const MyProfileScreen({
+    super.key,
+    required this.user,
+    required this.personProfile,
+  });
 
   @override
   State<MyProfileScreen> createState() => _MyProfileScreenState();
@@ -48,8 +50,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _usernameController =
-        TextEditingController(text: widget.personProfile.username);
+    _usernameController = TextEditingController(
+      text: widget.personProfile.username,
+    );
     _emailController = TextEditingController(text: widget.personProfile.email);
     _idController = TextEditingController(text: widget.personProfile.id);
     isLoading = false;
@@ -58,9 +61,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Future<String?> _uploadProfileImage(File image) async {
     try {
       debugPrint('uploaded prfile image to cloud');
-      Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child('profile_images/${image.path.split('/').last}');
+      Reference storageReference = FirebaseStorage.instance.ref().child(
+        'profile_images/${image.path.split('/').last}',
+      );
       UploadTask uploadTask = storageReference.putFile(image);
       TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
       String downloadURL = await taskSnapshot.ref.getDownloadURL();
@@ -100,8 +103,16 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       }
       debugPrint('uploaded image');
       debugPrint('creating new data map');
-      Person p = Person(_usernameController.text, _emailController.text,
-          profileImageUrl ?? '');
+      Person p = Person(
+        _usernameController.text,
+        _emailController.text,
+        profileImageUrl ?? '',
+        true,
+        true,
+        true,
+        true,
+        true,
+      );
 
       Map<String, dynamic> updatedData = {
         'username': _usernameController.text,
@@ -110,7 +121,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       debugPrint(updatedData.toString());
       debugPrint('updating profile with  new data map');
       await firebaseDatabasehelper.updatePersonProfile(
-          widget.user.uid, p.toMap());
+        widget.user.uid,
+        p.toMap(),
+      );
       debugPrint('saved profile');
       setState(() {
         isLoading = false;
@@ -126,46 +139,47 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     }
   }
 
-  
   void showErrorSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.amber.shade400),
-        backgroundColor: Colors.amber,
-        icon: const Icon(
-          Icons.close,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.amber.shade400,
+      ),
+      backgroundColor: Colors.amber,
+      icon: const Icon(Icons.close, color: Colors.white),
+    );
   }
 
   void showInfoSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.lightBlueAccent.shade400),
-        backgroundColor: Colors.lightBlueAccent,
-        icon: const Icon(
-          Icons.info_outline,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.lightBlueAccent.shade400,
+      ),
+      backgroundColor: Colors.lightBlueAccent,
+      icon: const Icon(Icons.info_outline, color: Colors.white),
+    );
   }
 
   void showSuccessSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.green.shade400),
-        backgroundColor: Colors.green,
-        icon: const Icon(
-          Icons.check,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.green.shade400,
+      ),
+      backgroundColor: Colors.green,
+      icon: const Icon(Icons.check, color: Colors.white),
+    );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -185,22 +199,19 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             },
           ),
           IconButton(
-              onPressed: _changePwdDialog,
-              icon: const Icon(Icons.password_outlined))
+            onPressed: _changePwdDialog,
+            icon: const Icon(Icons.password_outlined),
+          ),
         ],
       ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(8.0),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const SizedBox(
-                      height: 20.0,
-                    ),
+                    const SizedBox(height: 20.0),
                     Stack(
                       children: [
                         Container(
@@ -214,13 +225,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               fit: BoxFit.cover,
                               image: _profileImage != null
                                   ? FileImage(_profileImage!)
-                                  : widget.personProfile.profile_picture
-                                          .isNotEmpty
-                                      ? NetworkImage(
-                                          widget.personProfile.profile_picture)
-                                      : const NetworkImage(
+                                  : widget
+                                        .personProfile
+                                        .profile_picture
+                                        .isNotEmpty
+                                  ? NetworkImage(
+                                      widget.personProfile.profile_picture,
+                                    )
+                                  : const NetworkImage(
                                           'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
-                                        ) as ImageProvider,
+                                        )
+                                        as ImageProvider,
                             ),
                           ),
                         ),
@@ -228,8 +243,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           bottom: -15,
                           left: -10,
                           child: IconButton(
-                              onPressed: _pickProfileImage,
-                              icon: const Icon(Icons.add_a_photo_outlined)),
+                            onPressed: _pickProfileImage,
+                            icon: const Icon(Icons.add_a_photo_outlined),
+                          ),
                         ),
                       ],
                     ),
@@ -269,7 +285,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.deepPurple,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 40.0, vertical: 20.0),
+                                  horizontal: 40.0,
+                                  vertical: 20.0,
+                                ),
                               ),
                               child: const Text('save profile'),
                             ),
@@ -293,22 +311,25 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             children: [
               //currenct password
               MyPwdField(
-                  controller: _currentPasswordController,
-                  label: 'Currenct Password',
-                  color: Colors.deepPurple,
-                  enabled: true),
+                controller: _currentPasswordController,
+                label: 'Currenct Password',
+                color: Colors.deepPurple,
+                enabled: true,
+              ),
               //password field
               MyPwdField(
-                  controller: _passwordController,
-                  label: 'Password',
-                  color: Colors.deepPurple,
-                  enabled: true),
+                controller: _passwordController,
+                label: 'Password',
+                color: Colors.deepPurple,
+                enabled: true,
+              ),
               //confirm password
               MyPwdField(
-                  controller: _confirmPasswordController,
-                  label: 'Confirm Password',
-                  color: Colors.deepPurple,
-                  enabled: true),
+                controller: _confirmPasswordController,
+                label: 'Confirm Password',
+                color: Colors.deepPurple,
+                enabled: true,
+              ),
             ],
           ),
           actions: [
@@ -353,7 +374,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
           // Re-authenticate the user with their current password
           AuthCredential credential = EmailAuthProvider.credential(
-              email: user!.email!, password: _currentPasswordController.text);
+            email: user!.email!,
+            password: _currentPasswordController.text,
+          );
 
           await user.reauthenticateWithCredential(credential);
 

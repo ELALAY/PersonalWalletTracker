@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
@@ -58,7 +59,7 @@ class LocalNotificationService {
   }
 
   /// Schedule daily notification at [hour]:[minute]
-  static Future<void> scheduleDailyNotification({
+  static Future<void> scheduleNotification({
     required int id,
     required String title,
     required String body,
@@ -90,5 +91,12 @@ class LocalNotificationService {
       matchDateTimeComponents: DateTimeComponents.time,
       payload: 'your_payload',
     );
+
+    debugPrint('scheduled notifications');
+  }
+
+  // Cancell All Scheduled notifications
+  Future<void> cancelAllNotifications() async {
+    await _notificationsPlugin.cancelAll();
   }
 }

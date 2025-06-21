@@ -1,8 +1,5 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
@@ -42,9 +39,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
   String selectedCardType = 'visa';
-  // image picker
-  File? _receiptImage;
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -72,24 +66,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
 
   String formatDate(DateTime date) {
     return DateFormat('dd/MM/yy').format(date);
-  }
-
-  Future<File?> pickProfileImage() async {
-    File? image;
-    try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        image = File(pickedFile.path);
-        // Optionally convert to Uint8List if needed
-        Uint8List imageBytes = await image!.readAsBytes();
-        debugPrint('Image picked and converted to bytes: $imageBytes');
-      } else {
-        debugPrint('No image selected.');
-      }
-      return image;
-    } catch (e) {
-      debugPrint('Error picking image: $e');
-    }
   }
 
   Future<void> _addTransaction() async {

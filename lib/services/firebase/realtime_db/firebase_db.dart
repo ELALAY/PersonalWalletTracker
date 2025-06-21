@@ -11,15 +11,16 @@ import '../../../Models/transaction_model.dart';
 class FirebaseDB {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-//--------------------------------------------------------------------------------------
-//********  Cards Functions**********/
-//--------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------
+  //********  Cards Functions**********/
+  //--------------------------------------------------------------------------------------
 
   // Add a new card with auto-generated ID
   Future<bool> addCard(CardModel card) async {
     try {
-      DocumentReference docRef =
-          await _firestore.collection('cards').add(card.toMap());
+      DocumentReference docRef = await _firestore
+          .collection('cards')
+          .add(card.toMap());
       card = await getCardById(docRef.id);
       return true;
     } catch (e) {
@@ -39,8 +40,10 @@ class FirebaseDB {
           .get();
 
       return querySnapshot.docs
-          .map((doc) =>
-              CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) =>
+                CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching cards: $e');
@@ -57,8 +60,10 @@ class FirebaseDB {
           .get();
 
       return querySnapshot.docs
-          .map((doc) =>
-              CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) =>
+                CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching cards: $e');
@@ -71,8 +76,10 @@ class FirebaseDB {
     try {
       QuerySnapshot querySnapshot = await _firestore.collection('cards').get();
       return querySnapshot.docs
-          .map((doc) =>
-              CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) =>
+                CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching cards: $e');
@@ -94,8 +101,10 @@ class FirebaseDB {
 
   Future<CardModel> getCardById(String cardId) async {
     try {
-      DocumentSnapshot doc =
-          await _firestore.collection('cards').doc(cardId).get();
+      DocumentSnapshot doc = await _firestore
+          .collection('cards')
+          .doc(cardId)
+          .get();
       if (doc.exists) {
         return CardModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       } else {
@@ -131,9 +140,9 @@ class FirebaseDB {
     }
   }
 
-//--------------------------------------------------------------------------------------
-//********  Transaction Functions**********/
-//--------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------
+  //********  Transaction Functions**********/
+  //--------------------------------------------------------------------------------------
 
   //delete transaction by ID
   Future<void> deleteTransactionsById(String transactionId) async {
@@ -227,7 +236,9 @@ class FirebaseDB {
             .get();
         if (doc.exists) {
           return TransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id);
+            doc.data() as Map<String, dynamic>,
+            doc.id,
+          );
         } else {
           throw Exception('Transaction not found');
         }
@@ -244,8 +255,9 @@ class FirebaseDB {
     try {
       debugPrint('getting current state of transaction1 ${transaction.id}');
       // Fetch the current state of the transaction to check the changes
-      TransactionModel transactionTemp =
-          await getTransactionById(transaction.id);
+      TransactionModel transactionTemp = await getTransactionById(
+        transaction.id,
+      );
       debugPrint('Fetched transaction');
 
       // Update the card balance if the amount of the transaction has changed
@@ -295,11 +307,16 @@ class FirebaseDB {
   // Fetch all transactions
   Future<List<TransactionModel>> fetchTransactions() async {
     try {
-      QuerySnapshot querySnapshot =
-          await _firestore.collection('transactions').get();
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('transactions')
+          .get();
       return querySnapshot.docs
-          .map((doc) => TransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching transactions: $e');
@@ -309,15 +326,20 @@ class FirebaseDB {
 
   // Fetch transactions by card ID
   Future<List<TransactionModel>> fetchTransactionsByCardId(
-      String cardId) async {
+    String cardId,
+  ) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')
           .where('cardId', isEqualTo: cardId)
           .get();
       return querySnapshot.docs
-          .map((doc) => TransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching transactions by card ID: $e');
@@ -327,7 +349,9 @@ class FirebaseDB {
 
   //fetch transactions by category and by card
   Future<List<TransactionModel>> fetchTransactionsByCategoryAndCard(
-      String category, String cardId) async {
+    String category,
+    String cardId,
+  ) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')
@@ -335,8 +359,12 @@ class FirebaseDB {
           .where('cardId', isEqualTo: cardId)
           .get();
       return querySnapshot.docs
-          .map((doc) => TransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching transactions by category: $e');
@@ -346,15 +374,20 @@ class FirebaseDB {
 
   // Fetch transactions by category
   Future<List<TransactionModel>> fetchTransactionsByCategory(
-      String category) async {
+    String category,
+  ) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')
           .where('category', isEqualTo: category)
           .get();
       return querySnapshot.docs
-          .map((doc) => TransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching transactions by category: $e');
@@ -364,7 +397,9 @@ class FirebaseDB {
 
   // Fetch transactions by category & cards
   Future<List<TransactionModel>> fetchTransactionsByCategoryAndCards(
-      String category, List<String> cards) async {
+    String category,
+    List<String> cards,
+  ) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('transactions')
@@ -372,8 +407,12 @@ class FirebaseDB {
           .where('category', isEqualTo: category)
           .get();
       return querySnapshot.docs
-          .map((doc) => TransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching transactions by category: $e');
@@ -389,8 +428,12 @@ class FirebaseDB {
           .where('cardId', isEqualTo: cardId)
           .get();
       return querySnapshot.docs
-          .map((doc) => TransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) => TransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching transactions by card ID: $e');
@@ -431,21 +474,23 @@ class FirebaseDB {
               .update({'balance': toCardBalance + amount});
 
           TransactionModel sendTransaction = TransactionModel(
-              cardId: fromCard.id,
-              cardName: fromCard.cardName,
-              amount: amount,
-              category: 'Transfer',
-              date: DateTime.now(),
-              description: 'Money Transfer ($description)',
-              isExpense: true);
+            cardId: fromCard.id,
+            cardName: fromCard.cardName,
+            amount: amount,
+            category: 'Transfer',
+            date: DateTime.now(),
+            description: 'Money Transfer ($description)',
+            isExpense: true,
+          );
           TransactionModel receiverTransaction = TransactionModel(
-              cardId: toCard.id,
-              cardName: toCard.cardName,
-              amount: amount,
-              category: 'Transfer',
-              date: DateTime.now(),
-              description: 'Money Transfer ($description)',
-              isExpense: false);
+            cardId: toCard.id,
+            cardName: toCard.cardName,
+            amount: amount,
+            category: 'Transfer',
+            date: DateTime.now(),
+            description: 'Money Transfer ($description)',
+            isExpense: false,
+          );
 
           // Optionally, (Sender) record the transaction in a transactions collection
           await FirebaseFirestore.instance
@@ -468,9 +513,9 @@ class FirebaseDB {
     }
   }
 
-//--------------------------------------------------------------------------------------
-//********  Category Functions**********/
-//--------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------
+  //********  Category Functions**********/
+  //--------------------------------------------------------------------------------------
 
   // Fetch all categories
   Future<List<CategoryModel>> getAllCategories() async {
@@ -486,34 +531,34 @@ class FirebaseDB {
 
   // Fetch User categories
   Future<List<CategoryModel>> getCategories(String user) async {
-  try {
-    // Query categories where ownerId is the user
-    final userCategoriesSnapshot = await _firestore
-        .collection('categories')
-        .where('ownerId', isEqualTo: user)
-        .get();
+    try {
+      // Query categories where ownerId is the user
+      final userCategoriesSnapshot = await _firestore
+          .collection('categories')
+          .where('ownerId', isEqualTo: user)
+          .get();
 
-    // Query categories where ownerId is empty
-    final publicCategoriesSnapshot = await _firestore
-        .collection('categories')
-        .where('ownerId', isEqualTo: '')
-        .get();
+      // Query categories where ownerId is empty
+      final publicCategoriesSnapshot = await _firestore
+          .collection('categories')
+          .where('ownerId', isEqualTo: '')
+          .get();
 
-    // Convert both snapshots to lists
-    final userCategories = userCategoriesSnapshot.docs
-        .map((doc) => CategoryModel.fromDocument(doc))
-        .toList();
+      // Convert both snapshots to lists
+      final userCategories = userCategoriesSnapshot.docs
+          .map((doc) => CategoryModel.fromDocument(doc))
+          .toList();
 
-    final publicCategories = publicCategoriesSnapshot.docs
-        .map((doc) => CategoryModel.fromDocument(doc))
-        .toList();
+      final publicCategories = publicCategoriesSnapshot.docs
+          .map((doc) => CategoryModel.fromDocument(doc))
+          .toList();
 
-    // Merge the two lists
-    return [...userCategories, ...publicCategories];
-  } catch (e) {
-    throw Exception('Failed to fetch categories: $e');
+      // Merge the two lists
+      return [...userCategories, ...publicCategories];
+    } catch (e) {
+      throw Exception('Failed to fetch categories: $e');
+    }
   }
-}
 
   //fetch category
   Future<CategoryModel> fetchCategory(String category) async {
@@ -552,12 +597,15 @@ class FirebaseDB {
 
   //update category
   Future<void> updateCategory(
-      String oldCategory, CategoryModel newCategory) async {
+    String oldCategory,
+    CategoryModel newCategory,
+  ) async {
     try {
       // Update transactions of category to new category
       debugPrint('old: $oldCategory, New: ${newCategory.name}');
-      List<TransactionModel> transactions =
-          await fetchTransactionsByCategory(oldCategory);
+      List<TransactionModel> transactions = await fetchTransactionsByCategory(
+        oldCategory,
+      );
       debugPrint('transactions: ${transactions.length}');
 
       if (transactions.isNotEmpty) {
@@ -583,8 +631,9 @@ class FirebaseDB {
     try {
       debugPrint('fetching transactions for ${category.name}');
       //update transactions of this category to 'other'
-      List<TransactionModel> transactions =
-          await fetchTransactionsByCategory(category.name);
+      List<TransactionModel> transactions = await fetchTransactionsByCategory(
+        category.name,
+      );
       if (transactions.isNotEmpty) {
         for (TransactionModel transaction in transactions) {
           _firestore.collection('transactions').doc(transaction.id).update({
@@ -616,13 +665,15 @@ class FirebaseDB {
     }
   }
 
-//--------------------------------------------------------------------------------------
-//********  Person Functions**********/
-//--------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------
+  //********  Person Functions**********/
+  //--------------------------------------------------------------------------------------
   Future<Person?> getPersonProfile(String uid) async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-          await _firestore.collection('persons').doc(uid).get();
+      DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await _firestore
+          .collection('persons')
+          .doc(uid)
+          .get();
 
       if (documentSnapshot.exists) {
         return Person.fromMap(documentSnapshot.data()!, uid);
@@ -646,7 +697,9 @@ class FirebaseDB {
       if (querySnapshot.docs.isNotEmpty) {
         // Assuming you want to return the first match
         return Person.fromMap(
-            querySnapshot.docs.first.data(), querySnapshot.docs.first['id']);
+          querySnapshot.docs.first.data(),
+          querySnapshot.docs.first['id'],
+        );
       } else {
         debugPrint('No user profile found for username: $username');
         return null;
@@ -659,8 +712,9 @@ class FirebaseDB {
 
   Future<List<Person>> getAllPersons() async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await _firestore.collection('persons').get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('persons')
+          .get();
       List<Person> allPersons = querySnapshot.docs
           .map((doc) => Person.fromMap(doc.data(), doc.id))
           .toList();
@@ -672,7 +726,9 @@ class FirebaseDB {
   }
 
   Future<void> updatePersonProfile(
-      String userId, Map<String, dynamic> updatedData) async {
+    String userId,
+    Map<String, dynamic> updatedData,
+  ) async {
     try {
       // Update the user's profile data in Firestore
       await _firestore.collection('perons').doc(userId).update({
@@ -713,9 +769,41 @@ class FirebaseDB {
     }
   }
 
-//--------------------------------------------------------------------------------------
-//********  Goal Functions**********/
-//--------------------------------------------------------------------------------------
+  // Update notifications settings
+  Future<void> updateUserNotificationSettings(
+    String userId,
+    bool enableNotifications,
+    bool transactionsAlert,
+    bool budgetLimitAlert,
+    bool goalProgressApdates,
+    bool sharedActivitiesActivities,
+  ) async {
+    try {
+      // Update the user's profile data in Firestore
+      await _firestore.collection('persons').doc(userId).update({
+        'enableNotifications': enableNotifications,
+        'transactionsAlert': transactionsAlert,
+        'budgetLimitAlert': budgetLimitAlert,
+        'goalProgressApdates': goalProgressApdates,
+        'sharedActivitiesActivities': sharedActivitiesActivities,
+      });
+      debugPrint('Notifications Settings updated successfully.');
+    } catch (e) {
+      // Log the error with a specific message
+      debugPrint('Failed to update Notifications Settings: $e');
+
+      // Check if the error is a FirebaseException to provide more specific feedback
+      if (e is FirebaseException) {
+        throw Exception('Firebase error: ${e.message}');
+      } else {
+        throw Exception('Unknown error occurred while updating Notifications Settings');
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------------------
+  //********  Goal Functions**********/
+  //--------------------------------------------------------------------------------------
 
   Future<void> addGoal(GoalModel goal) async {
     await _firestore.collection('goals').add(goal.toMap());
@@ -727,8 +815,10 @@ class FirebaseDB {
         .where('uid', isEqualTo: user.uid)
         .get();
     return querySnapshot.docs
-        .map((doc) =>
-            GoalModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .map(
+          (doc) =>
+              GoalModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+        )
         .toList();
   }
 
@@ -741,20 +831,25 @@ class FirebaseDB {
     await _firestore.collection('goals').doc(goal.id).delete();
   }
 
-//--------------------------------------------------------------------------------------
-//********  Recurring Transaction Functions**********/
-//--------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------
+  //********  Recurring Transaction Functions**********/
+  //--------------------------------------------------------------------------------------
   // Fetch recurring_transactions by ownerId
   Future<List<RecurringTransactionModel>> fetchUserRecurringTransactions(
-      String ownerId) async {
+    String ownerId,
+  ) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('recurring_transactions')
           .where('ownerId', isEqualTo: ownerId)
           .get();
       return querySnapshot.docs
-          .map((doc) => RecurringTransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) => RecurringTransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching recurring transactions by ownerId: $e');
@@ -765,11 +860,16 @@ class FirebaseDB {
   // Fetch all recurring_transactions
   Future<List<RecurringTransactionModel>> fetchRecurringTransactions() async {
     try {
-      QuerySnapshot querySnapshot =
-          await _firestore.collection('recurring_transactions').get();
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('recurring_transactions')
+          .get();
       return querySnapshot.docs
-          .map((doc) => RecurringTransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) => RecurringTransactionModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching recurring transactions: $e');
@@ -779,7 +879,8 @@ class FirebaseDB {
 
   // Add a new recurring_transactions with auto-generated ID
   Future<bool> addRecurringTransaction(
-      RecurringTransactionModel transaction) async {
+    RecurringTransactionModel transaction,
+  ) async {
     try {
       await _firestore
           .collection('recurring_transactions')
@@ -793,7 +894,8 @@ class FirebaseDB {
 
   //delete recurring_transactions by ID
   Future<bool> deleteRecurringTransaction(
-      RecurringTransactionModel transaction) async {
+    RecurringTransactionModel transaction,
+  ) async {
     try {
       // Fetch transactions associated with the card
       await _firestore
@@ -809,7 +911,8 @@ class FirebaseDB {
 
   // fetch transaction by ID
   Future<RecurringTransactionModel> getRecurringTransactionById(
-      String transactionId) async {
+    String transactionId,
+  ) async {
     if (transactionId.isNotEmpty) {
       try {
         debugPrint('fetching recurring_transactions $transactionId');
@@ -819,7 +922,9 @@ class FirebaseDB {
             .get();
         if (doc.exists) {
           return RecurringTransactionModel.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id);
+            doc.data() as Map<String, dynamic>,
+            doc.id,
+          );
         } else {
           throw Exception('recurring_transactions not found');
         }
@@ -833,7 +938,8 @@ class FirebaseDB {
 
   // Update an existing recurring_transactions
   Future<void> updateRecurringTransaction(
-      RecurringTransactionModel transaction) async {
+    RecurringTransactionModel transaction,
+  ) async {
     try {
       debugPrint('Updating recurring_transactions');
       // Update transaction in Firestore

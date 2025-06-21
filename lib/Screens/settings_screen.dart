@@ -1,6 +1,7 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
+import 'package:personalwallettracker/Screens/notifications_screen.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'card/user_cards_screen.dart';
@@ -68,7 +69,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Cards
           ListTile(
             title: const Text('My Cards'),
-            leading: const Icon(Icons.payment_outlined),
             trailing: const Icon(Icons.payment_outlined),
             tileColor: Colors.grey.shade200,
             onTap: () {
@@ -83,12 +83,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Categories
           ListTile(
             title: const Text('Categories'),
-            leading: const Icon(Icons.payment_outlined),
             trailing: const Icon(Icons.category_outlined),
             tileColor: Colors.grey.shade200,
             onTap: navCategoriesScreen,
           ),
           const SizedBox(height: 20.0),
+          // Notifications
+          ListTile(
+            title: const Text('Notifications'),
+            trailing: const Icon(Icons.notifications_active),
+            tileColor: Colors.grey.shade200,
+            onTap: navNotificationScreen,
+          ),
         ],
       ),
     );
@@ -97,6 +103,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void navCategoriesScreen() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return  CategoriesScreen(user: widget.user,);
+    }));
+  }
+
+  void navNotificationScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return  NotificationSettingsScreen(person: widget.person,user: widget.user);
     }));
   }
 

@@ -104,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void checkUncreatedRecurringTransactions() async {
     if (user != null) {
       DateTime now = DateTime.now();
-      
+
       List<RecurringTransactionModel> dueTransactions = [];
       List<RecurringTransactionModel> recurringTransactions =
           await firebaseDatabasehelper.fetchUserRecurringTransactions(
@@ -118,7 +118,9 @@ class _MyHomePageState extends State<MyHomePage> {
         bool isDue = false;
         DateTime transDate = transaction.date;
 
-        isDue = ( transDate.isBefore(now) && transDate.month == now.month ) ? true : false;
+        isDue = (transDate.isBefore(now) && transDate.month == now.month)
+            ? true
+            : false;
 
         if (isDue) {
           dueTransactions.add(transaction);
@@ -130,6 +132,9 @@ class _MyHomePageState extends State<MyHomePage> {
         debugPrint(
           'Due recurring transactions: ${uncreatedTransactions.length}',
         );
+        if (uncreatedTransactions.isNotEmpty) {
+          showWarningSnachBar('Record Uncreated Transactions!');
+        }
       });
     } else {
       debugPrint('No User Found!');
