@@ -4,11 +4,13 @@ import 'package:personalwallettracker/Components/my_tiles/my_list_tile.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/card/user_cards_screen.dart';
 import 'package:personalwallettracker/Screens/categories/catogories_screen.dart';
+import 'package:personalwallettracker/Screens/friends/my_friends_screen.dart';
 import 'package:personalwallettracker/Screens/home.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
 import 'package:personalwallettracker/Screens/profile_screen.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
+import 'package:slide_to_act/slide_to_act.dart';
 import '../Models/card_model.dart';
 import '../Screens/transaction/recurring_transactions/recurring_transactions_screen.dart';
 import '../services/firebase/auth/auth_service.dart';
@@ -18,11 +20,12 @@ class MyDrawer extends StatefulWidget {
   final User user;
   final Person personProfile;
   final List<CardModel> myCards;
-  const MyDrawer(
-      {super.key,
-      required this.user,
-      required this.personProfile,
-      required this.myCards});
+  const MyDrawer({
+    super.key,
+    required this.user,
+    required this.personProfile,
+    required this.myCards,
+  });
 
   @override
   State<MyDrawer> createState() => _MyDrawerState();
@@ -74,26 +77,18 @@ class _MyDrawerState extends State<MyDrawer> {
                 children: [
                   // Profile picture and email
                   UserAccountsDrawerHeader(
-                    decoration: const BoxDecoration(
-                      color: Colors.pink,
-                    ),
+                    decoration: const BoxDecoration(color: Colors.pink),
                     accountName: Text(
                       '${widget.personProfile.username} ',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     accountEmail: Text(
                       widget.personProfile.email,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     currentAccountPicture: CircleAvatar(
-                      backgroundImage: widget
-                              .personProfile.profile_picture.isNotEmpty
+                      backgroundImage:
+                          widget.personProfile.profile_picture.isNotEmpty
                           ? NetworkImage(widget.personProfile.profile_picture)
                           : const NetworkImage(
                               'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png',
@@ -113,92 +108,165 @@ class _MyDrawerState extends State<MyDrawer> {
                     tileTitle: 'Profile',
                     onTap: navProfile,
                   ),
+                  // Friends Screen
+                  MyListTile(
+                    icon: const Icon(Icons.people),
+                    tileTitle: 'Friends',
+                    onTap: navFriendsScreen,
+                  ),
                   // Recurring Transactions
                   MyListTile(
-                      icon: const Icon(Icons.history),
-                      tileTitle: 'Recurring Transactions',
-                      onTap: navRecurringTransactionScreen),
+                    icon: const Icon(Icons.history),
+                    tileTitle: 'Recurring Transactions',
+                    onTap: navRecurringTransactionScreen,
+                  ),
                   // Settings
                   MyListTile(
-                      icon: const Icon(Icons.settings),
-                      tileTitle: 'Settings',
-                      onTap: navSettingsPage),
+                    icon: const Icon(Icons.settings),
+                    tileTitle: 'Settings',
+                    onTap: navSettingsPage,
+                  ),
                 ],
               ),
             ),
           ),
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.black, width: 1.0),
-              ),
-            ),
-            child: ListTile(
-              title: const Text(
-                'Logout',
-                style: TextStyle(
-                  color:  Colors.black,
-                  fontWeight: FontWeight.bold,
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: SlideAction(
+                onSubmit: () async {
+                  logout();
+                },
+                sliderButtonIcon: const Icon(
+                  Icons.monetization_on_sharp,
+                  color: Colors.pink,
                 ),
+                // borderRadius: 20,
+                text: '          Slide to transfer',
+                innerColor: Colors.white,
+                outerColor: Colors.pink,
               ),
-              trailing: const Icon(Icons.logout),
-              onTap: logout,
             ),
           ),
+          // Container(
+          //   width: double.infinity,
+          //   decoration: const BoxDecoration(
+          //     border: Border(top: BorderSide(color: Colors.black, width: 1.0)),
+          //   ),
+          //   child: ListTile(
+          //     title: const Text(
+          //       'Logout',
+          //       style: TextStyle(
+          //         color: Colors.black,
+          //         fontWeight: FontWeight.bold,
+          //       ),
+          //     ),
+          //     trailing: const Icon(Icons.logout),
+          //     onTap: logout,
+          //   ),
+          // ),
         ],
       ),
     );
   }
 
+  void navFriendsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return MyFriendsScreen(currentUser: widget.personProfile);
+        },
+      ),
+    );
+  }
+
   void navRecurringTransactionScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return RecurringTransactionsScreen(
-        user: widget.user.uid,
-        personProfile: widget.personProfile,
-        myCards: widget.myCards,
-      );
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return RecurringTransactionsScreen(
+            user: widget.user.uid,
+            personProfile: widget.personProfile,
+            myCards: widget.myCards,
+          );
+        },
+      ),
+    );
   }
 
   void navProfile() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return MyProfileScreen(
-        user: widget.user,
-        personProfile: widget.personProfile,
-      );
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return MyProfileScreen(
+            user: widget.user,
+            personProfile: widget.personProfile,
+          );
+        },
+      ),
+    );
   }
 
   void navSettingsPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SettingsScreen(person: widget.personProfile, user: widget.user.uid);
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return SettingsScreen(
+            person: widget.personProfile,
+            user: widget.user.uid,
+          );
+        },
+      ),
+    );
   }
 
   void navHomePage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const MyHomePage();
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const MyHomePage();
+        },
+      ),
+    );
   }
 
   void navCategoriesScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CategoriesScreen(user: widget.user.uid,);
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return CategoriesScreen(user: widget.user.uid);
+        },
+      ),
+    );
   }
 
   void navUserCardsScreen() async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CardListScreen(
-        currency: widget.personProfile.default_currency,
-      );
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return CardListScreen(
+            currency: widget.personProfile.default_currency,
+          );
+        },
+      ),
+    );
   }
 
   void navOnboardingScreen() async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const OnboardingScreen();
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const OnboardingScreen();
+        },
+      ),
+    );
   }
 }

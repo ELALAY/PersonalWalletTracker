@@ -105,39 +105,40 @@ class LocalNotificationService {
   }
 
   static Future<void> scheduleDailyReminderAtFourPM({
-  required int id,
-  required String title,
-  required String body,
-}) async {
-  final now = tz.TZDateTime.now(tz.local);
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    final now = tz.TZDateTime.now(tz.local);
 
-  // Schedule for today at 4 PM
-  tz.TZDateTime scheduledDate = tz.TZDateTime(
-    tz.local,
-    now.year,
-    now.month,
-    now.day,
-    14,
-    40,
-  );
+    // Schedule for today at 4 PM
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      14,
+      40,
+    );
 
-  // If 4 PM has already passed today, schedule for tomorrow
-  if (scheduledDate.isBefore(now)) {
-    scheduledDate = scheduledDate.add(const Duration(days: 1));
+    // If 4 PM has already passed today, schedule for tomorrow
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    await _notificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      notificationDetails(),
+      androidScheduleMode: AndroidScheduleMode
+          .inexact, // or exactAllowWhileIdle if permission is granted
+      matchDateTimeComponents: DateTimeComponents.time, // <- daily at same time
+      payload: 'daily_reminder',
+    );
+
+    debugPrint('Daily notification scheduled for: $scheduledDate');
   }
-
-  await _notificationsPlugin.zonedSchedule(
-    id,
-    title,
-    body,
-    scheduledDate,
-    notificationDetails(),
-    androidScheduleMode: AndroidScheduleMode.inexact, // or exactAllowWhileIdle if permission is granted
-    matchDateTimeComponents: DateTimeComponents.time, // <- daily at same time
-    payload: 'daily_reminder',
-  );
-
-  debugPrint('Daily notification scheduled for: $scheduledDate');
-}
 
 }

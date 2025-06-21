@@ -50,8 +50,8 @@ class _FriendSearchScreenState extends State<FriendSearchScreen> {
 
   Future<void> _sendFriendRequest(Person toUser) async {
     await _firebaseDB.sendFriendRequest(
-      fromUserId: widget.currentUser.id,
-      toUserId: toUser.id,
+      fromUser: widget.currentUser,
+      toUser: toUser,
     );
 
     ScaffoldMessenger.of(context).showSnackBar(

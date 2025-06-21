@@ -38,16 +38,18 @@ class _MyFriendsScreenState extends State<MyFriendsScreen> {
     List<Person> friendstemp = await firebaseDB.getFriends(
       widget.currentUser.id,
     );
+    debugPrint('friends: ${friendstemp.length.toString()}');
 
     setState(() {
       friends = friendstemp;
     });
   }
 
-  Future<void> removeFriend(String firendId) async {
+  Future<void> removeFriend(String friendId) async {
+    debugPrint(friendId);
     await firebaseDB.removeFriend(
       userId: widget.currentUser.id,
-      friendId: firendId,
+      friendId: friendId,
     );
     reload();
   }
@@ -91,7 +93,7 @@ class _MyFriendsScreenState extends State<MyFriendsScreen> {
                     child: ListView.builder(
                       itemCount: friends.length,
                       itemBuilder: (context, index) {
-                        final friend = friends[index];
+                        Person friend = friends[index];
                         return Container(
                           padding: const EdgeInsets.all(8.0),
                           decoration: BoxDecoration(
@@ -103,7 +105,9 @@ class _MyFriendsScreenState extends State<MyFriendsScreen> {
                               children: [
                                 SlidableAction(
                                   onPressed: (context) async {
+                                    debugPrint('remove Friend to ');
                                     removeFriend(friend.id);
+                                    debugPrint('Friend to remove ${friend.id}');
                                   },
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
@@ -124,6 +128,7 @@ class _MyFriendsScreenState extends State<MyFriendsScreen> {
                                     : null,
                               ),
                               title: Text(friend.username),
+                              subtitle: Text('id ${friend.id}'),
                             ),
                           ),
                         );

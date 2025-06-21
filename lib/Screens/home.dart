@@ -1,4 +1,5 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -7,6 +8,7 @@ import 'package:personalwallettracker/Components/my_drawer.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Models/recurring_transaction_model.dart';
+import 'package:personalwallettracker/Screens/friends/friend_search_screen.dart';
 import 'package:personalwallettracker/Screens/transaction/new_transaction_screen.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_image_button.dart';
 import 'package:personalwallettracker/Screens/settings_screen.dart';
@@ -16,6 +18,7 @@ import 'package:personalwallettracker/Screens/transaction/transaction_history.da
 import 'package:personalwallettracker/Screens/transaction/transfer_money.dart';
 import 'package:personalwallettracker/services/firebase/auth/auth_service.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
+import 'package:personalwallettracker/services/notifications/notification.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'card/edit_card_screen.dart';
@@ -32,21 +35,30 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   FirebaseDB firebaseDatabasehelper = FirebaseDB();
   AuthService authService = AuthService();
-  final pageController = PageController();
   List<CardModel> myCards = [];
   bool isLoading = true;
+  // Cards Pages Indicator & controller
   int pageIndex = 0;
+  final pageController = PageController();
   //user and profile info
   User? user;
   Person? personProfile;
+  // notifications
+  bool notifications = false;
   // uncreated recurring transactions
   List<RecurringTransactionModel> uncreatedTransactions = [];
+  // Pending Friends Reauests
+  List<Map<String, dynamic>> friendRequests = [];
 
   @override
   void initState() {
     super.initState();
     fetchUserAndCards();
     checkUncreatedRecurringTransactions();
+    notifications =
+        (uncreatedTransactions.isNotEmpty || friendRequests.isNotEmpty)
+        ? true
+        : false;
     isLoading = false;
   }
 
@@ -76,8 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
         Person? personProfileTemp = await firebaseDatabasehelper
             .getPersonProfile(userTemp.uid);
         personProfileTemp != null
-            ? debugPrint('got user: ${personProfileTemp.email}')
-            : debugPrint('no user profile');
+            ? debugPrint('got profile: ${personProfileTemp.email}')
+            : debugPrint('no profile');
         setState(() {
           user = userTemp;
           personProfile = personProfileTemp;
@@ -141,6 +153,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void checknotifications() async {
+    List<Map<String, dynamic>> friendRequeststemp = await firebaseDatabasehelper
+        .getIncomingRequests(user!.uid);
+    setState(() {
+      friendRequests = friendRequeststemp;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,16 +177,16 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.grey,
             ),
           ),
-          uncreatedTransactions.isNotEmpty
+          notifications
               ? IconButton(
-                  onPressed: showUncreatedRecurringTransactions,
+                  onPressed: showNotificationDialog,
                   icon: const Icon(
                     Icons.notifications_active,
                     color: Colors.deepOrange,
                   ),
                 )
               : IconButton(
-                  onPressed: showUncreatedRecurringTransactions,
+                  onPressed: showNotificationDialog,
                   icon: const Icon(Icons.notifications_outlined),
                 ),
         ],
@@ -346,7 +366,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void showUncreatedRecurringTransactions() {
+  void showNotificationDialog() {
     showDialog(
       context: context,
       builder: (context) {
@@ -359,6 +379,29 @@ class _MyHomePageState extends State<MyHomePage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (friendRequests.isNotEmpty)
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.deepOrange.shade200,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: ListTile(
+                      leading: const Text(
+                        'Check pending friend requests',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                      ),
+                      trailing: const Icon(Icons.history, color: Colors.white),
+                      onTap:
+                          recurringTransactionsScreen, // Here the function is being called
+                    ),
+                  ),
+                ),
               if (uncreatedTransactions.isNotEmpty)
                 Container(
                   decoration: BoxDecoration(
@@ -605,4 +648,5 @@ class _MyHomePageState extends State<MyHomePage> {
       icon: const Icon(Icons.check, color: Colors.white),
     );
   }
+
 }

@@ -962,17 +962,21 @@ class FirebaseDB {
   //--------------------------------------------------------------------------------------
 
   Future<void> sendFriendRequest({
-    required String fromUserId,
-    required String toUserId,
+    required Person fromUser,
+    required Person toUser,
   }) async {
-    final requestId = '${fromUserId}_$toUserId';
+    final requestId = '${fromUser.id}_${toUser.id}';
     final docRef = FirebaseFirestore.instance
         .collection('friendRequests')
         .doc(requestId);
 
     await docRef.set({
-      'fromUserId': fromUserId,
-      'toUserId': toUserId,
+      'fromUserId': fromUser.id,
+      'fromUsername': fromUser.username,
+      'fromUserEmail': fromUser.email,
+      'toUserId': toUser.id,
+      'toUsername': toUser.username,
+      'toUserEmail': toUser.email,
       'status': 'pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
@@ -1010,7 +1014,7 @@ class FirebaseDB {
     await FirebaseFirestore.instance
         .collection('friendRequests')
         .doc(requestId)
-        .update({'status': 'accepted'});
+        .delete();
 
     // Add to both users' friends subcollections
     final batch = FirebaseFirestore.instance.batch();
@@ -1068,27 +1072,52 @@ class FirebaseDB {
         .delete();
   }
 
-  Future<List<Person>> getFriends(String userId) async {
-    try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('persons')
-          .doc('userId')
-          .collection('friends')
-          .get();
+  // Future<List<Person>> getFriends(String userId) async {
+  //   try {
+  //     final querySnapshot = await FirebaseFirestore.instance
+  //         .collection('persons')
+  //         .doc('userId')
+  //         .collection('friends')
+  //         .get();
+  //     debugPrint(querySnapshot.toString());
+  //     return querySnapshot.docs
+  //         .map((doc) => Person.fromMap(doc.data(), doc.id))
+  //         .toList();
+  //   } catch (e) {
+  //     debugPrint('Error fetching transactions by card ID: $e');
+  //     rethrow;
+  //   }
+  // }
 
-      return querySnapshot.docs
-          .map((doc) => Person.fromMap(doc.data(), doc.id))
-          .toList();
-    } catch (e) {
-      debugPrint('Error fetching transactions by card ID: $e');
-      rethrow;
-    }
+  Future<List<Person>> getFriends(String userId) async {
+    final snapshot = await _firestore
+        .collection('persons')
+        .doc(userId)
+        .collection('friends')
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Person.withId(
+        data['friendId'],
+        data['friendName'],
+        data['friendEmail'],
+        data['profilePicture'],
+        'MAD',
+        true, // default notification settings or fetched if needed
+        true,
+        true,
+        true,
+        true,
+      );
+    }).toList();
   }
 
   Future<void> removeFriend({
     required String userId,
     required String friendId,
   }) async {
+    try {
     final batch = FirebaseFirestore.instance.batch();
 
     final userFriendRef = FirebaseFirestore.instance
@@ -1105,7 +1134,11 @@ class FirebaseDB {
 
     batch.delete(userFriendRef);
     batch.delete(friendUserRef);
-
+  
     await batch.commit();
+
+    } catch (e) {
+      debugPrint('error removing friend!');
+    }
   }
 }
