@@ -8,6 +8,7 @@ class LocalNotificationService {
 
   /// Initialize notifications and timezone data
   static Future<void> initialize() async {
+    
     // Initialize timezone data
     initializeTimeZones();
     // Optionally set default local timezone (usually auto-detected)

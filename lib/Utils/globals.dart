@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 // globals.dart
-List<String> currencies = ['MAD', 'USD', 'EUR', 'GBP', 'JPY', 'CAD']; // Add your desired currencies
+List<String> currencies = [
+  'MAD',
+  'USD',
+  'EUR',
+  'GBP',
+  'JPY',
+  'CAD',
+]; // Add your desired currencies
 String selectedCurrency = 'USD'; // Default currency
 
 //allowed colors
@@ -42,9 +49,7 @@ List<String> iconNames = [
 
 Image categoryIcon(String name) {
   try {
-    return Image.asset(
-      'lib/Images/${name.toLowerCase()}.png',
-    );
+    return Image.asset('lib/Images/${name.toLowerCase()}.png');
   } catch (e) {
     throw Exception('Firebase error: $e');
   }
@@ -53,3 +58,4 @@ Image categoryIcon(String name) {
 String formatDate(DateTime date) {
   return DateFormat('dd/MM/yy').format(date);
 }
+

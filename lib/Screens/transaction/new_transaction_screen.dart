@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
@@ -8,10 +11,9 @@ import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
+import 'package:personalwallettracker/services/firebase/claoud_storage_db/firebase_storage.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 import 'package:personalwallettracker/services/notifications/notification.dart';
-
-import '../categories/create_category_screen.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final CardModel card;
@@ -28,6 +30,8 @@ class AddTransactionScreen extends StatefulWidget {
 
 class AddTransactionScreenState extends State<AddTransactionScreen> {
   final FirebaseDB _firebaseDB = FirebaseDB();
+  final FirebaseCloudStorageHelper firebaseCloudHelper =
+      FirebaseCloudStorageHelper();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -38,6 +42,9 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   bool _isLoadingCategories = true;
   bool isExpense = true; // Default to 'Transaction'
   String selectedCardType = 'visa';
+  // image picker
+  File? _receiptImage;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -67,6 +74,24 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
     return DateFormat('dd/MM/yy').format(date);
   }
 
+  Future<File?> pickProfileImage() async {
+    File? image;
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        image = File(pickedFile.path);
+        // Optionally convert to Uint8List if needed
+        Uint8List imageBytes = await image!.readAsBytes();
+        debugPrint('Image picked and converted to bytes: $imageBytes');
+      } else {
+        debugPrint('No image selected.');
+      }
+      return image;
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
   Future<void> _addTransaction() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
@@ -79,15 +104,19 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
           description: _descriptionController.text,
           isExpense: isExpense,
         );
+
         bool created = await _firebaseDB.addTransaction(transaction);
+
         if (created) {
           double amount = isExpense ? -transaction.amount : transaction.amount;
           debugPrint(amount.toString());
+
           _firebaseDB.updateCardBalance(
             widget.card.id,
             widget.card.balance + amount,
           );
           debugPrint('updated card balance!');
+
           showSuccessSnachBar('Transaction Created!');
           LocalNotificationService().showNotification(
             title: 'new Transation - ${transaction.description}',
@@ -318,6 +347,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                           ),
                           const SizedBox(height: 20),
                           // save transaction
+                          
                           MyButton(
                             label: 'Save transaction',
                             onTap: _addTransaction,
@@ -328,19 +358,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                   ],
                 ),
               ),
-      ),
-    );
-  }
-
-  void createCategory() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return CreateCategory(
-            user: widget.user,
-          ); // replace with your settings screen
-        },
       ),
     );
   }

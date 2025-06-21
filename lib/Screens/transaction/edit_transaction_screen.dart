@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:personalwallettracker/Components/my_buttons/my_button.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_numberfield.dart';
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/card_model.dart';
 import 'package:personalwallettracker/Models/category_model.dart';
 import 'package:personalwallettracker/Models/transaction_model.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
+import 'package:personalwallettracker/services/firebase/claoud_storage_db/firebase_storage.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
 
 import '../categories/create_category_screen.dart';
@@ -15,8 +21,12 @@ class EditTransactionScreen extends StatefulWidget {
   final TransactionModel transaction;
   final CardModel card;
   final String user;
-  const EditTransactionScreen(
-      {super.key, required this.card, required this.transaction, required this.user});
+  const EditTransactionScreen({
+    super.key,
+    required this.card,
+    required this.transaction,
+    required this.user,
+  });
 
   @override
   EditTransactionScreenState createState() => EditTransactionScreenState();
@@ -24,6 +34,7 @@ class EditTransactionScreen extends StatefulWidget {
 
 class EditTransactionScreenState extends State<EditTransactionScreen> {
   final FirebaseDB _firebaseDB = FirebaseDB();
+  final FirebaseCloudStorageHelper firebaseCloudHelper = FirebaseCloudStorageHelper();
   final _formKey = GlobalKey<FormState>();
   TextEditingController _amountController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
@@ -35,21 +46,29 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   bool isExpense = true; // Default to 'Transaction'
   //disable key info edit
   bool enabledEditkeyInfo = false;
+  // receipt data
+  String existingImagePath = '';
+  XFile? _receiptImage;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
     _loadCategories();
     // Initialize with existing card details
-    _amountController =
-        TextEditingController(text: widget.transaction.amount.toString());
-    _descriptionController =
-        TextEditingController(text: widget.transaction.description);
-    _dateController =
-        TextEditingController(text: formatDate(widget.transaction.date));
+    _amountController = TextEditingController(
+      text: widget.transaction.amount.toString(),
+    );
+    _descriptionController = TextEditingController(
+      text: widget.transaction.description,
+    );
+    _dateController = TextEditingController(
+      text: formatDate(widget.transaction.date),
+    );
     _selectedCategory = widget.transaction.category;
     isExpense = widget.transaction.isExpense;
     selectedDate = widget.transaction.date;
+    existingImagePath = widget.transaction.receiptUrl ?? '';
   }
 
   Future<void> _loadCategories() async {
@@ -63,9 +82,9 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading categories: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading categories: $e')));
       }
     }
   }
@@ -73,6 +92,8 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   Future<void> _editTransaction() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
+        
+
         TransactionModel transaction = TransactionModel.withId(
           id: widget.transaction.id,
           cardId: widget.transaction.cardId,
@@ -112,7 +133,10 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
               primary: Colors.deepPurple, // Header background color
               onPrimary: Colors.white, // Header text color
               onSurface: Colors.deepPurple, // Body text color
-            ), dialogTheme: const DialogThemeData(backgroundColor: Colors.white), // Background color of the dialog
+            ),
+            dialogTheme: const DialogThemeData(
+              backgroundColor: Colors.white,
+            ), // Background color of the dialog
           ),
           child: child!,
         );
@@ -137,7 +161,8 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Transaction ${transaction.description} deleted!')),
+          content: Text('Transaction ${transaction.description} deleted!'),
+        ),
       );
     } else {
       // ignore: use_build_context_synchronously
@@ -157,20 +182,19 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
         foregroundColor: Colors.grey,
         actions: [
           CupertinoSwitch(
-              value: enabledEditkeyInfo,
-              onChanged: (value) {
-                setState(() {
-                  enabledEditkeyInfo = value;
-                });
-              }),
+            value: enabledEditkeyInfo,
+            onChanged: (value) {
+              setState(() {
+                enabledEditkeyInfo = value;
+              });
+            },
+          ),
           IconButton(
-              onPressed: () {
-                deleteTransaction(widget.transaction);
-              },
-              icon: const Icon(
-                Icons.delete_forever,
-                color: Colors.red,
-              )),
+            onPressed: () {
+              deleteTransaction(widget.transaction);
+            },
+            icon: const Icon(Icons.delete_forever, color: Colors.red),
+          ),
         ],
       ),
       body: Padding(
@@ -181,9 +205,7 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      height: 25.0,
-                    ),
+                    const SizedBox(height: 25.0),
                     Column(
                       children: [
                         Icon(
@@ -191,17 +213,13 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                           size: 70,
                           color: Color(widget.card.color),
                         ),
-                        const SizedBox(
-                          height: 10.0,
-                        ),
+                        const SizedBox(height: 10.0),
                         widget.card.cardName.isNotEmpty
                             ? Text(widget.card.cardName)
                             : const Text('Loading card information...'),
                       ],
                     ),
-                    const SizedBox(
-                      height: 25.0,
-                    ),
+                    const SizedBox(height: 25.0),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -209,17 +227,19 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                         children: [
                           // Amount
                           MyNumberField(
-                              controller: _amountController,
-                              label: 'Amount',
-                              color: Colors.deepPurple,
-                              enabled: true),
+                            controller: _amountController,
+                            label: 'Amount',
+                            color: Colors.deepPurple,
+                            enabled: true,
+                          ),
                           const SizedBox(height: 16.0),
                           // Description
                           MyTextField(
-                              controller: _descriptionController,
-                              label: 'Description',
-                              color: Colors.deepPurple,
-                              enabled: true),
+                            controller: _descriptionController,
+                            label: 'Description',
+                            color: Colors.deepPurple,
+                            enabled: true,
+                          ),
                           const SizedBox(height: 16.0),
                           // Category
                           Padding(
@@ -242,37 +262,41 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                               },
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 labelText: 'Category',
                                 labelStyle: TextStyle(color: Colors.deepPurple),
                                 enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                               ),
                               items: [
-                                ..._categories
-                                    .map((category) => DropdownMenuItem<String>(
-                                          value: category.name,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                  height: 35.0,
-                                                  child: categoryIcon(
-                                                      category.iconName)),
-                                              const SizedBox(
-                                                width: 12.0,
-                                              ),
-                                              Text(category.name),
-                                            ],
+                                ..._categories.map(
+                                  (category) => DropdownMenuItem<String>(
+                                    value: category.name,
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          height: 35.0,
+                                          child: categoryIcon(
+                                            category.iconName,
                                           ),
-                                        )),
+                                        ),
+                                        const SizedBox(width: 12.0),
+                                        Text(category.name),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -284,28 +308,34 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                               controller: _dateController,
                               decoration: InputDecoration(
                                 border: const OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 labelText: formatDate(selectedDate),
-                                labelStyle:
-                                    const TextStyle(color: Colors.deepPurple),
+                                labelStyle: const TextStyle(
+                                  color: Colors.deepPurple,
+                                ),
                                 enabledBorder: const OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 focusedBorder: const OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.deepPurple),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 suffixIcon: IconButton(
                                   icon: const Icon(
-                                      Icons.calendar_month_outlined,
-                                      color: Colors.deepPurple),
+                                    Icons.calendar_month_outlined,
+                                    color: Colors.deepPurple,
+                                  ),
                                   onPressed: () {
                                     _selectDate(context);
                                     _dateController = TextEditingController(
-                                        text: formatDate(selectedDate));
+                                      text: formatDate(selectedDate),
+                                    );
                                   },
                                 ),
                               ),
@@ -313,7 +343,8 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                               onTap: () {
                                 _selectDate(context);
                                 _dateController = TextEditingController(
-                                    text: formatDate(selectedDate));
+                                  text: formatDate(selectedDate),
+                                );
                               },
                             ),
                           ),
@@ -322,8 +353,10 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              const Text('Income',
-                                  style: TextStyle(color: Colors.deepPurple)),
+                              const Text(
+                                'Income',
+                                style: TextStyle(color: Colors.deepPurple),
+                              ),
                               const SizedBox(width: 20.0),
                               Switch(
                                 value: isExpense,
@@ -335,24 +368,32 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
                                 activeColor: Colors.deepPurple,
                               ),
                               const SizedBox(width: 20.0),
-                              const Text('Expense`',
-                                  style: TextStyle(color: Colors.deepPurple))
+                              const Text(
+                                'Expense`',
+                                style: TextStyle(color: Colors.deepPurple),
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 16.0),
-
                           Center(
-                            child: ElevatedButton(
-                              onPressed:
-                                  _editTransaction, // Disable button if card or category is not selected
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.deepPurple,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40.0, vertical: 20.0),
-                              ),
-                              child: const Text('Edit Transaction'),
+                            child: MyButton(
+                              label: 'Edit Transaction',
+                              onTap: _editTransaction,
                             ),
                           ),
+                          // Center(
+                          //   child: ElevatedButton(
+                          //     onPressed:
+                          //         _editTransaction, // Disable button if card or category is not selected
+                          //     style: ElevatedButton.styleFrom(
+                          //       backgroundColor: Colors.deepPurple,
+                          //       padding: const EdgeInsets.symmetric(
+                          //         horizontal: 40.0,
+                          //         vertical: 20.0,
+                          //       ),
+                          //     ),
+                          //     child: const Text('Edit Transaction'),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -364,47 +405,57 @@ class EditTransactionScreenState extends State<EditTransactionScreen> {
   }
 
   void createCaegory() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return CreateCategory(user: widget.user,); // replace with your settings screen
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return CreateCategory(
+            user: widget.user,
+          ); // replace with your settings screen
+        },
+      ),
+    );
   }
 
   void showErrorSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.amber.shade400),
-        backgroundColor: Colors.amber,
-        icon: const Icon(
-          Icons.close,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.amber.shade400,
+      ),
+      backgroundColor: Colors.amber,
+      icon: const Icon(Icons.close, color: Colors.white),
+    );
   }
 
   void showInfoSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.lightBlueAccent.shade400),
-        backgroundColor: Colors.lightBlueAccent,
-        icon: const Icon(
-          Icons.info_outline,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.lightBlueAccent.shade400,
+      ),
+      backgroundColor: Colors.lightBlueAccent,
+      icon: const Icon(Icons.info_outline, color: Colors.white),
+    );
   }
 
   void showSuccessSnachBar(String message) {
-    awesomeTopSnackbar(context, message,
-        iconWithDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white),
-            color: Colors.green.shade400),
-        backgroundColor: Colors.green,
-        icon: const Icon(
-          Icons.check,
-          color: Colors.white,
-        ));
+    awesomeTopSnackbar(
+      context,
+      message,
+      iconWithDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white),
+        color: Colors.green.shade400,
+      ),
+      backgroundColor: Colors.green,
+      icon: const Icon(Icons.check, color: Colors.white),
+    );
   }
 }

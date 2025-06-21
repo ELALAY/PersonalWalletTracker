@@ -118,7 +118,8 @@ class _MyHomePageState extends State<MyHomePage> {
         bool isDue = false;
         DateTime transDate = transaction.date;
 
-        isDue = transDate.isBefore(now) ? true : false;
+        isDue = ( transDate.isBefore(now) && transDate.month == now.month ) ? true : false;
+
         if (isDue) {
           dueTransactions.add(transaction);
         }
@@ -134,39 +135,6 @@ class _MyHomePageState extends State<MyHomePage> {
       debugPrint('No User Found!');
     }
   }
-
-  // void checkUncreatedRecurringTransactions() async {
-  //   if (user != null) {
-  //     List<RecurringTransactionModel> uncreatedTransactionstemp = [];
-  //     List<RecurringTransactionModel> recurringTransactions =
-  //         await firebaseDatabasehelper
-  //             .fetchUserRecurringTransactions(user!.uid);
-
-  //     DateTime now = DateTime.now(); // Get the current date
-  //     String currentMonthYear = DateFormat('yyyyMM')
-  //         .format(now); // To compare for monthly recurrences
-
-  //     for (var transaction in recurringTransactions) {
-  //       if (!transaction.isArchived) {
-  //         // Check if the recurring transaction next month is today's month
-  //         if (transaction.recurrenceType == 0 &&
-  //             DateFormat('yyyyMM').format(transaction.date) ==
-  //                 currentMonthYear) {
-  //           // Handle recurring transaction for today (e.g., monthly)
-  //           uncreatedTransactionstemp.add(transaction);
-  //         }
-  //       }
-  //     }
-
-  //     setState(() {
-  //       uncreatedTransactions = uncreatedTransactionstemp;
-  //       debugPrint(
-  //           'ucreated rec transactions: ${uncreatedTransactions.length.toString()}');
-  //     });
-  //   } else {
-  //     debugPrint('No User Found!');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {

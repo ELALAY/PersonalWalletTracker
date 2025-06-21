@@ -80,48 +80,6 @@ class _RecurringTransactionsScreenState
     });
   }
 
-  void showUncreatedRecurringTransactions() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.deepOrange,
-          title: const Text(
-            'Notifications',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (transactions.isNotEmpty)
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.deepOrange.shade200,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: ListTile(
-                      leading: const Text(
-                        'Check Recurring Transactions',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 15,
-                        ),
-                      ),
-                      trailing: const Icon(Icons.history, color: Colors.white),
-                      onTap: () {},
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,6 +99,7 @@ class _RecurringTransactionsScreenState
             icon: const Icon(Icons.sort),
             itemBuilder: (BuildContext context) {
               return [
+                // Sort by oldest
                 const PopupMenuItem<String>(
                   value: 'Oldest',
                   child: Row(
@@ -150,6 +109,7 @@ class _RecurringTransactionsScreenState
                     ],
                   ),
                 ),
+                // Sort by newest
                 const PopupMenuItem<String>(
                   value: 'Newsest',
                   child: Row(
@@ -237,7 +197,13 @@ class _RecurringTransactionsScreenState
                       child: ListTile(
                         tileColor: transaction.isArchived
                             ? Colors.grey.shade600
-                            : Colors.grey.shade300,
+                            : (((transaction.date.isBefore(DateTime.now()) ||
+                                          (transaction.date ==
+                                              DateTime.now())) &&
+                                      (transaction.date.month ==
+                                          DateTime.now().month))
+                                  ? Colors.orange[200]
+                                  : Colors.grey.shade300),
                         title: Row(
                           children: [
                             Text(
@@ -292,6 +258,7 @@ class _RecurringTransactionsScreenState
             ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
         onPressed: navNewRecurringTransactionScreen,
         child: const Icon(Icons.add),
       ),

@@ -13,6 +13,7 @@ import 'package:personalwallettracker/Components/my_textfields/my_pwdfield.dart'
 import 'package:personalwallettracker/Components/my_textfields/my_textfield.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
 import 'package:personalwallettracker/Screens/onboarding/onboarding_screen.dart';
+import 'package:personalwallettracker/services/firebase/claoud_storage_db/firebase_storage.dart';
 import '../realtime_db/firebase_db.dart';
 import 'auth_service.dart';
 import 'login_register_screen.dart';
@@ -26,6 +27,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   FirebaseDB fbdatabaseHelper = FirebaseDB();
+  FirebaseCloudStorageHelper firebaseCloudStorageHelper = FirebaseCloudStorageHelper();
   final authService = AuthService();
   final ImagePicker _picker = ImagePicker();
 
@@ -57,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } else {
       String? profileImageUrl;
       if (_profileImage != null) {
-        profileImageUrl = await _uploadProfileImage(_profileImage!);
+        profileImageUrl = await firebaseCloudStorageHelper.uploadProfileImage(_profileImage!);
       } else {
         profileImageUrl =
             'https://icons.veryicon.com/png/o/miscellaneous/common-icons-31/default-avatar-2.png';
@@ -160,25 +162,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       debugPrint('Error picking image: $e');
       showErrorSnachBar('Error picking image');
-    }
-  }
-
-  Future<String?> _uploadProfileImage(File? image) async {
-    if (image == null) return null;
-    try {
-      Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child('profile_images/${image.path.split('/').last}');
-
-      UploadTask uploadTask = storageReference.putFile(image);
-      TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
-      String downloadURL = await taskSnapshot.ref.getDownloadURL();
-      debugPrint(
-          'File uploaded to Firebase Storage. Download URL: $downloadURL');
-      return downloadURL;
-    } catch (e) {
-      debugPrint('Error uploading image: $e');
-      return null;
     }
   }
 
