@@ -58,7 +58,7 @@ class Person {
       map['username'],
       map['email'],
       map['profile_picture'],
-      map['default_currency'] ?? 'USD',
+      map['default_currency'] ?? 'MAD',
       map['enableNotifications'] ?? true,
       map['transactionsAlert'] ?? true,
       map['budgetLimitAlert'] ?? true,

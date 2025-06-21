@@ -796,7 +796,9 @@ class FirebaseDB {
       if (e is FirebaseException) {
         throw Exception('Firebase error: ${e.message}');
       } else {
-        throw Exception('Unknown error occurred while updating Notifications Settings');
+        throw Exception(
+          'Unknown error occurred while updating Notifications Settings',
+        );
       }
     }
   }
@@ -834,6 +836,7 @@ class FirebaseDB {
   //--------------------------------------------------------------------------------------
   //********  Recurring Transaction Functions**********/
   //--------------------------------------------------------------------------------------
+
   // Fetch recurring_transactions by ownerId
   Future<List<RecurringTransactionModel>> fetchUserRecurringTransactions(
     String ownerId,
@@ -952,5 +955,157 @@ class FirebaseDB {
     } catch (e) {
       debugPrint('Error updating recurring_transactions: ${e.toString()}');
     }
+  }
+
+  //--------------------------------------------------------------------------------------
+  //********  Recurring Transaction Functions**********/
+  //--------------------------------------------------------------------------------------
+
+  Future<void> sendFriendRequest({
+    required String fromUserId,
+    required String toUserId,
+  }) async {
+    final requestId = '${fromUserId}_$toUserId';
+    final docRef = FirebaseFirestore.instance
+        .collection('friendRequests')
+        .doc(requestId);
+
+    await docRef.set({
+      'fromUserId': fromUserId,
+      'toUserId': toUserId,
+      'status': 'pending',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getIncomingRequests(String userId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('friendRequests')
+        .where('toUserId', isEqualTo: userId)
+        .where('status', isEqualTo: 'pending')
+        .get();
+
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getOutgoingRequests(String userId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('friendRequests')
+        .where('fromUserId', isEqualTo: userId)
+        .where('status', isEqualTo: 'pending')
+        .get();
+
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<void> acceptFriendRequest({
+    required String fromUserId,
+    required String toUserId,
+    required Person fromUser,
+    required Person toUser,
+  }) async {
+    final requestId = '${fromUserId}_$toUserId';
+
+    // Update request status
+    await FirebaseFirestore.instance
+        .collection('friendRequests')
+        .doc(requestId)
+        .update({'status': 'accepted'});
+
+    // Add to both users' friends subcollections
+    final batch = FirebaseFirestore.instance.batch();
+
+    final userAFriendRef = FirebaseFirestore.instance
+        .collection('persons')
+        .doc(fromUserId)
+        .collection('friends')
+        .doc(toUserId);
+
+    final userBFriendRef = FirebaseFirestore.instance
+        .collection('persons')
+        .doc(toUserId)
+        .collection('friends')
+        .doc(fromUserId);
+
+    batch.set(userAFriendRef, {
+      'friendId': toUser.id,
+      'friendName': toUser.username,
+      'friendEmail': toUser.email,
+      'profilePicture': toUser.profile_picture,
+      'addedAt': FieldValue.serverTimestamp(),
+    });
+
+    batch.set(userBFriendRef, {
+      'friendId': fromUser.id,
+      'friendName': fromUser.username,
+      'friendEmail': fromUser.email,
+      'profilePicture': fromUser.profile_picture,
+      'addedAt': FieldValue.serverTimestamp(),
+    });
+
+    await batch.commit();
+  }
+
+  Future<void> rejectFriendRequest({
+    required String fromUserId,
+    required String toUserId,
+  }) async {
+    final requestId = '${fromUserId}_$toUserId';
+    await FirebaseFirestore.instance
+        .collection('friendRequests')
+        .doc(requestId)
+        .update({'status': 'rejected'});
+  }
+
+  Future<void> cancelSentRequest({
+    required String fromUserId,
+    required String toUserId,
+  }) async {
+    final requestId = '${fromUserId}_$toUserId';
+    await FirebaseFirestore.instance
+        .collection('friendRequests')
+        .doc(requestId)
+        .delete();
+  }
+
+  Future<List<Person>> getFriends(String userId) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('persons')
+          .doc('userId')
+          .collection('friends')
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => Person.fromMap(doc.data(), doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching transactions by card ID: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> removeFriend({
+    required String userId,
+    required String friendId,
+  }) async {
+    final batch = FirebaseFirestore.instance.batch();
+
+    final userFriendRef = FirebaseFirestore.instance
+        .collection('persons')
+        .doc(userId)
+        .collection('friends')
+        .doc(friendId);
+
+    final friendUserRef = FirebaseFirestore.instance
+        .collection('persons')
+        .doc(friendId)
+        .collection('friends')
+        .doc(userId);
+
+    batch.delete(userFriendRef);
+    batch.delete(friendUserRef);
+
+    await batch.commit();
   }
 }

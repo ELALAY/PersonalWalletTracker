@@ -1,6 +1,7 @@
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:personalwallettracker/Models/person_model.dart';
+import 'package:personalwallettracker/Screens/friends/my_friends_screen.dart';
 import 'package:personalwallettracker/Screens/notifications_screen.dart';
 import 'package:personalwallettracker/Utils/globals.dart';
 import 'package:personalwallettracker/services/firebase/realtime_db/firebase_db.dart';
@@ -95,9 +96,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             tileColor: Colors.grey.shade200,
             onTap: navNotificationScreen,
           ),
+          const SizedBox(height: 20.0),
+          // Friends
+          ListTile(
+            title: const Text('Friends'),
+            trailing: const Icon(Icons.supervised_user_circle),
+            tileColor: Colors.grey.shade200,
+            onTap: navFriendsScreen,
+          ),
         ],
       ),
     );
+  }
+
+  void navFriendsScreen() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return  MyFriendsScreen(currentUser: widget.person,);
+    }));
   }
 
   void navCategoriesScreen() {
